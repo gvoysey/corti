@@ -1,15 +1,9 @@
-import numpy as np
-import scipy as sp
 import scipy.io as sio
-from cochlear_model_old import * #
-#from cochlear_model_acc_sarah import *
+from cochlear_model_old import *
 from Sarah_ihc import *
 from ANF_Sarah import *
-import os
 import multiprocessing as mp
-import ctypes as c
 import time
-import sys
 
 par=sio.loadmat('input.mat')
 

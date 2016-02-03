@@ -11,7 +11,6 @@ typedef struct tridiag_matrix{
 
 inline
 double interpl_4(double a,double b,double c,double d,double frac){
-    double cminusb = c-b;
     return b*(1-frac)+c*frac;
 };
 double cubic_interpolate( float y0, float y1, float y2, float y3, float mu ) {

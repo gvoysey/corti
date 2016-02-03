@@ -1,4 +1,4 @@
-    # -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 import numpy as np
 import time
 from scipy.integrate import ode
@@ -19,9 +19,8 @@ class tridiag_matrix(ctypes.Structure):
                 ("cc", ctypes.POINTER(ctypes.c_double))]
 
 # load C library
-os.path.dirname(os.path.abspath(__file__))
-libtrisolv = np.ctypeslib.load_library(
-    "tridiag.so", os.path.dirname(os.path.abspath(__file__)))
+libPath = os.path.dirname(os.path.abspath(__file__))
+libtrisolv = np.ctypeslib.load_library("tridiag.so", libPath )
 
 # load tridiagonal solver function and defines input
 libtrisolv.solve_tridiagonal.restype = None
@@ -513,7 +512,7 @@ class cochlea_model ():
                 self.Ysolution[j,:] = self.Ytmp[self.probe_points]
 
             self.oto_emission[j] = self.Qsol[0]
-            j = j + 1
+            j += 1
     # filter out the otoacoustic emission ####
         samplerate = self.fs
         b, a = signal.butter(
