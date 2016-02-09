@@ -29,8 +29,8 @@ else:
 IrrPct=par['IrrPct']
 IrrPct=IrrPct[0][0]
 nl=np.array(par['non_linear_type'])
-print(IrrPct)
-print(sheraPo)
+#print(IrrPct)
+#print(sheraPo)
 irr_on=np.array(par['irregularities'])
 d=len(stim[0].transpose())
 print("running cochlear simulation")
@@ -90,8 +90,8 @@ def solve_one_cochlea(model): #definition here, to have all the parameter implic
 if __name__ == "__main__":
     s1=time.clock()
     p=mp.Pool(mp.cpu_count(),maxtasksperchild=1)
+    #p = mp.Pool(1, maxtasksperchild=1)
     p.map(solve_one_cochlea,cochlear_list)
     p.close()
     p.join()
-
     print("cochlear simulation: done")

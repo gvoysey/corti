@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import numpy as np
 import time
+import progressbar
 from scipy.integrate import ode
 from scipy import signal
 import ctypes
@@ -134,14 +135,14 @@ class cochlea_model ():
         self.SheraMuMax = 4.3
         self.RMSref = 0.6124
         self.Rme = float(0.3045192500000000e12)  # TODO setRme function
-        #variable to check if the model is intialize before calling the solver
+        # variable to check if the model is initialized before calling the solver
         self._is_init = 0
         self.interplPoint1 = 0
         self.interplPoint2 = 0
         self.interplPoint3 = 0
         self.interplPoint4 = 0
 
-# function to intitialize all the parameters
+# function to initialize all the parameters
     def init_model(self, stim, samplerate, sections, probe_freq, sheraPo,
                    compression_slope=0.4, Zweig_irregularities=1,
                    non_linearity_type="vel", KneeVar=1.,
@@ -234,15 +235,13 @@ class cochlea_model ():
         self.ZweigMso = 2. * self.rho / (self.bm_width * self.scalaHeight)
         self.ZweigL = 1. / (2.3030 * self.Greenwood_alpha)
         self.ZweigOmega_co = 2.0 * np.pi * self.Greenwood_A
-        self.ZweigMpo = (
-            self.ZweigMso * (self.ZweigL ** 2)) / ((4 * self.ZweigN) ** 2)
+        self.ZweigMpo = (self.ZweigMso * (self.ZweigL ** 2)) / ((4 * self.ZweigN) ** 2)
         self.Ko = self.ZweigMpo * (self.ZweigOmega_co ** 2)
-        self.x = np.array(
-            np.linspace(0, self.bm_length, self.n + 1), order='C')
+        self.x = np.array(np.linspace(0, self.bm_length, self.n + 1), order='C')
         self.dx = self.bm_length / (1. * self.n)
 
         #
-        # intialize other variables here for practical purpose
+        # intialize other variables here for practical purposes
         #
 
         self.g = np.zeros_like(self.x)
@@ -258,16 +257,13 @@ class cochlea_model ():
 
     def initMiddleEar(self):
         self.q0_factor = self.ZweigMpo * self.bm_width
-        self.p0x = self.ZweigMso * self.dx / \
-            (1. * self.ZweigMpo * self.bm_width)
+        self.p0x = self.ZweigMso * self.dx / (1. * self.ZweigMpo * self.bm_width)
         self.d_m_factor = -self.p0x * self.stapesArea * self.Rme
         self.RK4_0 = -(self.bm_width * self.ZweigMpo) / (self.stapesArea)
-        self.RK4G_0 = (self.ZweigMpo * self.bm_width) / (
-            self.ZweigMso * self.stapesArea * self.dx)
+        self.RK4G_0 = (self.ZweigMpo * self.bm_width) / (self.ZweigMso * self.stapesArea * self.dx)
 
     def SetDampingAndStiffness(self):
-        self.f_resonance = self.Greenwood_A * \
-            10 ** (-self.Greenwood_alpha * self.x) - self.Greenwood_B
+        self.f_resonance = self.Greenwood_A * (10 ** (-self.Greenwood_alpha * self.x)) - self.Greenwood_B
         self.ctr = np.argmin(np.abs(self.f_resonance - 100.))
         if(self.low_freq_irregularities):
             self.ctr = self.n + 1
@@ -280,12 +276,13 @@ class cochlea_model ():
         self.SheraRho = np.zeros_like(self.x)
         self.SheraMu = np.zeros_like(self.x)
         self.SheraP = self.SheraPo + self.SheraP
-        self.c = 120.8998691636393
+        self.c = 120.8998691636393 # todo what IS this?
 
         #
         # PROBE POINTS               ##
         #
         if(self.probe_freq=='all'):
+            #todo this should be np.linspace() !
             self.probe_points=np.zeros(len(self.f_resonance)-1)
             for i in range(len(self.f_resonance)-1):
                 self.probe_points[i]=i+1
@@ -462,6 +459,7 @@ class cochlea_model ():
         self.SheraP = np.fmin(self.SheraP, self.PoleE)
 
     def solve(self):
+        print("in solve")
         n = self.n + 1
         tstart = time.time()
         if not(self.is_init):
@@ -478,41 +476,49 @@ class cochlea_model ():
         r.set_initial_value(
             np.concatenate([np.zeros_like(self.x), np.zeros_like(self.x)]))
         r.t = 0
-        j = 0
+
         self.last_t = 0.0
         self.current_t = r.t
         self.polecalculation()
         self.SheraParameters()
         self.ZweigImpedance()
-        while(j < length):
-            if(j > 0):
-                self.interplPoint1 = self.stim[j - 1]
-            # assign the stimulus points and interpolation parameters
-            self.interplPoint2 = self.stim[j]
-            self.interplPoint3 = self.stim[j + 1]
-            self.interplPoint4 = self.stim[j + 2]
-            r.integrate(r.t + self.dt)
-            self.lastT = r.t
-            self.Vtmp = r.y[0:n]
-            self.Ytmp = r.y[n:2 * n]  # Non linearities HERE
-            self.Zwp = (self.Zwp + 1) % self.YbufferLgt  # update Zweig Buffer
-            self.Ybuffer[:, self.Zwp] = self.Ytmp
-            self.ZweigImpedance()
-            self.current_t = r.t
-            if(self.probe_freq=='all'):
-                self.Vsolution[j,:] = self.Vtmp[1:n]  #
-                self.Ysolution[j,:] = self.Ytmp[1:n]
-            elif(self.probe_freq=='half'):
-                self.Vsolution[j,:]=self.Vtmp[range(1,n,2)]
-                self.Ysolution[j,:] = self.Ytmp[range(1,n,2)]
+        print("about to enter loop")
+        with progressbar.ProgressBar(max_value=length, redirect_stdout=True) as bar:
+          # print("past progressbar")
+            #j = 0
+            #while(j < length):
+            for j in range(length):
+                if(j > 0):
+                    self.interplPoint1 = self.stim[j - 1]
+                # assign the stimulus points and interpolation parameters
+                self.interplPoint2 = self.stim[j]
+                self.interplPoint3 = self.stim[j + 1]
+                self.interplPoint4 = self.stim[j + 2]
+               # print(str(j))
+                r.integrate(r.t + self.dt)
 
-            else:
-#                print(self.probe_points)
-                self.Vsolution[j,:] = self.Vtmp[self.probe_points]  # storing the decided probe points
-                self.Ysolution[j,:] = self.Ytmp[self.probe_points]
+                self.lastT = r.t
+                self.Vtmp = r.y[0:n]
+                self.Ytmp = r.y[n:2 * n]  # Non linearities HERE
+                self.Zwp = (self.Zwp + 1) % self.YbufferLgt  # update Zweig Buffer
+                self.Ybuffer[:, self.Zwp] = self.Ytmp
+                self.ZweigImpedance()
+                self.current_t = r.t
+                if(self.probe_freq=='all'):
+                    self.Vsolution[j,:] = self.Vtmp[1:n]  #
+                    self.Ysolution[j,:] = self.Ytmp[1:n]
+                elif(self.probe_freq=='half'):
+                    self.Vsolution[j,:]=self.Vtmp[range(1,n,2)]
+                    self.Ysolution[j,:] = self.Ytmp[range(1,n,2)]
+                else:
+    #                print(self.probe_points)
+                    self.Vsolution[j,:] = self.Vtmp[self.probe_points]  # storing the decided probe points
+                    self.Ysolution[j,:] = self.Ytmp[self.probe_points]
 
-            self.oto_emission[j] = self.Qsol[0]
-            j += 1
+                self.oto_emission[j] = self.Qsol[0]
+                #j += 1
+
+                bar.update(j)
     # filter out the otoacoustic emission ####
         samplerate = self.fs
         b, a = signal.butter(
