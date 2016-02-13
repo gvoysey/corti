@@ -14,18 +14,19 @@ PLONG = ctypes.POINTER(ctypes.c_long)
 PDOUBLE = ctypes.POINTER(ctypes.c_double)
 
 
-class tridiag_matrix(ctypes.Structure):
+class TridiagMatrix(ctypes.Structure):
     _fields_ = [("aa", ctypes.POINTER(ctypes.c_double)),
                 ("bb", ctypes.POINTER(ctypes.c_double)),
                 ("cc", ctypes.POINTER(ctypes.c_double))]
 
+
 # load C library
 libPath = os.path.dirname(os.path.abspath(__file__))
-libtrisolv = np.ctypeslib.load_library("tridiag.so", libPath )
+libtrisolv = np.ctypeslib.load_library("tridiag.so", libPath)
 
 # load tridiagonal solver function and defines input
 libtrisolv.solve_tridiagonal.restype = None
-libtrisolv.solve_tridiagonal.argtypes = [ctypes.POINTER(tridiag_matrix),  # aa
+libtrisolv.solve_tridiagonal.argtypes = [ctypes.POINTER(TridiagMatrix),  # aa
                                          PDOUBLE,  # vv
                                          PDOUBLE,  # solution
                                          INT,  # nrows
@@ -43,6 +44,7 @@ libtrisolv.delay_line.argtypes = [PDOUBLE,  # in_matrix
                                   INT  # n
                                   ]
 
+
 # definition of the function
 
 
@@ -54,13 +56,13 @@ def TLsolver(t, y, model):  # y''=dv/dt y'=v
     c = model.interplPoint3
     d = model.interplPoint4
     cminusb = c - b
-    #fast cubic interpolation
+    # fast cubic interpolation
     F0 = b + frac * \
-        (cminusb - 0.1666667 * (1. - frac) *
-         ((d - a - 3.0 * cminusb) * frac + (d + 2.0 * a - 3.0 * b)))
+             (cminusb - 0.1666667 * (1. - frac) *
+              ((d - a - 3.0 * cminusb) * frac + (d + 2.0 * a - 3.0 * b)))
     model.Vtmp = y[0:n]
     model.Ytmp = y[n:2 * n]
-    if(model.use_Zweig):  # non-linearities here
+    if model.use_Zweig:  # non-linearities here
         factor = 100
         Vvect = np.abs(model.Vtmp) / model.RthV1
         Sxp = (Vvect - 1.) * model.const_nl1
@@ -70,8 +72,8 @@ def TLsolver(t, y, model):  # y''=dv/dt y'=v
         SheraP = np.fmin(SheraP, model.PoleE)
         # update non-linear parameters here only if the pole displacement is
         # larger than 1%
-        if(np.max(abs(SheraP[1:n] - model.SheraP[1:n]) /
-           abs(model.SheraP[1:n])) > 0.01):
+        if (np.max(abs(SheraP[1:n] - model.SheraP[1:n]) /
+                       abs(model.SheraP[1:n])) > 0.01):
             model.SheraP = SheraP
             model.SheraParameters()
             model.ZweigImpedance()
@@ -85,22 +87,21 @@ def TLsolver(t, y, model):  # y''=dv/dt y'=v
     model.Dev[0:n] = model.Dev[0:n] - frac
     model.calculate_g()
     model.calculate_right(F0)
-    #compute q
+    # compute q
     libtrisolv.solve_tridiagonal(
         ctypes.byref(model.tridata), model.r_pointer, model.Qpointer,
         ctypes.c_int(n))
-    #ME equation
+    # ME equation
     zero_val = (model.RK4_0 * model.Qsol[
-                0] + model.RK4G_0 * (model.g[0] + model.p0x * F0))
+        0] + model.RK4G_0 * (model.g[0] + model.p0x * F0))
     Vderivative = (model.Qsol - model.g)
     Vderivative[0] = zero_val
-    #output the velocity input as displacement derivative output.
+    # output the velocity input as displacement derivative output.
     solution = np.concatenate([Vderivative, model.Vtmp])
     return solution
 
 
-class cochlea_model ():
-
+class CochleaModel:
     # init constants
     def __init__(self):
         self.ttridiag = 0
@@ -142,23 +143,23 @@ class cochlea_model ():
         self.interplPoint3 = 0
         self.interplPoint4 = 0
 
-# function to initialize all the parameters
+    # function to initialize all the parameters
     def init_model(self, stim, samplerate, sections, probe_freq, sheraPo,
                    compression_slope=0.4, Zweig_irregularities=1,
                    non_linearity_type="vel", KneeVar=1.,
-                   low_freq_irregularities=1, subject=1,IrrPct=0.05):
+                   low_freq_irregularities=1, subject=1, IrrPct=0.05):
         self.low_freq_irregularities = low_freq_irregularities
-        self.SheraPo = np.zeros(sections+1)
-        self.SheraPo = self.SheraPo+sheraPo  # can be vector or single value, line changed so it can work with both single and vector
+        self.SheraPo = np.zeros(sections + 1)
+        self.SheraPo = self.SheraPo + sheraPo  # can be vector or single value, line changed so it can work with both single and vector
         self.KneeVar = (KneeVar)
         self.IrrPct = IrrPct
         self.non_linearity = 0
         self.use_Zweig = 1
-        if(Zweig_irregularities == 0):
+        if (Zweig_irregularities == 0):
             self.use_Zweig = 0
-        if(non_linearity_type == "disp"):
+        if (non_linearity_type == "disp"):
             self.non_linearity = 1
-        elif(non_linearity_type == "vel"):
+        elif (non_linearity_type == "vel"):
             self.non_linearity = 2
         else:
             self.non_linearity = 0  # linear model
@@ -166,7 +167,7 @@ class cochlea_model ():
         self.fs = samplerate
         self.dt = 1. / self.fs
         self.probe_freq = probe_freq
-        self.initCochlea()
+        self.init_cochlea()
         self.initMiddleEar()
         self.SetDampingAndStiffness()
         self.initZweig()
@@ -180,12 +181,12 @@ class cochlea_model ():
         self.Rth = 2 * (np.random.random(self.n + 1) - 0.5)
         self.Rth_norm = 10 ** (self.Rth / 20. / self.KneeVar)
         lf_limit = self.ctr
-        if(self.use_Zweig):
+        if (self.use_Zweig):
             factor = 100
             n = self.n + 1
             Rth = self.Rth
             Rth_norm = self.Rth_norm
-            #Normalized RTH, so save a bit of computation
+            # Normalized RTH, so save a bit of computation
             self.RthY1 = self.Yknee1 * Rth_norm
             self.RthY2 = self.Yknee2 * Rth_norm
             self.RthV1 = self.Vknee1 * Rth_norm
@@ -215,20 +216,19 @@ class cochlea_model ():
         # PURIAM1 FILTER             ###
         #
         puria_gain = 10 ** (18. / 20.) * 2.
-#         was the orignal Puria in 2012
-#        second order butterworth
-#        b, a = signal.butter(
-#           1, [100. / (samplerate / 2.), 3000. / (samplerate / 2)],
-#            'bandpass')
-#         self.stim = signal.lfilter(b * puria_gain, a, stim)
+        #         was the orignal Puria in 2012
+        #        second order butterworth
+        #        b, a = signal.butter(
+        #           1, [100. / (samplerate / 2.), 3000. / (samplerate / 2)],
+        #            'bandpass')
+        #         self.stim = signal.lfilter(b * puria_gain, a, stim)
 
-#        #below is the modified version.   
-        b, a = signal.butter(1, [600. / (samplerate / 2.), 3000. / (samplerate / 2)],'bandpass')
+        #        #below is the modified version.
+        b, a = signal.butter(1, [600. / (samplerate / 2.), 3000. / (samplerate / 2)], 'bandpass')
         self.stim = signal.lfilter(b * puria_gain, a, stim)
 
-
-    # from intializeCochlea.f90
-    def initCochlea(self):
+    # from initalizeCochlea.f90
+    def init_cochlea(self):
         self.bm_length = self.cochleaLength - self.helicotremaWidth
         self.bm_width = self.scalaWidth
         self.bm_mass = self.bmMass * self.bmImpedanceFactor
@@ -247,7 +247,7 @@ class cochlea_model ():
         self.g = np.zeros_like(self.x)
         self.Vtmp = np.zeros_like(self.x)
         self.Ytmp = np.zeros_like(self.x)
-        self.Atmp= np.zeros_like(self.x)
+        self.Atmp = np.zeros_like(self.x)
         self.right = np.zeros_like(self.x)
         self.r_pointer = self.right.ctypes.data_as(PDOUBLE)
         self.zerosdummy = np.zeros_like(self.x)
@@ -265,7 +265,7 @@ class cochlea_model ():
     def SetDampingAndStiffness(self):
         self.f_resonance = self.Greenwood_A * (10 ** (-self.Greenwood_alpha * self.x)) - self.Greenwood_B
         self.ctr = np.argmin(np.abs(self.f_resonance - 100.))
-        if(self.low_freq_irregularities):
+        if (self.low_freq_irregularities):
             self.ctr = self.n + 1
         self.onek = np.argmin(np.abs(self.f_resonance - 1000.))
         self.omega = 2. * np.pi * self.f_resonance
@@ -276,32 +276,31 @@ class cochlea_model ():
         self.SheraRho = np.zeros_like(self.x)
         self.SheraMu = np.zeros_like(self.x)
         self.SheraP = self.SheraPo + self.SheraP
-        self.c = 120.8998691636393 # todo what IS this?
+        self.c = 120.8998691636393  # todo what IS this?
 
         #
         # PROBE POINTS               ##
         #
-        if(self.probe_freq=='all'):
-            #todo this should be np.linspace() !
-            self.probe_points=np.zeros(len(self.f_resonance)-1)
-            for i in range(len(self.f_resonance)-1):
-                self.probe_points[i]=i+1
-            self.probe_points=(self.probe_points)
-            self.cf=(self.f_resonance[1:len(self.f_resonance)])
-        elif(self.probe_freq=='half'):
-            self.probe_points=np.zeros((len(self.f_resonance)-1)/2)
-            for i in range((len(self.f_resonance)-1)/2):
-                self.probe_points[i]=i+1
-            self.probe_points=(self.probe_points)
-            self.cf=(self.f_resonance[range(1,len(self.f_resonance),2)])
+        if self.probe_freq == 'all':
+            # todo this should be np.linspace() !
+            self.probe_points = np.zeros(len(self.f_resonance) - 1)
+            for i in range(len(self.f_resonance) - 1):
+                self.probe_points[i] = i + 1
+            self.probe_points = (self.probe_points)
+            self.cf = (self.f_resonance[1:len(self.f_resonance)])
+        elif self.probe_freq == 'half':
+            self.probe_points = np.zeros((len(self.f_resonance) - 1) / 2)
+            for i in range((len(self.f_resonance) - 1) / 2):
+                self.probe_points[i] = i + 1
+            self.probe_points = (self.probe_points)
+            self.cf = (self.f_resonance[range(1, len(self.f_resonance), 2)])
         else:
-            self.probe_points=np.zeros(self.probe_freq.size,dtype=int)
+            self.probe_points = np.zeros(self.probe_freq.size, dtype=int)
             for i in range(len(self.probe_freq)):
-                idx_help=abs((self.f_resonance)-np.float(self.probe_freq[i]))
-                self.probe_points[i]=np.argmin(idx_help)
-            self.cf=self.f_resonance[self.probe_points]
-        self.probe_points=np.array(self.probe_points)
-
+                idx_help = abs((self.f_resonance) - np.float(self.probe_freq[i]))
+                self.probe_points[i] = np.argmin(idx_help)
+            self.cf = self.f_resonance[self.probe_points]
+        self.probe_points = np.array(self.probe_points)
 
     def initZweig(self):
         n = self.n + 1
@@ -309,8 +308,8 @@ class cochlea_model ():
         self.delay = np.floor(self.exact_delay) + 1
         self.YbufferLgt = int(np.amax(self.delay))
         self.Ybuffer = np.zeros([n, self.YbufferLgt])
-                                # Ybuffer implemented here as a dense matrix
-                                # (python for cycles are slow...)
+        # Ybuffer implemented here as a dense matrix
+        # (python for cycles are slow...)
         self.Ybuffer = np.array(self.Ybuffer, order='C', ndmin=2, dtype=float)
         self.Ybuffer_pointer = self.Ybuffer.ctypes.data_as(PDOUBLE)
         self.ZweigSample1 = np.zeros_like(self.exact_delay)
@@ -331,7 +330,7 @@ class cochlea_model ():
         self.Zrp3 = np.array(np.zeros(n), dtype=np.int32, order='C')
         self.Zrp3_pointer = self.Zrp3.ctypes.data_as(PINT)
 
-    #set tridiagonal matrix values for trasmission line
+    # set tridiagonal matrix values for trasmission line
     def initGaussianElimination(self):
         n = self.n + 1
         self.ZweigMs = (self.ZweigMso * self.ZweigOmega_co) / self.omega
@@ -347,10 +346,11 @@ class cochlea_model ():
         self.ZAL[1:n] = -self.ZweigMs[1:n]
         self.ZAH[1:n - 1] = -self.ZweigMs[0:n - 2]
         self.ZASQ[1:n] = self.omega[1:n] * self.ZweigMs[1:n] * self.ZweigMs[
-            0:n - 1] * (self.dx ** 2) / (self.ZweigOmega_co * self.ZweigMpo)
+                                                               0:n - 1] * (self.dx ** 2) / (
+                         self.ZweigOmega_co * self.ZweigMpo)
         self.ZASC[1:n] = self.ZASQ[1:n] + \
-            self.ZweigMs[1:n] + self.ZweigMs[0:n - 1]
-        self.tridata = tridiag_matrix()
+                         self.ZweigMs[1:n] + self.ZweigMs[0:n - 1]
+        self.tridata = TridiagMatrix()
         self.tridata.aa = self.ZAL.ctypes.data_as(PDOUBLE)
         self.tridata.bb = self.ZASC.ctypes.data_as(PDOUBLE)
         self.tridata.cc = self.ZAH.ctypes.data_as(PDOUBLE)
@@ -369,12 +369,12 @@ class cochlea_model ():
 
     def SheraParameters(self):  # same as in fortran
         a = (self.SheraP + np.sqrt((self.SheraP ** 2.) +
-             self.c * (1.0 - self.SheraP ** 2))) / self.c
+                                   self.c * (1.0 - self.SheraP ** 2))) / self.c
         self.SheraD = 2.0 * (self.SheraP - a)
         self.SheraMu = 1. / (a)
         # print self.SheraMu
         self.SheraRho = 2. * a * \
-            np.sqrt(1. - (self.SheraD / 2.) ** 2.) * np.exp(-self.SheraP / a)
+                        np.sqrt(1. - (self.SheraD / 2.) ** 2.) * np.exp(-self.SheraP / a)
 
     def ZweigImpedance(self):
         n = self.n + 1
@@ -382,7 +382,7 @@ class cochlea_model ():
         Mudelay = np.floor(MudelayExact) + 1.
         self.Dev[:] = Mudelay - MudelayExact
         self.Zrp1[0:n] = (
-            (self.Zwp + self.YbufferLgt) - Mudelay[0:n]) % self.YbufferLgt
+                             (self.Zwp + self.YbufferLgt) - Mudelay[0:n]) % self.YbufferLgt
         const = self.YbufferLgt - 1
         self.Zrp[0:n] = (self.Zrp1[0:n] + const) % self.YbufferLgt
         self.Zrp2[0:n] = (self.Zrp1[0:n] + 1) % self.YbufferLgt
@@ -392,19 +392,19 @@ class cochlea_model ():
         self.Yknee1 = float(6.9183e-10)
         self.Vknee1 = float(4.3652e-6)
         self.PoleE = np.zeros_like(self.x)
-        if(slope == 0.3):
+        if (slope == 0.3):
             self.Yknee2 = float(7.015e-9)
             self.Vknee2 = float(4.426e-5)
             Ax = (0.7 - 0.06) / (87.77 - 30)
             Bx = self.SheraPo - Ax * 30
             self.PoleE = self.PoleE + Ax * 87.77 + Bx
-        elif(slope == 0.2):
+        elif (slope == 0.2):
             self.Yknee2 = float(3.228e-9)
             self.Vknee2 = float(2.037e-5)
             Ax = (0.7 - 0.06) / (80.59 - 30)
             Bx = self.SheraPo - Ax * 30
             self.PoleE = self.PoleE + Ax * 80.59 + Bx
-        elif(slope == 0.5):
+        elif (slope == 0.5):
             self.Yknee2 = float(1.766e-8)
             self.Vknee2 = float(1.114e-4)
             Ax = (0.7 - 0.06) / (97.82 - 30)
@@ -423,8 +423,8 @@ class cochlea_model ():
         factor = 100.
         # lf_limit = self.ctr
         # n = self.n + 1
-        if(self.use_Zweig):
-            if(self.non_linearity == 1):  # To check
+        if (self.use_Zweig):
+            if (self.non_linearity == 1):  # To check
                 # non-linearity DISP cost about three times more than in
                 # fortran (Not implemented now)
                 Yknee1CST = self.RthY1 * self.omega[self.onek]
@@ -449,7 +449,7 @@ class cochlea_model ():
                 Sy = Sxp * sin_Theta + Syp * cos_Theta
                 self.SheraP = self.PoleS + Sy / factor
 
-            elif(self.non_linearity == 2):  # non-linearity VEL
+            elif (self.non_linearity == 2):  # non-linearity VEL
                 Vvect = np.abs(self.Vtmp) / self.RthV1
                 Sxp = (Vvect - 1.) * self.const_nl1
                 Syp = self.Sb * np.sqrt(1 + (Sxp / self.Sa) ** 2)
@@ -462,11 +462,11 @@ class cochlea_model ():
         print("in solve")
         n = self.n + 1
         tstart = time.time()
-        if not(self.is_init):
+        if not (self.is_init):
             print("Error: model to be initialized")
         length = np.size(self.stim) - 2
         time_length = length * self.dt
-        #each probe point signal in a row
+        # each probe point signal in a row
         self.Vsolution = np.zeros([length + 2, len(self.probe_points)])
         self.Ysolution = np.zeros([length + 2, len(self.probe_points)])
         self.oto_emission = np.zeros(length + 2)
@@ -484,17 +484,17 @@ class cochlea_model ():
         self.ZweigImpedance()
         print("about to enter loop")
         with progressbar.ProgressBar(max_value=length, redirect_stdout=True) as bar:
-          # print("past progressbar")
-            #j = 0
-            #while(j < length):
+            # print("past progressbar")
+            # j = 0
+            # while(j < length):
             for j in range(length):
-                if(j > 0):
+                if (j > 0):
                     self.interplPoint1 = self.stim[j - 1]
                 # assign the stimulus points and interpolation parameters
                 self.interplPoint2 = self.stim[j]
                 self.interplPoint3 = self.stim[j + 1]
                 self.interplPoint4 = self.stim[j + 2]
-               # print(str(j))
+                # print(str(j))
                 r.integrate(r.t + self.dt)
 
                 self.lastT = r.t
@@ -504,22 +504,22 @@ class cochlea_model ():
                 self.Ybuffer[:, self.Zwp] = self.Ytmp
                 self.ZweigImpedance()
                 self.current_t = r.t
-                if(self.probe_freq=='all'):
-                    self.Vsolution[j,:] = self.Vtmp[1:n]  #
-                    self.Ysolution[j,:] = self.Ytmp[1:n]
-                elif(self.probe_freq=='half'):
-                    self.Vsolution[j,:]=self.Vtmp[range(1,n,2)]
-                    self.Ysolution[j,:] = self.Ytmp[range(1,n,2)]
+                if (self.probe_freq == 'all'):
+                    self.Vsolution[j, :] = self.Vtmp[1:n]  #
+                    self.Ysolution[j, :] = self.Ytmp[1:n]
+                elif (self.probe_freq == 'half'):
+                    self.Vsolution[j, :] = self.Vtmp[range(1, n, 2)]
+                    self.Ysolution[j, :] = self.Ytmp[range(1, n, 2)]
                 else:
-    #                print(self.probe_points)
-                    self.Vsolution[j,:] = self.Vtmp[self.probe_points]  # storing the decided probe points
-                    self.Ysolution[j,:] = self.Ytmp[self.probe_points]
+                    #                print(self.probe_points)
+                    self.Vsolution[j, :] = self.Vtmp[self.probe_points]  # storing the decided probe points
+                    self.Ysolution[j, :] = self.Ytmp[self.probe_points]
 
                 self.oto_emission[j] = self.Qsol[0]
-                #j += 1
+                # j += 1
 
                 bar.update(j)
-    # filter out the otoacoustic emission ####
+                # filter out the otoacoustic emission ####
         samplerate = self.fs
         b, a = signal.butter(
             1, [600. / (samplerate / 2), 3000. / (samplerate / 2)], 'bandpass')
@@ -527,4 +527,5 @@ class cochlea_model ():
             b * self.q0_factor, a, self.oto_emission)
         elapsed = time.time() - tstart
         print(elapsed)
+
 # END

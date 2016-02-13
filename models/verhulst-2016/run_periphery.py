@@ -36,7 +36,7 @@ d=len(stim[0].transpose())
 print("running cochlear simulation")
 sig=stim
 
-cochlear_list=[ [cochlea_model(),sig[i],irr_on[0][i],i] for i in range(channels)]
+cochlear_list=[[CochleaModel(), sig[i], irr_on[0][i], i] for i in range(channels)]
 #sheraPo = np.loadtxt('StartingPoles.dat', delimiter=',')
 #print(sheraPo)
 
