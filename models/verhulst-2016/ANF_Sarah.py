@@ -60,15 +60,15 @@ def anf_model(ihcout, cf, fs, ftype):
     Asus = (AR + AST) / (PTS - 1);
     Asus = (AR + AST) / (PTS - 1.0);
     anfout = zeros_like(ihcout)
-    for indx in range(len(ihcout[:, 1])):
-        PPI = ((PI2 - PI1) / (Vsatmax)) * (ihcout[indx, :] - (SRTH / exp(spont))) + PI1;
-        PPI_rest_indx = where((ihcout[indx, :] < (FTH + (SRTH / exp(spont)))))
-        # PPI[(ihcout[indx,:]<(FTH+(SRTH/exp(spont))))]=PI1[0] #equivalente to below but vectorized
+    for i in range(len(ihcout[:, 1])):
+        PPI = ((PI2 - PI1) / (Vsatmax)) * (ihcout[i, :] - (SRTH / exp(spont))) + PI1;
+        PPI_rest_indx = where((ihcout[i, :] < (FTH + (SRTH / exp(spont)))))
+        # PPI[(ihcout[i,:]<(FTH+(SRTH/exp(spont))))]=PI1[0] #equivalente to below but vectorized
         PPI[PPI_rest_indx] = PI1[PPI_rest_indx]  # equivalente to below but vectorized
 
-        # if(ihcout[indx]<=FTH+(SRTH/exp(spont))):
+        # if(ihcout[i]<=FTH+(SRTH/exp(spont))):
         #  PPI=PI1; #if below threshold, at PI2rest, so that firing is constant at SR */
-        if (indx == 0):
+        if (i == 0):
             PPI[:] = PI1;
         CIlast = CI;
         CI = CI + (tdres / VI) * (-PPI * CI + PL * (CL - CI));
@@ -80,5 +80,5 @@ def anf_model(ihcout, cf, fs, ftype):
         CI[CI_n] = CG / (PPI[CI_n] * temp[CI_n]);
 
         CL[CI_n] = CI[CI_n] * (PPI[CI_n] + PL[CI_n]) / PL[CI_n];
-        anfout[indx, :] = PPI * CI
+        anfout[i, :] = PPI * CI
     return anfout
