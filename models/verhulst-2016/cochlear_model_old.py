@@ -347,7 +347,7 @@ class CochleaModel:
         self.ZAH[1:n - 1] = -self.ZweigMs[0:n - 2]
         self.ZASQ[1:n] = self.omega[1:n] * self.ZweigMs[1:n] * self.ZweigMs[
                                                                0:n - 1] * (self.dx ** 2) / (
-                         self.ZweigOmega_co * self.ZweigMpo)
+                             self.ZweigOmega_co * self.ZweigMpo)
         self.ZASC[1:n] = self.ZASQ[1:n] + \
                          self.ZweigMs[1:n] + self.ZweigMs[0:n - 1]
         self.tridata = TridiagMatrix()
