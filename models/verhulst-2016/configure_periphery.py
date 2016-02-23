@@ -17,6 +17,6 @@ def configure_periphery(sign: List[float], fs: float, fc: List[float],  dataFold
 
     # parse the storeflag string.  This looks for pre-written files on disk in the dataFolder,
     # and optionally reads them back in and makes them part of PeripheryOutput.
-    for i in range(1,channels):  #todo: remember that this is one-indexed (FOR NOW)
-     if(storeFlag.__contains__('a')):
+  #  for i in range(1,channels):  #todo: remember that this is one-indexed (FOR NOW)
+    # if(storeFlag.__contains__('a')):
 

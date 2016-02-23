@@ -7,22 +7,31 @@ import time
 import base
 from os import path
 import yaml
-
-# let's disregard the mat-file parsing for now and re-implement it in YAML.
+"""
+Optparse here (?) 
+"""
+# let's disregard the mat-file parsing for now and re-implement it with optparse.
 
 rootDir = base.rootPath
 yamlPath = path.join(rootDir, "input.yaml")
 with open(yamlPath) as _:
-    configDict = yaml.load(_)
+    conf = yaml.load(_)
+
+probes = conf["probes"]
+storeFlag = conf.get("storeFlag", "avihlme") #provides a default value
+fs = conf["fs"]
+stim = conf["stim"]
+channels = conf["channels"]
+subject = conf["subject"]
 
 par = sio.loadmat('input.mat')
 
-probes = np.array(par['probes'])
-storeflag_in = np.array(par['storeflag'], dtype=str)
-storeflag = storeflag_in[0]
-probe_points = probes
-Fs = par['Fs']
-Fs = Fs[0][0]
+#probes = np.array(par['probes'])
+#storeflag_in = np.array(par['storeflag'], dtype=str)
+#storeflag = storeflag_in[0]
+#probe_points = probes
+#Fs = par['Fs']
+#Fs = Fs[0][0]
 stim = par['stim']
 channels = par['channels']
 channels = channels[0][0]
