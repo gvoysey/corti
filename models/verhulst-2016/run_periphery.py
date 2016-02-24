@@ -4,34 +4,16 @@ from Sarah_ihc import *
 from ANF_Sarah import *
 import multiprocessing as mp
 import time
-import base
-from os import path
-import yaml
-"""
-Optparse here (?) 
-"""
-# let's disregard the mat-file parsing for now and re-implement it with optparse.
 
-rootDir = base.rootPath
-yamlPath = path.join(rootDir, "input.yaml")
-with open(yamlPath) as _:
-    conf = yaml.load(_)
-
-probes = conf["probes"]
-storeFlag = conf.get("storeFlag", "avihlme") #provides a default value
-fs = conf["fs"]
-stim = conf["stim"]
-channels = conf["channels"]
-subject = conf["subject"]
 
 par = sio.loadmat('input.mat')
 
-#probes = np.array(par['probes'])
-#storeflag_in = np.array(par['storeflag'], dtype=str)
-#storeflag = storeflag_in[0]
-#probe_points = probes
-#Fs = par['Fs']
-#Fs = Fs[0][0]
+probes = np.array(par['probes'])
+storeflag_in = np.array(par['storeflag'], dtype=str)
+storeFlag = storeflag_in[0]
+probe_points = probes
+fs = par['Fs']
+Fs = fs[0][0]
 stim = par['stim']
 channels = par['channels']
 channels = channels[0][0]
@@ -65,45 +47,45 @@ def solve_one_cochlea(model):  # definition here, to have all the parameter impl
     ii = model[3]
     coch = model[0]
     sig = model[1]
-    coch.init_model(model[1], Fs, sectionsNo, probe_points, Zweig_irregularities=model[2], sheraPo=sheraPo,
+    coch.init_model(model[1], Fs, sectionsNo, probes, Zweig_irregularities=model[2], sheraPo=sheraPo,
                     subject=subjectNo, IrrPct=IrrPct,
                     non_linearity_type=nl)  # model needs to be init here because if not pool.map crash
     #    coch.init_model(model[1],Fs,sectionsNo,probe_points,Zweig_irregularities=model[2],sheraPo=sheraPo,subject=subjectNo,non_linearity_type=nl) #model needs to be init here because if not pool.map crash
 
     coch.solve()
-    rp = ihc(coch.Vsolution, Fs)
-    anfH = anf_model(rp, coch.cf, Fs, 'high')
-    anfM = anf_model(rp, coch.cf, Fs, 'medium')
-    anfL = anf_model(rp, coch.cf, Fs, 'low')
+    rp = ihc(coch.Vsolution, fs)
+    anfH = anf_model(rp, coch.cf, fs, 'high')
+    anfM = anf_model(rp, coch.cf, fs, 'medium')
+    anfL = anf_model(rp, coch.cf, fs, 'low')
 
-    if 'v' in storeflag:
+    if 'v' in storeFlag:
         f = open(output_folder + "v" + str(ii + 1) + ".np", 'w')
         coch.Vsolution.tofile(f)
         f.close()
-    if 'y' in storeflag:
+    if 'y' in storeFlag:
         f = open(output_folder + "y" + str(ii + 1) + ".np", 'w')
         coch.Ysolution.tofile(f)
         f.close()
     f = open(output_folder + "cf" + str(ii + 1) + ".np", 'w')
     coch.cf.tofile(f)
     f.close()
-    if 'e' in storeflag:
+    if 'e' in storeFlag:
         f = open(output_folder + "emission" + str(ii + 1) + ".np", 'w')
         coch.oto_emission.tofile(f)
         f.close()
-    if 'h' in storeflag:
+    if 'h' in storeFlag:
         f = open(output_folder + "anfH" + str(ii + 1) + ".np", 'w')
         anfH.tofile(f)
         f.close()
-    if 'm' in storeflag:
+    if 'm' in storeFlag:
         f = open(output_folder + "anfM" + str(ii + 1) + ".np", 'w')
         anfM.tofile(f)
         f.close()
-    if 'l' in storeflag:
+    if 'l' in storeFlag:
         f = open(output_folder + "anfL" + str(ii + 1) + ".np", 'w')
         anfL.tofile(f)
         f.close()
-    if 'i' in storeflag:
+    if 'i' in storeFlag:
         f = open(output_folder + "ihc" + str(ii + 1) + ".np", 'w')
         rp.tofile(f)
         f.close()
