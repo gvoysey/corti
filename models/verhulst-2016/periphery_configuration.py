@@ -28,8 +28,8 @@ class PeripheryConfiguration:
         self.normalizedRMS = np.zeros((1,self.channels))
         self.subject = 1
         self.stimulusLevels = [60, 80]
-        self.irregularities  = np.ones((1,self.channels))
-        self.probeString = "all" #todo: make this an enum
+        self.irregularities  = [True]*self.channels
+        self.probeString = ProbeType.All
 
     @staticmethod
     def from_yaml(yamlPath: str):
