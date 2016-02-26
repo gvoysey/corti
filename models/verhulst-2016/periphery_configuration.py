@@ -39,7 +39,7 @@ class PeripheryConfiguration:
         # this might be unused.
         self.normalizedRMS = np.zeros((1, self.channels))
         self.stimulusLevels = [60, 80]
-        assert len(self.stimulusLevels == self.channels), "A stimulus level must be given for each channel"
+        assert len(self.stimulusLevels) == self.channels, "A stimulus level must be given for each channel"
         self.irregularities = [True] * self.channels
         # operational parameters
         self.polePath = path.join(base.rootPath, self.PolesDirectoryName, self.PolesFileName)
@@ -66,6 +66,7 @@ class PeripheryConfiguration:
     def from_yaml(yamlPath: str):
         """
         Factory method for returning a configuration.
+        :type yamlPath: str
         :param yamlPath: a fully qualified path the the stored configuration file.
         :return: An instance of a configuration class
         """
