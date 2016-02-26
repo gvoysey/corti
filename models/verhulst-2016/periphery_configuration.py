@@ -26,26 +26,30 @@ class PeripheryConfiguration:
     DataFolder = "output"
 
     def __init__(self):
-        # model parameters
+        # model parameters from RUN_BMAN
         # these are used in making the stimulus waveform
         self.postDuration = round(self.Fs * 50e-3)  # a magic number
         self.preDuration = round(self.Fs * 20e-3)  # a magic number
         self.cDur = round(80e-6 * self.Fs)  # number of elements that have a 1 in them.
+        self.stimulus = None  # init as null, we'll make it on demand.
         # these are more general
         self.channels = 2
-        self.probeString = ProbeType.All
+        self.probeString = ProbeType.All  # sometimes called "Fc".
         self.subject = 1
         # this might be unused.
         self.normalizedRMS = np.zeros((1, self.channels))
         self.stimulusLevels = [60, 80]
         assert len(self.stimulusLevels == self.channels), "A stimulus level must be given for each channel"
         self.irregularities = [True] * self.channels
-
         # operational parameters
         self.polePath = path.join(base.rootPath, self.PolesDirectoryName, self.PolesFileName)
         self.dataFolder = path.join(base.rootPath, self.DataFolder)
+        self.clean = True
 
-        self.stimulus = None
+        # these come from periphery.m
+        self.storeFlag = "avihlme"
+        self.irrPct = 0.05
+        self.nonlinearType = "vel"
 
     def generate_stimulus(self):
         # we can synthesize the stimulus here, somehow(..?!)
@@ -110,10 +114,26 @@ class ProbeType:
 
 
 class PeripheryOutput:
-    def __init__(self):
-        """
-
+    """
+        PeripheryOutput:
+            :parameter self.bmAcceleration: BM acceleration (store 'a')
+            :parameter self.bmVelocity: BM velocity     (store 'v')
+            :parameter self.bmDisplacement: BM displacement (store 'y')
+            :parameter self.emission: pressure output from the middle ear (store 'e')
+            :parameter self.cf: center frequencies (always stored)
+            :parameter self.ihc: IHC receptor potential (store 'i')
+            :parameter self.anfH: HSR fiber spike probability [0,1] (store 'h')
+            :parameter self.anfM: MSR fiber spike probability [0,1] (store 'm')
+            :parameter self.anfL: LSR fiber spike probability [0,1] (store 'l')
         :return:
-        """
-
-        pass
+    """
+    def __init__(self):
+        self.bmAcceleration = None
+        self.bmVelocity = None
+        self.bmDisplacement = None
+        self.emission = None
+        self.cf = None
+        self.ihc = None
+        self.anfH = None
+        self.anfM = None
+        self.anfL = None

@@ -5,7 +5,6 @@ from ANF_Sarah import *
 import multiprocessing as mp
 import time
 
-
 par = sio.loadmat('input.mat')
 
 probes = np.array(par['probes'])
@@ -38,7 +37,6 @@ print("running cochlear simulation")
 sig = stim
 
 cochlear_list = [[CochleaModel(), sig[i], irr_on[0][i], i] for i in range(channels)]
-
 
 # sheraPo = np.loadtxt('StartingPoles.dat', delimiter=',')
 # print(sheraPo)
@@ -89,7 +87,6 @@ def solve_one_cochlea(model):  # definition here, to have all the parameter impl
         f = open(output_folder + "ihc" + str(ii + 1) + ".np", 'w')
         rp.tofile(f)
         f.close()
-
 
 if __name__ == "__main__":
     s1 = time.clock()

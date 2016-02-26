@@ -459,7 +459,6 @@ class CochleaModel:
         self.SheraP = np.fmin(self.SheraP, self.PoleE)
 
     def solve(self):
-        print("in solve")
         n = self.n + 1
         tstart = time.time()
         if not (self.is_init):
@@ -482,19 +481,15 @@ class CochleaModel:
         self.polecalculation()
         self.SheraParameters()
         self.ZweigImpedance()
-        print("about to enter loop")
+
         with progressbar.ProgressBar(max_value=length, redirect_stdout=True) as bar:
-            # print("past progressbar")
-            # j = 0
-            # while(j < length):
             for j in range(length):
-                if (j > 0):
+                if j > 0:
                     self.interplPoint1 = self.stim[j - 1]
                 # assign the stimulus points and interpolation parameters
                 self.interplPoint2 = self.stim[j]
                 self.interplPoint3 = self.stim[j + 1]
                 self.interplPoint4 = self.stim[j + 2]
-                # print(str(j))
                 r.integrate(r.t + self.dt)
 
                 self.lastT = r.t
@@ -527,5 +522,3 @@ class CochleaModel:
             b * self.q0_factor, a, self.oto_emission)
         elapsed = time.time() - tstart
         print(elapsed)
-
-# END
