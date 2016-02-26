@@ -52,5 +52,6 @@ RUN pip install numpy
 RUN pip install scipy
 RUN pip install progressbar2
 RUN pip install pyyaml
+RUN pip install jupyter
 
 CMD ["python3"]
