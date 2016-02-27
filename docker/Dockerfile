@@ -48,6 +48,7 @@ RUN cd /usr/local/bin \
 RUN apt-get update
 RUN apt-get install -y build-essential python-dev python-setuptools gfortran libblas-dev libatlas-dev liblapack-dev
 
+RUN pip install --upgrade pip
 RUN pip install numpy
 RUN pip install scipy
 RUN pip install progressbar2
