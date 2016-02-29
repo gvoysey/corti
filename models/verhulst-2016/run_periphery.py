@@ -4,15 +4,18 @@ from Sarah_ihc import *
 from ANF_Sarah import *
 import multiprocessing as mp
 import time
+from os import path
+import base
+from periphery_configuration import PeripheryConfiguration, Constants
 
 par = sio.loadmat('input.mat')
 
-probes = np.array(par['probes'])
+probes = np.array(par['probes']) # a string
+probe_points = probes # a string
 storeflag_in = np.array(par['storeflag'], dtype=str)
-storeFlag = storeflag_in[0]
-probe_points = probes
+storeFlag = storeflag_in[0] #also a string
 fs = par['Fs']
-Fs = fs[0][0]
+Fs = fs[0][0] #float/int
 stim = par['stim']
 channels = par['channels']
 channels = channels[0][0]
@@ -38,60 +41,87 @@ sig = stim
 
 cochlear_list = [[CochleaModel(), sig[i], irr_on[0][i], i] for i in range(channels)]
 
+
 # sheraPo = np.loadtxt('StartingPoles.dat', delimiter=',')
 # print(sheraPo)
 
-def solve_one_cochlea(model):  # definition here, to have all the parameter implicit
-    ii = model[3]
-    coch = model[0]
-    sig = model[1]
-    coch.init_model(model[1], Fs, sectionsNo, probes, Zweig_irregularities=model[2], sheraPo=sheraPo,
-                    subject=subjectNo, IrrPct=IrrPct,
-                    non_linearity_type=nl)  # model needs to be init here because if not pool.map crash
-    #    coch.init_model(model[1],Fs,sectionsNo,probe_points,Zweig_irregularities=model[2],sheraPo=sheraPo,subject=subjectNo,non_linearity_type=nl) #model needs to be init here because if not pool.map crash
+class RunPeriphery:
+    def __init__(self, yamlPath=None):
+        if yamlPath is not None:
+            self.conf = PeripheryConfiguration(yamlPath)
+        else:
+            self.conf = PeripheryConfiguration()
+        self.probes = self.conf.probeString
+        self.storeFlag = self.conf.storeFlag
+        self.stimulus = self.conf.stimulus
+        self.Fs = self.conf.Fs
+        self.channels = self.conf.channels
 
-    coch.solve()
-    rp = ihc(coch.Vsolution, fs)
-    anfH = anf_model(rp, coch.cf, fs, 'high')
-    anfM = anf_model(rp, coch.cf, fs, 'medium')
-    anfL = anf_model(rp, coch.cf, fs, 'low')
 
-    if 'v' in storeFlag:
-        f = open(output_folder + "v" + str(ii + 1) + ".np", 'w')
-        coch.Vsolution.tofile(f)
+        self.cochlear_list = [[CochleaModel(), self.stimulus[i], irr_on[0][i], i] for i in range(channels)]
+
+
+    def run(self):
+        s1 = time.clock()
+        p = mp.Pool(mp.cpu_count(), maxtasksperchild=1)
+        p.map(cochlear_list)
+        p.close()
+        p.join()
+        print("cochlear simulation: done")
+
+    @staticmethod
+    def solve_one_cochlea(model: CochleaModel):
+        ii = model[3]
+        coch = model[0]
+        stimulus = model[1]
+        coch.init_model(stimulus, Fs, sectionsNo, probes, Zweig_irregularities=model[2], sheraPo=sheraPo,
+                        subject=subjectNo, IrrPct=IrrPct,
+                        non_linearity_type=nl)  # model needs to be init here because if not pool.map crash
+        #    coch.init_model(model[1],Fs,sectionsNo,probe_points,Zweig_irregularities=model[2],sheraPo=sheraPo,subject=subjectNo,non_linearity_type=nl) #model needs to be init here because if not pool.map crash
+
+        coch.solve()
+        rp = ihc(coch.Vsolution, fs)
+        anfH = anf_model(rp, coch.cf, fs, 'high')
+        anfM = anf_model(rp, coch.cf, fs, 'medium')
+        anfL = anf_model(rp, coch.cf, fs, 'low')
+
+        if 'v' in storeFlag:
+            f = open(output_folder + "v" + str(ii + 1) + ".np", 'w')
+            coch.Vsolution.tofile(f)
+            f.close()
+        if 'y' in storeFlag:
+            f = open(output_folder + "y" + str(ii + 1) + ".np", 'w')
+            coch.Ysolution.tofile(f)
+            f.close()
+        f = open(output_folder + "cf" + str(ii + 1) + ".np", 'w')
+        coch.cf.tofile(f)
         f.close()
-    if 'y' in storeFlag:
-        f = open(output_folder + "y" + str(ii + 1) + ".np", 'w')
-        coch.Ysolution.tofile(f)
-        f.close()
-    f = open(output_folder + "cf" + str(ii + 1) + ".np", 'w')
-    coch.cf.tofile(f)
-    f.close()
-    if 'e' in storeFlag:
-        f = open(output_folder + "emission" + str(ii + 1) + ".np", 'w')
-        coch.oto_emission.tofile(f)
-        f.close()
-    if 'h' in storeFlag:
-        f = open(output_folder + "anfH" + str(ii + 1) + ".np", 'w')
-        anfH.tofile(f)
-        f.close()
-    if 'm' in storeFlag:
-        f = open(output_folder + "anfM" + str(ii + 1) + ".np", 'w')
-        anfM.tofile(f)
-        f.close()
-    if 'l' in storeFlag:
-        f = open(output_folder + "anfL" + str(ii + 1) + ".np", 'w')
-        anfL.tofile(f)
-        f.close()
-    if 'i' in storeFlag:
-        f = open(output_folder + "ihc" + str(ii + 1) + ".np", 'w')
-        rp.tofile(f)
-        f.close()
+        if 'e' in storeFlag:
+            f = open(output_folder + "emission" + str(ii + 1) + ".np", 'w')
+            coch.oto_emission.tofile(f)
+            f.close()
+        if 'h' in storeFlag:
+            f = open(output_folder + "anfH" + str(ii + 1) + ".np", 'w')
+            anfH.tofile(f)
+            f.close()
+        if 'm' in storeFlag:
+            f = open(output_folder + "anfM" + str(ii + 1) + ".np", 'w')
+            anfM.tofile(f)
+            f.close()
+        if 'l' in storeFlag:
+            f = open(output_folder + "anfL" + str(ii + 1) + ".np", 'w')
+            anfL.tofile(f)
+            f.close()
+        if 'i' in storeFlag:
+            f = open(output_folder + "ihc" + str(ii + 1) + ".np", 'w')
+            rp.tofile(f)
+            f.close()
+
 
 if __name__ == "__main__":
-    s1 = time.clock()
-    p = mp.Pool(mp.cpu_count(), maxtasksperchild=1)
-    p.map(solve_one_cochlea, cochlear_list)
-    p.close()
-    p.join()
-    print("cochlear simulation: done")
+    # todo: pass in yaml here in a more sane way?
+    yamlPath = path.join(base.rootPath, Constants.DefaultYamlName)
+    if path.isfile(yamlPath):
+        RunPeriphery(yamlPath).run()
+    else:
+        RunPeriphery.run()

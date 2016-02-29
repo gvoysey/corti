@@ -7,6 +7,7 @@ from os import path
 from itertools import chain
 import numpy as np
 import math
+from typing import *
 
 
 class PeripheryConfiguration:
@@ -107,6 +108,7 @@ class Constants:
     Irregularities = "irregularities"
 
     # operational parameter defaults (optional)
+    DefaultYamlName = "input.yaml"
 
 
 class ProbeType:
@@ -128,6 +130,7 @@ class PeripheryOutput:
             :parameter self.anfL: LSR fiber spike probability [0,1] (store 'l')
         :return:
     """
+
     def __init__(self):
         self.bmAcceleration = None
         self.bmVelocity = None
