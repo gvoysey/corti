@@ -7,7 +7,7 @@ from os import path
 from itertools import chain
 import numpy as np
 import math
-from typing import *
+
 
 
 class PeripheryConfiguration:
@@ -20,7 +20,7 @@ class PeripheryConfiguration:
     Fs = 100000  # Sampling frequency. No idea why Fs is so high, but i guess we'll find out.
     Implementation = 0  # no idea what this does.
     p0 = 2e-05  # no idea what this even _is_
-
+    NumberOfSections = 1000
     # Operational Constants
     PolesDirectoryName = "sysfiles"
     PolesFileName = "StartingPoles.dat"
@@ -51,6 +51,9 @@ class PeripheryConfiguration:
         self.storeFlag = "avihlme"
         self.irrPct = 0.05
         self.nonlinearType = "vel"
+
+        # make the stimulus
+        self.generate_stimulus()
 
     def generate_stimulus(self):
         # we can synthesize the stimulus here, somehow(..?!)
