@@ -63,7 +63,7 @@ class RunPeriphery:
         self.subject = self.conf.subject
         self.irrPct = self.conf.irrPct
         self.nonlinearType = self.conf.nonlinearType
-        self.sheraPo = np.fromfile(self.conf.polePath)
+        self.sheraPo = np.loadtxt(self.conf.polePath)
         self.irregularities = self.conf.irregularities
         self.irr_on = self.conf.irregularities
 
