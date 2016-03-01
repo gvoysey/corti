@@ -46,11 +46,15 @@ class RunPeriphery:
         ii = model[3]
         coch = model[0]
         stimulus = model[1]
-        coch.init_model(stimulus, self.Fs, self.sectionsNo, self.probes, Zweig_irregularities=model[2],
+        coch.init_model(stimulus,
+                        self.Fs,
+                        self.sectionsNo,
+                        self.probes,
+                        Zweig_irregularities=model[2],
                         sheraPo=self.sheraPo,
-                        subject=self.subject, IrrPct=self.irrPct,
-                        non_linearity_type=self.nonlinearType)  # model needs to be init here because if not pool.map crash
-        #    coch.init_model(model[1],Fs,sectionsNo,probe_points,Zweig_irregularities=model[2],sheraPo=sheraPo,subject=subjectNo,non_linearity_type=nl) #model needs to be init here because if not pool.map crash
+                        subject=self.subject,
+                        IrrPct=self.irrPct,
+                        non_linearity_type=self.nonlinearType)
         fs = self.Fs
         coch.solve()
         rp = ihc(coch.Vsolution, fs)
@@ -58,6 +62,7 @@ class RunPeriphery:
         anfM = anf_model(rp, coch.cf, fs, 'medium')
         anfL = anf_model(rp, coch.cf, fs, 'low')
         storeFlag = self.storeFlag
+
         # let's store every run along with a serialized snapshot of its parameters in its own directory.
         output_folder = self.output_folder
         partial = str(ii + 1) + ".np"
@@ -76,9 +81,6 @@ class RunPeriphery:
                 f = open(path.join(output_folder, thisFlag[1]), 'w')
                 thisFlag[2](f)
                 f.close()
-
-
-
 
 if __name__ == "__main__":
     # todo: pass in yaml here in a more sane way?
