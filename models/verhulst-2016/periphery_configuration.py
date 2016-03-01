@@ -41,7 +41,7 @@ class PeripheryConfiguration:
         self.normalizedRMS = np.zeros((1, self.channels))
         self.stimulusLevels = [60, 80]
         assert len(self.stimulusLevels) == self.channels, "A stimulus level must be given for each channel"
-        self.irregularities = [True] * self.channels
+        self.irregularities = [1] * self.channels
         # operational parameters
         self.polePath = path.join(base.rootPath, self.PolesDirectoryName, self.PolesFileName)
         self.dataFolder = path.join(base.rootPath, self.DataFolder)

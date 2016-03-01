@@ -8,6 +8,7 @@ from os import path
 import base
 from periphery_configuration import PeripheryConfiguration, Constants
 
+
 #
 # par = sio.loadmat('input.mat')
 #
@@ -66,18 +67,15 @@ class RunPeriphery:
         self.irregularities = self.conf.irregularities
         self.irr_on = self.conf.irregularities
 
-
         self.cochlear_list = [[CochleaModel(), self.stimulus[i], self.irr_on[i], i] for i in range(self.channels)]
-
 
     def run(self):
         s1 = time.clock()
         p = mp.Pool(mp.cpu_count(), maxtasksperchild=1)
-        p.map(self.cochlear_list)
+        p.map(self.solve_one_cochlea,self.cochlear_list)
         p.close()
         p.join()
         print("cochlear simulation: done")
-
 
     def solve_one_cochlea(self,model: CochleaModel):
         ii = model[3]
@@ -93,7 +91,7 @@ class RunPeriphery:
         anfM = anf_model(rp, coch.cf, fs, 'medium')
         anfL = anf_model(rp, coch.cf, fs, 'low')
         storeFlag = self.storeFlag
-        output_folder = path.join(base.rootPath,self.conf.dataFolder) # maybe unnecessary
+        output_folder = path.join(base.rootPath, self.conf.dataFolder)  # maybe unnecessary
         if 'v' in storeFlag:
             f = open(output_folder + "v" + str(ii + 1) + ".np", 'w')
             coch.Vsolution.tofile(f)
