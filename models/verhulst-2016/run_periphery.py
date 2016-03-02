@@ -1,7 +1,7 @@
 import multiprocessing as mp
 from datetime import datetime
 from os import path, makedirs
-
+import jsonpickle
 import base
 from ANF_Sarah import *
 from Sarah_ihc import *
@@ -78,9 +78,12 @@ class RunPeriphery:
 
         for thisFlag in saveMap:
             if thisFlag[0] in storeFlag:
-                f = open(path.join(output_folder, thisFlag[1]), 'w')
-                thisFlag[2](f)
-                f.close()
+                with open(path.join(output_folder, thisFlag[1]), "w") as _:
+                    thisFlag[2](_)
+        # and store the configuration parameters so we know what we did.
+        with open(path.join(output_folder, "configuration.pickle"), "w") as _:
+            # jsonpickle.dumps(self.conf, _)
+
 
 if __name__ == "__main__":
     # todo: pass in yaml here in a more sane way?
