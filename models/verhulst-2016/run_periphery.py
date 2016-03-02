@@ -2,12 +2,16 @@ import multiprocessing as mp
 from datetime import datetime, timedelta
 from os import path, makedirs
 import jsonpickle
+import pickle
+import logging
 import base
+import numpyson
 from ANF_Sarah import *
 from Sarah_ihc import *
 from cochlear_model_old import *
 from periphery_configuration import PeripheryConfiguration, Constants
 
+logging.basicConfig(level=logging.DEBUG)
 
 class RunPeriphery:
     def __init__(self, yamlPath=None):
@@ -39,6 +43,7 @@ class RunPeriphery:
         p.map(self.solve_one_cochlea, self.cochlear_list)
         p.close()
         p.join()
+        self.save_model_configuration()
         if self.conf.clean:
             self.clean()
         print("cochlear simulation of {} channels finished in {:0.3f}s".format(self.channels,timedelta.total_seconds(datetime.now()-s1)))
@@ -60,36 +65,48 @@ class RunPeriphery:
                         subject=self.subject,
                         IrrPct=self.irrPct,
                         non_linearity_type=self.nonlinearType)
-        fs = self.Fs
         coch.solve()
+
+        fs = self.Fs
         rp = ihc(coch.Vsolution, fs)
         anfH = anf_model(rp, coch.cf, fs, 'high')
         anfM = anf_model(rp, coch.cf, fs, 'medium')
         anfL = anf_model(rp, coch.cf, fs, 'low')
-        storeFlag = self.storeFlag
+        self.save_model_results(ii,coch, anfH, anfM, anfL, rp)
 
+    def save_model_results(self, ii, coch, anfH, anfM, anfL,rp):
+        # always store CFs
+        storeFlag = self.storeFlag + "cf"
         # let's store every run along with a serialized snapshot of its parameters in its own directory.
-        output_folder = self.output_folder
-        partial = str(ii + 1) + ".np"
-        saveMap = [('v', 'v' + partial, coch.Vsolution.tofile),
-                   ('y', 'y' + partial, coch.Ysolution.tofile),
-                   ('cf', 'cf' + partial, coch.cf.tofile),
-                   ('e', 'emission' + partial, coch.oto_emission.tofile),
-                   ('h', 'anfH' + partial, anfH.tofile),
-                   ('m', 'anfM' + partial, anfM.tofile),
-                   ('l', 'anfL' + partial, anfL.tofile),
-                   ('i', 'ihc' + partial, rp.tofile)]
-        storeFlag += "cf"  # always store CFs
-
+        # mf makes a fully qualified file path to the output file.
+        mf = lambda x: path.join(self.output_folder,x+str(ii + 1) + ".np")
+        # saveMap makes a list of tuples. [0] is the storeFlag character, [1] is the prefix to the file name,
+        # and [3] is the function that saves the data.
+        saveMap = [('v', mf('v'), coch.Vsolution.tofile),
+                   ('y', mf('y'), coch.Ysolution.tofile),
+                   ('cf',mf('cf'), coch.cf.tofile),
+                   ('e', mf('emission'), coch.oto_emission.tofile),
+                   ('h', mf('anfH'), anfH.tofile),
+                   ('m', mf('anfM'), anfM.tofile),
+                   ('l', mf('anfL'), anfL.tofile),
+                   ('i', mf('ihc'), rp.tofile)]
+        # walk through the map and save the stuff we said we should.
         for thisFlag in saveMap:
             if thisFlag[0] in storeFlag:
-                with open(path.join(output_folder, thisFlag[1]), "w") as _:
+                with open(path.join(self.output_folder, thisFlag[1]), "w") as _:
                     thisFlag[2](_)
-        # and store the configuration parameters so we know what we did.
-        with open(path.join(output_folder, "configuration.pickle"), "w") as _:
-            result = jsonpickle.encode(self.conf)
-            print(result, file=_)
+                    logging.debug("successfully wrote {} to {}".format(thisFlag[1], self.output_folder))
 
+    def save_model_configuration(self):
+        # and store the configuration parameters so we know what we did.
+        with open(path.join(self.output_folder, "configuration.json"), "w") as _:
+            result = numpyson.dumps(self.conf)
+            print(result, file=_)
+            logging.debug("successfully wrote configuration.json to {}".format(self.output_folder))
+
+        with open(path.join(self.output_folder, "configuration.pickle"), "wb") as _:
+            pickle.dump(self.conf,_)
+            logging.debug("successfully wrote configuration.pickle to {}".format(self.output_folder))
 
 if __name__ == "__main__":
     # todo: pass in yaml here in a more sane way?
