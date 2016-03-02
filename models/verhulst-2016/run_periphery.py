@@ -9,7 +9,7 @@ import numpyson
 from ANF_Sarah import *
 from Sarah_ihc import *
 from cochlear_model_old import *
-from periphery_configuration import PeripheryConfiguration, Constants
+from periphery_configuration import PeripheryConfiguration, Constants, PeripheryOutput
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -65,14 +65,25 @@ class RunPeriphery:
                         subject=self.subject,
                         IrrPct=self.irrPct,
                         non_linearity_type=self.nonlinearType)
+        # This right here is the rate limiting step.
         coch.solve()
-
         fs = self.Fs
         rp = ihc(coch.Vsolution, fs)
         anfH = anf_model(rp, coch.cf, fs, 'high')
         anfM = anf_model(rp, coch.cf, fs, 'medium')
         anfL = anf_model(rp, coch.cf, fs, 'low')
-        self.save_model_results(ii,coch, anfH, anfM, anfL, rp)
+        # save these out to the output container (and possibly to disk)
+        out = PeripheryOutput()
+        out.bmVelocity = coch.Vsolution
+        out.bmDisplacement = coch.Ysolution
+        out.emission = coch.oto_emission
+        out.cf = coch.cf
+        out.ihc = rp
+        out.anfH = anfH
+        out.anfM = anfM
+        out.anfL = anfL
+        if self.conf.savePeripheryData:
+            self.save_model_results(ii,coch, anfH, anfM, anfL, rp)
 
     def save_model_results(self, ii, coch, anfH, anfM, anfL,rp):
         # always store CFs
@@ -81,7 +92,7 @@ class RunPeriphery:
         # mf makes a fully qualified file path to the output file.
         mf = lambda x: path.join(self.output_folder,x+str(ii + 1) + ".np")
         # saveMap makes a list of tuples. [0] is the storeFlag character, [1] is the prefix to the file name,
-        # and [3] is the function that saves the data.
+        # and [3] is the function that saves the data. todo add handing for "a" here.
         saveMap = [('v', mf('v'), coch.Vsolution.tofile),
                    ('y', mf('y'), coch.Ysolution.tofile),
                    ('cf',mf('cf'), coch.cf.tofile),

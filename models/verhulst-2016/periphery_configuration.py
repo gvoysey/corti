@@ -5,6 +5,7 @@ import yaml
 import base
 from os import path
 from itertools import chain
+from collections import namedtuple as namedtuple
 import numpy as np
 import math
 
@@ -37,7 +38,7 @@ class PeripheryConfiguration:
         self.channels = 2
         self.probeString = ProbeType.All  # sometimes called "Fc".
         self.subject = 1
-        # this might be unused.
+        # this might be unused.  todo
         self.normalizedRMS = np.zeros((1, self.channels))
         self.stimulusLevels = [60, 80]
         assert len(self.stimulusLevels) == self.channels, "A stimulus level must be given for each channel"
@@ -46,7 +47,7 @@ class PeripheryConfiguration:
         self.polePath = path.join(base.rootPath, self.PolesDirectoryName, self.PolesFileName)
         self.dataFolder = path.join(base.rootPath, self.DataFolder)
         self.clean = True
-
+        self.savePeripheryData = True
         # these come from periphery.m
         self.storeFlag = "avihlme"
         self.irrPct = 0.05
@@ -118,8 +119,9 @@ class ProbeType:
     All = "all"
     Half = "half"
 
-
-class PeripheryOutput:
+#@base.as_namedtuple()
+class PeripheryOutput():#namedtuple("Periphery Output",
+                       #          "bmAcceleration bmVelocity bmDisplacement emission cf ihc anfH anfM anfL")):
     """
         PeripheryOutput:
             :parameter self.bmAcceleration: BM acceleration (store 'a')
@@ -133,9 +135,8 @@ class PeripheryOutput:
             :parameter self.anfL: LSR fiber spike probability [0,1] (store 'l')
         :return:
     """
-
     def __init__(self):
-        self.bmAcceleration = None
+        self.bmAcceleration = None  # not used?
         self.bmVelocity = None
         self.bmDisplacement = None
         self.emission = None

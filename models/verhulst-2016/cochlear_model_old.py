@@ -2,6 +2,7 @@
 import numpy as np
 import time
 import progressbar
+from blessings import Terminal
 from scipy.integrate import ode
 from scipy import signal
 import ctypes
