@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="PublishConfigData" autoUpload="Always" serverName="roundwindow">
+  <component name="PublishConfigData" autoUpload="Always" serverName="roundwindow.ad.bu.edu">
     <serverData>
-      <paths name="roundwindow">
+      <paths name="roundwindow.ad.bu.edu">
         <serverdata>
           <mappings>
-            <mapping deploy="/home/gvoysey/thesis-code/models/verhulst-2016/" local="$PROJECT_DIR$" web="/" />
+            <mapping deploy="/Projects/thesis-code" local="$PROJECT_DIR$" web="/" />
           </mappings>
         </serverdata>
       </paths>
