@@ -1,5 +1,5 @@
 import multiprocessing as mp
-from datetime import datetime
+from datetime import datetime, timedelta
 from os import path, makedirs
 import jsonpickle
 import base
@@ -34,12 +34,17 @@ class RunPeriphery:
         self.cochlear_list = [[CochleaModel(), self.stimulus[i], self.irr_on[i], i] for i in range(self.channels)]
 
     def run(self):
-        s1 = time.clock()
+        s1 = datetime.now()
         p = mp.Pool(mp.cpu_count(), maxtasksperchild=1)
         p.map(self.solve_one_cochlea, self.cochlear_list)
         p.close()
         p.join()
-        print("cochlear simulation: done")
+        if self.conf.clean:
+            self.clean()
+        print("cochlear simulation of {} channels finished in {:0.3f}s".format(self.channels,timedelta.total_seconds(datetime.now()-s1)))
+
+    def clean(self):
+        pass
 
     def solve_one_cochlea(self, model: CochleaModel):
 
@@ -82,7 +87,8 @@ class RunPeriphery:
                     thisFlag[2](_)
         # and store the configuration parameters so we know what we did.
         with open(path.join(output_folder, "configuration.pickle"), "w") as _:
-            # jsonpickle.dumps(self.conf, _)
+            result = jsonpickle.encode(self.conf)
+            print(result, file=_)
 
 
 if __name__ == "__main__":

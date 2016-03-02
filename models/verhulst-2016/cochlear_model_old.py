@@ -521,4 +521,4 @@ class CochleaModel:
         self.oto_emission = signal.lfilter(
             b * self.q0_factor, a, self.oto_emission)
         elapsed = time.time() - tstart
-        print(elapsed)
+        #print(elapsed)
