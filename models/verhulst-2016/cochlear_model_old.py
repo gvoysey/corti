@@ -182,7 +182,7 @@ class CochleaModel:
         self.Rth = 2 * (np.random.random(self.n + 1) - 0.5)
         self.Rth_norm = 10 ** (self.Rth / 20. / self.KneeVar)
         lf_limit = self.ctr
-        if (self.use_Zweig):
+        if self.use_Zweig:
             factor = 100
             n = self.n + 1
             Rth = self.Rth
@@ -331,7 +331,7 @@ class CochleaModel:
         self.Zrp3 = np.array(np.zeros(n), dtype=np.int32, order='C')
         self.Zrp3_pointer = self.Zrp3.ctypes.data_as(PINT)
 
-    # set tridiagonal matrix values for trasmission line
+    # set tridiagonal matrix values for transmission line
     def initGaussianElimination(self):
         n = self.n + 1
         self.ZweigMs = (self.ZweigMso * self.ZweigOmega_co) / self.omega
@@ -340,7 +340,7 @@ class CochleaModel:
         self.ZASC = np.zeros_like(self.x)
         self.ZAL = np.zeros_like(self.x)
         self.ZAH = np.zeros_like(self.x)
-        # init values of transimission line
+        # init values of transmission line
         self.ZASQ[0] = 1.
         self.ZASC[0] = 1 + self.ZweigMso * self.dx
         self.ZAH[0] = -1.
@@ -461,7 +461,6 @@ class CochleaModel:
 
     def solve(self):
         n = self.n + 1
-        tstart = time.time()
         if not (self.is_init):
             print("Error: model to be initialized")
         length = np.size(self.stim) - 2
@@ -521,5 +520,3 @@ class CochleaModel:
             1, [600. / (samplerate / 2), 3000. / (samplerate / 2)], 'bandpass')
         self.oto_emission = signal.lfilter(
             b * self.q0_factor, a, self.oto_emission)
-        elapsed = time.time() - tstart
-        #print(elapsed)
