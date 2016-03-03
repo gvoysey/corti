@@ -35,7 +35,7 @@ class RunPeriphery:
         self.output_folder = path.join(base.rootPath, self.conf.dataFolder, datetime.now().strftime('%d %b %y %H %M'))
         if not path.isdir(self.output_folder):
             os.makedirs(self.output_folder)
-        self.cochlear_list = [[CochleaModel(), self.stimulus[i], self.irr_on[i], i] for i in range(self.channels)]
+        self.cochlear_list = [[CochleaModel(), self.stimulus[i], self.irr_on[i], i, (0,i)] for i in range(self.channels)]
 
     def run(self):
         s1 = datetime.now()
@@ -67,7 +67,7 @@ class RunPeriphery:
                         IrrPct=self.irrPct,
                         non_linearity_type=self.nonlinearType)
         # This right here is the rate limiting step.
-        coch.solve()
+        coch.solve(location=model[4])
         fs = self.Fs
         rp = ihc(coch.Vsolution, fs)
         anfH = anf_model(rp, coch.cf, fs, 'high')

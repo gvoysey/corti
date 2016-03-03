@@ -8,7 +8,7 @@ from periphery_configuration import PeripheryConfiguration
 
 
 def make_plots(basePath: str):
-    files = glob.glob(basePath, '*.np', recursive=True)
+    files = glob.glob(path.join(basePath, '*.np'), recursive=True)
     print(len(files))
     for file in files:
         print(file)

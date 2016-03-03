@@ -8,6 +8,26 @@ from scipy import signal
 import ctypes
 import os
 
+term = Terminal()
+
+
+class Writer(object):
+    """Create an object with a write method that writes to a
+    specific place on the screen, defined at instantiation.
+    This is the glue between blessings and progressbar.
+    """
+    def __init__(self, location):
+        """
+        Input: location - tuple of ints (x, y), the position
+                          of the bar in the terminal
+        """
+        self.location = location
+
+    def write(self, string):
+        with term.location(*self.location):
+            print(string)
+
+
 DOUBLE = ctypes.c_double
 INT = ctypes.c_int
 PINT = ctypes.POINTER(ctypes.c_int)
@@ -459,7 +479,7 @@ class CochleaModel:
 
         self.SheraP = np.fmin(self.SheraP, self.PoleE)
 
-    def solve(self):
+    def solve(self, location=None):
         n = self.n + 1
         if not (self.is_init):
             print("Error: model to be initialized")
@@ -481,7 +501,7 @@ class CochleaModel:
         self.polecalculation()
         self.SheraParameters()
         self.ZweigImpedance()
-
+        w = Writer(location) #, fd=w
         with progressbar.ProgressBar(max_value=length, redirect_stdout=True) as bar:
             for j in range(length):
                 if j > 0:
