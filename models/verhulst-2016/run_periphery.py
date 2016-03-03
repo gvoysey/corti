@@ -1,9 +1,8 @@
+import logging
 import multiprocessing as mp
 from datetime import datetime, timedelta
-from os import path, makedirs
-import jsonpickle
-import pickle
-import logging
+from os import path
+
 import base
 import numpyson
 from ANF_Sarah import *
@@ -13,10 +12,11 @@ from periphery_configuration import PeripheryConfiguration, Constants, Periphery
 
 logging.basicConfig(level=logging.DEBUG)
 
+
 class RunPeriphery:
     def __init__(self, yamlPath=None):
         if yamlPath is not None:
-            self.conf = PeripheryConfiguration(yamlPath)
+            self.conf = PeripheryConfiguration().from_yaml(yamlPath)
         else:
             self.conf = PeripheryConfiguration()
 
@@ -46,7 +46,8 @@ class RunPeriphery:
         self.save_model_configuration()
         if self.conf.clean:
             self.clean()
-        print("cochlear simulation of {} channels finished in {:0.3f}s".format(self.channels,timedelta.total_seconds(datetime.now()-s1)))
+        print("cochlear simulation of {} channels finished in {:0.3f}s".format(self.channels, timedelta.total_seconds(
+            datetime.now() - s1)))
 
     def clean(self):
         pass
@@ -85,17 +86,17 @@ class RunPeriphery:
         if self.conf.savePeripheryData:
             self.save_model_results(ii,coch, anfH, anfM, anfL, rp)
 
-    def save_model_results(self, ii, coch, anfH, anfM, anfL,rp):
+    def save_model_results(self, ii, coch, anfH, anfM, anfL, rp):
         # always store CFs
         storeFlag = self.storeFlag + "cf"
         # let's store every run along with a serialized snapshot of its parameters in its own directory.
         # mf makes a fully qualified file path to the output file.
-        mf = lambda x: path.join(self.output_folder,x+str(ii + 1) + ".np")
+        mf = lambda x: path.join(self.output_folder, x + str(ii + 1) + ".np")
         # saveMap makes a list of tuples. [0] is the storeFlag character, [1] is the prefix to the file name,
         # and [3] is the function that saves the data. todo add handing for "a" here.
         saveMap = [('v', mf('v'), coch.Vsolution.tofile),
                    ('y', mf('y'), coch.Ysolution.tofile),
-                   ('cf',mf('cf'), coch.cf.tofile),
+                   ('cf', mf('cf'), coch.cf.tofile),
                    ('e', mf('emission'), coch.oto_emission.tofile),
                    ('h', mf('anfH'), anfH.tofile),
                    ('m', mf('anfM'), anfM.tofile),
@@ -116,8 +117,9 @@ class RunPeriphery:
             logging.debug("successfully wrote configuration.json to {}".format(self.output_folder))
 
         with open(path.join(self.output_folder, "configuration.pickle"), "wb") as _:
-            pickle.dump(self.conf,_)
+            pickle.dump(self.conf, _)
             logging.debug("successfully wrote configuration.pickle to {}".format(self.output_folder))
+
 
 if __name__ == "__main__":
     # todo: pass in yaml here in a more sane way?

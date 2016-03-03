@@ -1,14 +1,14 @@
 """
 This is the container class that replaces input.mat.
 """
-import yaml
-import base
-from os import path
-from itertools import chain
-from collections import namedtuple as namedtuple
-import numpy as np
 import math
+from itertools import chain
+from os import path
 
+import numpy as np
+import yaml
+
+import base
 
 
 class PeripheryConfiguration:
@@ -119,9 +119,10 @@ class ProbeType:
     All = "all"
     Half = "half"
 
-#@base.as_namedtuple()
-class PeripheryOutput():#namedtuple("Periphery Output",
-                       #          "bmAcceleration bmVelocity bmDisplacement emission cf ihc anfH anfM anfL")):
+
+# @base.as_namedtuple()
+class PeripheryOutput:  # namedtuple("Periphery Output",
+    #          "bmAcceleration bmVelocity bmDisplacement emission cf ihc anfH anfM anfL")):
     """
         PeripheryOutput:
             :parameter self.bmAcceleration: BM acceleration (store 'a')
@@ -135,6 +136,7 @@ class PeripheryOutput():#namedtuple("Periphery Output",
             :parameter self.anfL: LSR fiber spike probability [0,1] (store 'l')
         :return:
     """
+
     def __init__(self):
         self.bmAcceleration = None  # not used?
         self.bmVelocity = None
