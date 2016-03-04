@@ -49,7 +49,7 @@ class PeripheryConfiguration:
         self.clean = True
         self.savePeripheryData = True
         # these come from periphery.m
-        self.storeFlag = "avihlme"
+        self.storeFlag = "avihlmes"
         self.irrPct = 0.05
         self.nonlinearType = "vel"
 

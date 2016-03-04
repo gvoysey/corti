@@ -35,7 +35,8 @@ class RunPeriphery:
         self.output_folder = path.join(base.rootPath, self.conf.dataFolder, datetime.now().strftime('%d %b %y %H %M'))
         if not path.isdir(self.output_folder):
             os.makedirs(self.output_folder)
-        self.cochlear_list = [[CochleaModel(), self.stimulus[i], self.irr_on[i], i, (0,i)] for i in range(self.channels)]
+        self.cochlear_list = [[CochleaModel(), self.stimulus[i], self.irr_on[i], i, (0, i)] for i in
+                              range(self.channels)]
 
     def run(self):
         s1 = datetime.now()
@@ -84,30 +85,30 @@ class RunPeriphery:
         out.anfM = anfM
         out.anfL = anfL
         if self.conf.savePeripheryData:
-            self.save_model_results(ii,coch, anfH, anfM, anfL, rp)
+            self.save_model_results(ii, coch, anfH, anfM, anfL, rp)
 
     def save_model_results(self, ii, coch, anfH, anfM, anfL, rp):
         # always store CFs
         storeFlag = self.storeFlag + "cf"
         # let's store every run along with a serialized snapshot of its parameters in its own directory.
         # mf makes a fully qualified file path to the output file.
-        mf = lambda x: path.join(self.output_folder, x + str(ii + 1) + ".np")
+        mf = lambda x: path.join(self.output_folder, x + str(ii + 1))
         # saveMap makes a list of tuples. [0] is the storeFlag character, [1] is the prefix to the file name,
         # and [3] is the function that saves the data. todo add handing for "a" here.
-        saveMap = [('v', mf('v'), coch.Vsolution.tofile),
-                   ('y', mf('y'), coch.Ysolution.tofile),
-                   ('cf', mf('cf'), coch.cf.tofile),
-                   ('e', mf('emission'), coch.oto_emission.tofile),
-                   ('h', mf('anfH'), anfH.tofile),
-                   ('m', mf('anfM'), anfM.tofile),
-                   ('l', mf('anfL'), anfL.tofile),
-                   ('i', mf('ihc'), rp.tofile)]
+        saveMap = [('v', mf('v'), coch.Vsolution),
+                   ('y', mf('y'), coch.Ysolution),
+                   ('cf', mf('cf'), coch.cf),
+                   ('e', mf('emission'), coch.oto_emission),
+                   ('h', mf('anfH'), anfH),
+                   ('m', mf('anfM'), anfM),
+                   ('l', mf('anfL'), anfL),
+                   ('i', mf('ihc'), rp),
+                   ('s', mf('stim'), self.conf.stimulus[ii])]
         # walk through the map and save the stuff we said we should.
         for thisFlag in saveMap:
             if thisFlag[0] in storeFlag:
-                with open(path.join(self.output_folder, thisFlag[1]), "w") as _:
-                    thisFlag[2](_)
-                    logging.debug("successfully wrote {} to {}".format(thisFlag[1], self.output_folder))
+                np.save(path.join(self.output_folder, thisFlag[1]), thisFlag[2])
+                logging.debug("successfully wrote {} to {}".format(thisFlag[1], self.output_folder))
 
     def save_model_configuration(self):
         # and store the configuration parameters so we know what we did.
