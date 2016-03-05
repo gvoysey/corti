@@ -1,7 +1,6 @@
 # some really basic plotting for now
-
 import glob
-from os import path, curdir
+from os import path
 from nbformat import current as nbf
 from datetime import datetime
 import base
@@ -10,14 +9,14 @@ from periphery_configuration import PeripheryConfiguration
 
 def make_notebook(outPath: str, description: str, fname=None):
     nb = nbf.new_notebook()
-    imports = """import numpy as np
+    imports = """
+    import numpy as np
     from datetime import datetime
     import matplotlib as mpl
     import matplotlib.pyplot as plt
     """
-    cells = [nbf.new_code_cell(imports),
-            # nbf.new_author("Graham Voysey <gvoysey@bu.edu>"),
-             nbf.new_text_cell('markdown', description),
+    cells = [nbf.new_text_cell('markdown', description),
+             nbf.new_code_cell(imports),
              ]
 
     nb['worksheets'].append(nbf.new_worksheet(cells=cells))
