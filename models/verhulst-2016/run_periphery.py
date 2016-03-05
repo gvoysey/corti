@@ -2,7 +2,7 @@ import logging
 import multiprocessing as mp
 from datetime import datetime, timedelta
 from os import path
-
+import pickle
 import base
 import numpyson
 from ANF_Sarah import *
