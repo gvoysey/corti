@@ -1,8 +1,12 @@
 __author__ = 'Graham Voysey'
 import os
 from collections import namedtuple as namedtuple
+import logging
+
+logging.basicConfig(level=logging.DEBUG)
 
 rootPath = os.path.dirname(os.path.abspath(__file__))
+
 
 def as_namedtuple(*fields_and_global_default, **defaults):
     """A class decorator factory joining the class with a namedtuple.
@@ -52,4 +56,5 @@ def as_namedtuple(*fields_and_global_default, **defaults):
         namespace = {'__doc__': cls.__doc__, '__slots__': (),
                      'with_defaults': with_defaults}
         return type(cls.__name__, bases, namespace)
+
     return decorator
