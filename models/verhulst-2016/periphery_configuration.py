@@ -39,7 +39,7 @@ class PeripheryConfiguration:
         self.probeString = ProbeType.All  # sometimes called "Fc".
         self.subject = 1
         # this might be unused.  todo
-        self.normalizedRMS = np.zeros((1, self.channels))
+        self.normalizedRMS = np.zeros(self.channels)
         self.stimulusLevels = [60, 80]
         assert len(self.stimulusLevels) == self.channels, "A stimulus level must be given for each channel"
         self.irregularities = [1] * self.channels
@@ -58,14 +58,9 @@ class PeripheryConfiguration:
 
     def generate_stimulus(self):
         # we can synthesize the stimulus here, somehow(..?!)
-        sc = list(chain([0] * self.preDuration, [1] * self.cDur, [0] * self.postDuration))
-        stim = np.empty([len(self.stimulusLevels), len(sc)])
-
-        for i in range(len(self.stimulusLevels)):
-            stim[i, :] = np.multiply(2 * math.sqrt(2) * 2e0 - 5 * pow(10, self.stimulusLevels[i] / 20.0), sc)
-            # todo : stim[1,:] seems empty ?
-        # and define the stimulus here.
-        self.stimulus = stim
+        sc = np.hstack([np.zeros(self.preDuration), np.ones(self.cDur), np.zeros(self.postDuration)])
+        levels = np.array(self.stimulusLevels)[:, None]
+        self.stimulus = 2 * math.sqrt(2) * sc * 2e-5 * 10 ** (levels / 20.0)
 
     @staticmethod
     def from_yaml(yamlPath: str):

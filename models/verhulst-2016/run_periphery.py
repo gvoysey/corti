@@ -108,7 +108,7 @@ class RunPeriphery:
         # walk through the map and save the stuff we said we should.
         for thisFlag in saveMap:
             if thisFlag[0] in storeFlag:
-                np.save(path.join(self.output_folder, thisFlag[1]), thisFlag[2])
+                np.save(thisFlag[1], thisFlag[2])
                 logging.debug("successfully wrote {} to {}".format(thisFlag[1], self.output_folder))
 
     def save_model_configuration(self):
