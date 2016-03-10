@@ -90,26 +90,28 @@ class RunPeriphery:
 
     def save_model_results(self, ii, coch, anfH, anfM, anfL, rp):
         # always store CFs
-        storeFlag = self.storeFlag + "cf"
+        storeFlag = self.storeFlag + "c"
         # let's store every run along with a serialized snapshot of its parameters in its own directory.
         # mf makes a fully qualified file path to the output file.
         mf = lambda x: path.join(self.output_folder, x + str(ii + 1))
         # saveMap makes a list of tuples. [0] is the storeFlag character, [1] is the prefix to the file name,
         # and [3] is the function that saves the data. todo add handing for "a" here.
-        saveMap = [('v', mf('v'), coch.Vsolution),
-                   ('y', mf('y'), coch.Ysolution),
-                   ('cf', mf('cf'), coch.cf),
-                   ('e', mf('emission'), coch.oto_emission),
-                   ('h', mf('anfH'), anfH),
-                   ('m', mf('anfM'), anfM),
-                   ('l', mf('anfL'), anfL),
-                   ('i', mf('ihc'), rp),
-                   ('s', mf('stim'), self.conf.stimulus[ii])]
+        saveMap = {'v': (mf('v'), coch.Vsolution),
+                   'y': (mf('y'), coch.Ysolution),
+                   'c': (mf('cf'), coch.cf),
+                   'e': (mf('emission'), coch.oto_emission),
+                   'h': (mf('anfH'), anfH),
+                   'm': (mf('anfM'), anfM),
+                   'l': (mf('anfL'), anfL),
+                   'i': (mf('ihc'), rp),
+                   's': (mf('stim'), self.conf.stimulus[ii])}
         # walk through the map and save the stuff we said we should.
-        for thisFlag in saveMap:
-            if thisFlag[0] in storeFlag:
-                np.save(thisFlag[1], thisFlag[2])
-                logging.debug("successfully wrote {} to {}".format(thisFlag[1], self.output_folder))
+        for flag in set(storeFlag):
+            fname, value = saveMap[flag]
+            np.save(fname, value)
+            logging.debug("successfully wrote {} to {}".format(fname, self.output_folder))
+
+
 
     def save_model_configuration(self):
         # and store the configuration parameters so we know what we did.
