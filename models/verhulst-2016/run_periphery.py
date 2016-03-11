@@ -1,5 +1,6 @@
 import logging
 import multiprocessing as mp
+import shutil
 from datetime import datetime, timedelta
 from os import path
 
@@ -11,7 +12,7 @@ from Sarah_ihc import *
 from cochlear_model_old import *
 from periphery_configuration import PeripheryConfiguration, Constants, PeripheryOutput
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO, format='%(levelname)s:%(asctime)s %(message)s', datefmt='%m/%d %H:%M:%S %p')
 
 
 class RunPeriphery:
@@ -33,7 +34,7 @@ class RunPeriphery:
         self.sheraPo = np.loadtxt(self.conf.polePath)
         self.irregularities = self.conf.irregularities
         self.irr_on = self.conf.irregularities
-        self.output_folder = path.join(base.rootPath, self.conf.dataFolder, datetime.now().strftime('%d %b %y - %H %M'))
+        self.output_folder = path.join(base.rootPath, self.conf.dataFolder, datetime.now().strftime('%d %b %y - %H%M'))
         if not path.isdir(self.output_folder):
             os.makedirs(self.output_folder)
         self.cochlear_list = [[CochleaModel(), self.stimulus[i], self.irr_on[i], i, (0, i)] for i in
@@ -52,7 +53,16 @@ class RunPeriphery:
             datetime.now() - s1)))
 
     def clean(self):
-        pass
+        """
+        Removes all the previous model runs.
+        :return:
+        """
+        logging.info("cleaning up...")
+        for dir in os.listdir(self.conf.dataFolder):
+            if (not dir == path.basename(self.output_folder)) and path.isdir(path.join(self.conf.dataFolder, dir)):
+                shutil.rmtree(path.join(self.conf.dataFolder, dir))
+                logging.info(dir)
+        logging.info("cleaned.")
 
     def solve_one_cochlea(self, model: CochleaModel):
 
@@ -110,14 +120,15 @@ class RunPeriphery:
             if flag in saveMap:
                 fname, value = saveMap[flag]
                 np.save(fname, value)
-                logging.debug(
-                    "wrote {} to {}".format(os.path.basename(fname), path.relpath(self.output_folder, base.rootPath)))
+                logging.info(
+                    "wrote {0:<10} to {1}".format(os.path.basename(fname),
+                                                  path.relpath(self.output_folder, base.rootPath)))
 
     def save_model_configuration(self):
         # and store the configuration parameters so we know what we did.
         with open(path.join(self.output_folder, "conf.yaml"), "w") as _:
             yaml.dump(self.conf, _)
-            logging.debug("wrote conf.yaml to {}".format(path.relpath(self.output_folder, base.rootPath)))
+            logging.info("wrote conf.yaml to {}".format(path.relpath(self.output_folder, base.rootPath)))
 
 
 if __name__ == "__main__":
