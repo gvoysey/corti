@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
-import numpy as np
-import time
-import progressbar
-from blessings import Terminal
-from scipy.integrate import ode
-from scipy import signal
 import ctypes
 import os
+
+import numpy as np
+import progressbar
+from blessings import Terminal
+from scipy import signal
+from scipy.integrate import ode
 
 term = Terminal()
 
@@ -176,11 +176,11 @@ class CochleaModel:
         self.IrrPct = IrrPct
         self.non_linearity = 0
         self.use_Zweig = 1
-        if (Zweig_irregularities == 0):
+        if Zweig_irregularities == 0:
             self.use_Zweig = 0
-        if (non_linearity_type == "disp"):
+        if non_linearity_type == "disp":  # todo as enum
             self.non_linearity = 1
-        elif (non_linearity_type == "vel"):
+        elif non_linearity_type == "vel":
             self.non_linearity = 2
         else:
             self.non_linearity = 0  # linear model
@@ -445,7 +445,7 @@ class CochleaModel:
         # lf_limit = self.ctr
         # n = self.n + 1
         if (self.use_Zweig):
-            if (self.non_linearity == 1):  # To check
+            if self.non_linearity == 1:  # To check
                 # non-linearity DISP cost about three times more than in
                 # fortran (Not implemented now)
                 Yknee1CST = self.RthY1 * self.omega[self.onek]
@@ -470,7 +470,7 @@ class CochleaModel:
                 Sy = Sxp * sin_Theta + Syp * cos_Theta
                 self.SheraP = self.PoleS + Sy / factor
 
-            elif (self.non_linearity == 2):  # non-linearity VEL
+            elif self.non_linearity == 2:  # non-linearity VEL
                 Vvect = np.abs(self.Vtmp) / self.RthV1
                 Sxp = (Vvect - 1.) * self.const_nl1
                 Syp = self.Sb * np.sqrt(1 + (Sxp / self.Sa) ** 2)
@@ -481,7 +481,7 @@ class CochleaModel:
 
     def solve(self, location=None):
         n = self.n + 1
-        if not (self.is_init):
+        if not self.is_init:
             print("Error: model to be initialized")
         length = np.size(self.stim) - 2
         time_length = length * self.dt
@@ -492,8 +492,7 @@ class CochleaModel:
         self.time_axis = np.linspace(0, time_length, length)
         r = ode(TLsolver).set_integrator('dopri5', rtol=1e-2, atol=1e-13)
         r.set_f_params(self)
-        r.set_initial_value(
-            np.concatenate([np.zeros_like(self.x), np.zeros_like(self.x)]))
+        r.set_initial_value(np.concatenate([np.zeros_like(self.x), np.zeros_like(self.x)]))
         r.t = 0
 
         self.last_t = 0.0
@@ -502,6 +501,7 @@ class CochleaModel:
         self.SheraParameters()
         self.ZweigImpedance()
         w = Writer(location) #, fd=w
+        # with progressbar.ProgressBar(max_value=length, fd=w) as bar:  # when run from a command line
         with progressbar.ProgressBar(max_value=length, redirect_stdout=True) as bar:
             for j in range(length):
                 if j > 0:
@@ -531,12 +531,7 @@ class CochleaModel:
                     self.Ysolution[j, :] = self.Ytmp[self.probe_points]
 
                 self.oto_emission[j] = self.Qsol[0]
-                # j += 1
-
                 bar.update(j)
-                # filter out the otoacoustic emission ####
-        samplerate = self.fs
-        b, a = signal.butter(
-            1, [600. / (samplerate / 2), 3000. / (samplerate / 2)], 'bandpass')
-        self.oto_emission = signal.lfilter(
-            b * self.q0_factor, a, self.oto_emission)
+        # filter out the otoacoustic emission
+        b, a = signal.butter(1, [600. / (self.fs / 2), 3000. / (self.fs / 2)], 'bandpass')
+        self.oto_emission = signal.lfilter(b * self.q0_factor, a, self.oto_emission)

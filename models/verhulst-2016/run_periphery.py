@@ -2,10 +2,10 @@ import logging
 import multiprocessing as mp
 from datetime import datetime, timedelta
 from os import path
-# noinspection PyUnresolvedReferences
-import pickle
+
+import yaml
+
 import base
-import numpyson
 from ANF_Sarah import *
 from Sarah_ihc import *
 from cochlear_model_old import *
@@ -33,7 +33,7 @@ class RunPeriphery:
         self.sheraPo = np.loadtxt(self.conf.polePath)
         self.irregularities = self.conf.irregularities
         self.irr_on = self.conf.irregularities
-        self.output_folder = path.join(base.rootPath, self.conf.dataFolder, datetime.now().strftime('%d %b %y %H %M'))
+        self.output_folder = path.join(base.rootPath, self.conf.dataFolder, datetime.now().strftime('%d %b %y - %H %M'))
         if not path.isdir(self.output_folder):
             os.makedirs(self.output_folder)
         self.cochlear_list = [[CochleaModel(), self.stimulus[i], self.irr_on[i], i, (0, i)] for i in
@@ -94,8 +94,8 @@ class RunPeriphery:
         # let's store every run along with a serialized snapshot of its parameters in its own directory.
         # mf makes a fully qualified file path to the output file.
         mf = lambda x: path.join(self.output_folder, x + str(ii + 1))
-        # saveMap makes a list of tuples. [0] is the storeFlag character, [1] is the prefix to the file name,
-        # and [3] is the function that saves the data. todo add handing for "a" here.
+        # saveMap makes a dict of tuples. the key is the storeFlag character, [1] is the prefix to the file name,
+        # and [2] is the function that saves the data. todo add handing for "a" here.
         saveMap = {'v': (mf('v'), coch.Vsolution),
                    'y': (mf('y'), coch.Ysolution),
                    'c': (mf('cf'), coch.cf),
@@ -107,22 +107,17 @@ class RunPeriphery:
                    's': (mf('stim'), self.conf.stimulus[ii])}
         # walk through the map and save the stuff we said we should.
         for flag in set(storeFlag):
-            fname, value = saveMap[flag]
-            np.save(fname, value)
-            logging.debug("successfully wrote {} to {}".format(fname, self.output_folder))
-
-
+            if flag in saveMap:
+                fname, value = saveMap[flag]
+                np.save(fname, value)
+                logging.debug(
+                    "wrote {} to {}".format(os.path.basename(fname), path.relpath(self.output_folder, base.rootPath)))
 
     def save_model_configuration(self):
         # and store the configuration parameters so we know what we did.
-        with open(path.join(self.output_folder, "configuration.json"), "w") as _:
-            result = numpyson.dumps(self.conf)
-            print(result, file=_)
-            logging.debug("successfully wrote configuration.json to {}".format(self.output_folder))
-
-        with open(path.join(self.output_folder, "configuration.pickle"), "wb") as _:
-            pickle.dump(self.conf, _)
-            logging.debug("successfully wrote configuration.pickle to {}".format(self.output_folder))
+        with open(path.join(self.output_folder, "conf.yaml"), "w") as _:
+            yaml.dump(self.conf, _)
+            logging.debug("wrote conf.yaml to {}".format(path.relpath(self.output_folder, base.rootPath)))
 
 
 if __name__ == "__main__":
