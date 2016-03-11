@@ -12,7 +12,7 @@ from Sarah_ihc import *
 from cochlear_model_old import *
 from periphery_configuration import PeripheryConfiguration, Constants, PeripheryOutput
 
-logging.basicConfig(format='%(levelname)s %(asctime)s %(message)s:', datefmt='%d %b %H:%M:%S', level=logging.INFO)
+logging.basicConfig(format='%(levelname)s %(asctime)s-%(message)s', datefmt='%d %b %H:%M:%S', level=logging.INFO)
 
 
 class RunPeriphery:
