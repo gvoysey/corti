@@ -12,7 +12,7 @@ from Sarah_ihc import *
 from cochlear_model_old import *
 from periphery_configuration import PeripheryConfiguration, Constants, PeripheryOutput
 
-logging.basicConfig(level=logging.INFO, format='%(levelname)s:%(asctime)s %(message)s', datefmt='%m/%d %H:%M:%S %p')
+logging.basicConfig(format='%(levelname)s %(asctime)s %(message)s:', datefmt='%d %b %H:%M:%S', level=logging.INFO)
 
 
 class RunPeriphery:
@@ -58,10 +58,10 @@ class RunPeriphery:
         :return:
         """
         logging.info("cleaning up...")
-        for dir in os.listdir(self.conf.dataFolder):
-            if (not dir == path.basename(self.output_folder)) and path.isdir(path.join(self.conf.dataFolder, dir)):
-                shutil.rmtree(path.join(self.conf.dataFolder, dir))
-                logging.info(dir)
+        for d in os.listdir(self.conf.dataFolder):
+            if (not d == path.basename(self.output_folder)) and path.isdir(path.join(self.conf.dataFolder, d)):
+                shutil.rmtree(path.join(self.conf.dataFolder, d))
+                logging.info("removed " + d)
         logging.info("cleaned.")
 
     def solve_one_cochlea(self, model: CochleaModel):

@@ -1,9 +1,6 @@
-__author__ = 'Graham Voysey'
 import os
 from collections import namedtuple as namedtuple
-import logging
 
-logging.basicConfig(level=logging.DEBUG)
 
 rootPath = os.path.dirname(os.path.abspath(__file__))
 
