@@ -9,6 +9,7 @@ import yaml
 import base
 from ANF_Sarah import *
 from Sarah_ihc import *
+from analysis.plots import make_notebook
 from cochlear_model_old import *
 from periphery_configuration import PeripheryConfiguration, Constants, PeripheryOutput
 
@@ -97,6 +98,7 @@ class RunPeriphery:
         out.anfL = anfL
         if self.conf.savePeripheryData:
             self.save_model_results(ii, coch, anfH, anfM, anfL, rp)
+        make_notebook(self.output_folder, "testing", out)
 
     def save_model_results(self, ii, coch, anfH, anfM, anfL, rp):
         # always store CFs
