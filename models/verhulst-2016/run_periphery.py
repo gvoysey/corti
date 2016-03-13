@@ -9,10 +9,10 @@ import yaml
 import base
 from ANF_Sarah import *
 from Sarah_ihc import *
-from analysis.plots import make_notebook
 from cochlear_model_old import *
 from periphery_configuration import PeripheryConfiguration, Constants, PeripheryOutput
 
+warnings.simplefilter(action="ignore", category=FutureWarning)
 logging.basicConfig(format='%(levelname)s %(asctime)s-%(message)s', datefmt='%d %b %H:%M:%S', level=logging.INFO)
 
 
@@ -55,8 +55,7 @@ class RunPeriphery:
 
     def clean(self):
         """
-        Removes all the previous model runs.
-        :return:
+        Removes all the previous model runs except the current one.
         """
         logging.info("cleaning up...")
         for d in os.listdir(self.conf.dataFolder):
@@ -96,9 +95,9 @@ class RunPeriphery:
         out.anfH = anfH
         out.anfM = anfM
         out.anfL = anfL
+        out.conf = self.conf
         if self.conf.savePeripheryData:
             self.save_model_results(ii, coch, anfH, anfM, anfL, rp)
-        make_notebook(self.output_folder, "testing", out)
 
     def save_model_results(self, ii, coch, anfH, anfM, anfL, rp):
         # always store CFs

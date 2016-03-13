@@ -2,7 +2,6 @@
 This is the container class that replaces input.mat.
 """
 import math
-from itertools import chain
 from os import path
 
 import numpy as np
@@ -15,12 +14,22 @@ class PeripheryConfiguration:
     """
         A PODS holding all the parameters that used to be in input.mat  and fully define what's
         needed to run the model.  Default values come from RUN_BMAN.m
+        :parameter self.Fs: Model sampling frequency. (default 100 kHz)
+        :parameter self.Implementation: unknown, default 0
+        :parameter self.p0: no idea.
+        :parameter self.NumberOfSections: number of basilar membrane sections to simulate (1000)
+        :parameter self.PolesDirectoryName: relative path to PolesFileName
+        :parameter self.PolesFileName: name of file containing starting Shera poles
+        :parameter self.DataFolder: base relative directory name to where model output directories are stored.
+        :parameter self.preDuration:
+        :parameter self.postDuration:
+
     """
 
     # Magic Constants.
     Fs = 100000  # Sampling frequency. No idea why Fs is so high, but i guess we'll find out.
     Implementation = 0  # no idea what this does.
-    p0 = 2e-05  # no idea what this even _is_
+    p0 = 2e-5  # no idea what this even _is_
     NumberOfSections = 1000
     # Operational Constants
     PolesDirectoryName = "sysfiles"
@@ -30,9 +39,9 @@ class PeripheryConfiguration:
     def __init__(self):
         # model parameters from RUN_BMAN
         # these are used in making the stimulus waveform
-        self.postDuration = round(self.Fs * 50e-3)  # a magic number
-        self.preDuration = round(self.Fs * 20e-3)  # a magic number
-        self.cDur = round(80e-6 * self.Fs)  # number of elements that have a 1 in them.
+        self.postDuration = int(round(self.Fs * 50e-3))  # a magic number
+        self.preDuration = int(round(self.Fs * 20e-3))  # a magic number
+        self.cDur = int(round(80e-6 * self.Fs))  # number of elements that have a 1 in them.
         self.stimulus = None  # init as null, we'll make it on demand.
         # these are more general
         self.channels = 2
@@ -60,7 +69,7 @@ class PeripheryConfiguration:
         # we can synthesize the stimulus here, somehow(..?!)
         sc = np.hstack([np.zeros(self.preDuration), np.ones(self.cDur), np.zeros(self.postDuration)])
         levels = np.array(self.stimulusLevels)[:, None]
-        self.stimulus = 2 * math.sqrt(2) * sc * 2e-5 * 10 ** (levels / 20.0)
+        self.stimulus = 2 * math.sqrt(2) * sc * self.p0 * 10 ** (levels / 20.0)
 
     @staticmethod
     def from_yaml(yamlPath: str):
@@ -129,11 +138,13 @@ class PeripheryOutput:  # namedtuple("Periphery Output",
             :parameter self.anfH: HSR fiber spike probability [0,1] (store 'h')
             :parameter self.anfM: MSR fiber spike probability [0,1] (store 'm')
             :parameter self.anfL: LSR fiber spike probability [0,1] (store 'l')
+            :parameter self.conf: the configuration that generated these outputs
+            :type self.conf: PeripheryConfiguration
         :return:
     """
 
     def __init__(self):
-        self.bmAcceleration = None  # not used?
+        self.bmAcceleration = None
         self.bmVelocity = None
         self.bmDisplacement = None
         self.emission = None
@@ -142,3 +153,4 @@ class PeripheryOutput:  # namedtuple("Periphery Output",
         self.anfH = None
         self.anfM = None
         self.anfL = None
+        self.conf = None

@@ -1,3 +1,6 @@
+from periphery_configuration import PeripheryOutput
+
+
 class CarneyMTFs:
     """
     This class will implement weighted MTF responses to generate ABRs.
@@ -17,5 +20,21 @@ class NelsonCarney04:
     MSnormal = 3
     LSnormal = 3
 
-    L = [60, 80]
-    FS = 100000
+    Acn = 1.5
+    Aic = 1
+    Scn = 0.6
+    Sic = 1.5
+    Dcn = 1e-3
+    Dic = 2e-3
+    Tex = 0.5e-3
+    Tin = 2e-3
+
+    # t=[0:size(ANHS,1)-1]/FS';
+
+
+    def __init__(self, an: PeripheryOutput):
+        self.peripheryOutput = an
+
+    def run(self):
+        anfh = self.peripheryOutput.anfH[1::2]
+        anfm = self.peripheryOutput.anfM[1::2]
