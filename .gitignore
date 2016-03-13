@@ -9,6 +9,8 @@ __pycache__/
 *.npy
 *.npz
 
+# crap
+*.DS_store
 # Distribution / packaging
 .Python
 env/
