@@ -1,3 +1,6 @@
+import numpy as np
+import numpy.matlib
+
 from periphery_configuration import PeripheryOutput
 
 
@@ -6,6 +9,7 @@ class CarneyMTFs:
     This class will implement weighted MTF responses to generate ABRs.
     """
     pass
+
 
 class NelsonCarney04:
     """
@@ -33,8 +37,24 @@ class NelsonCarney04:
 
 
     def __init__(self, an: PeripheryOutput):
-        self.peripheryOutput = an
+        self.anfOut = an
+        self.Fs = an.conf.Fs
+        dur = len(an.conf.stimulus)
+        self.time = np.linspace(0, dur / self.Fs, num=dur)
 
     def run(self):
-        anfh = self.peripheryOutput.anfH[1::2]
-        anfm = self.peripheryOutput.anfM[1::2]
+        # downsample the BM data (not sure why we do this..
+        anfh = self.anfOut.anfH[1::2]
+        anfm = self.anfOut.anfM[1::2]
+        anfl = self.anfOut.anfL[1::2]
+
+        dcnShift = int(round(self.Dcn * self.Fs))
+        icShift = int(round(self.Dic * self.Fs))
+
+        inhCn = np.multiply(self.Scn * (1 / (self.Tin ** 2)) * self.time, np.exp((-self.time) / self.Tin))
+        inhCn = np.pad(inhCn, (dcnShift, 0), 'constant')[:-dcnShift]
+
+        inhIc = np.multiply(self.Sic * (1 / (self.Tin ** 2)) * self.time, np.exp((-self.time) / self.Tin))
+        inhIc = np.pad(inhIc, (icShift, 0), 'constant')[:-icShift]
+
+        AN = np.matlib.repmat(self.LSnormal * np.ones(500), )
