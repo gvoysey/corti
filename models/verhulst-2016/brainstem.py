@@ -33,7 +33,7 @@ class NelsonCarney04:
     Tex = 0.5e-3
     Tin = 2e-3
 
-    LowFrequencyCutoff = 175.0 #hz
+    LowFrequencyCutoff = 175.0  # hz
 
     def __init__(self, an: PeripheryOutput):
         self.anfOut = an
@@ -56,14 +56,14 @@ class NelsonCarney04:
         AN = self._make_summed_an_response()
         self._simulate_brainstem_and_midbrain(AN, inhCn, inhIc)
 
-    def shift(self, delay:float) ->int:
+    def shift(self, delay: float) -> int:
         return int(round(delay * self.Fs))
 
-    def inhibition_time_weight(self) ->np.ndarray:
+    def inhibition_time_weight(self) -> np.ndarray:
         return np.multiply((1 / (self.Tin ** 2)) * self.time, np.exp((-1 * self.time) / self.Tin))
 
     def excitation_time_weight(self) -> np.ndarray:
-        return np.multiply((1/(self.Tex**2)) * self.time, np.exp((-1*self.time)/self.Tex))
+        return np.multiply((1 / (self.Tex ** 2)) * self.time, np.exp((-1 * self.time) / self.Tex))
 
     def _make_inhibition_component(self, s: float, delay: float) -> np.ndarray:
         """ Make the DCN part.
@@ -88,9 +88,9 @@ class NelsonCarney04:
 
         return (lsr + msr + hsr) * self.M1
 
-
     def _simulate_brainstem_and_midbrain(self, AN, inhCn, inhIc):
-        timeLen, bmSegments = AN.shape
+        bmSegments = self.bmSegments
+        timeLen = self.timeLen
 
         W1 = []
         IC = []
@@ -98,27 +98,21 @@ class NelsonCarney04:
         RanF = []
         RicF = []
         RcnF = []
+
         for i in range(bmSegments):
-            Rcn1 = self.Acn * np.convolve(self.excitation_time_weight(), AN[:,i])
-            Rcn2 = np.convolve(inhCn, np.roll(AN[:,i],self.shift(self.Dcn)))
+            Rcn1 = self.Acn * np.convolve(self.excitation_time_weight(), AN[:, i])
+            Rcn2 = np.convolve(inhCn, np.roll(AN[:, i], self.shift(self.Dcn)))
             Rcn = (Rcn1 - Rcn2) * self.M3
 
             Ric1 = self.Aic * np.convolve(self.excitation_time_weight(), Rcn)
             Ric2 = np.convolve(inhIc, np.roll(Rcn, self.shift(self.Dic)))
             Ric = (Ric1 - Ric2) * self.M5
 
-            if i <=self.cutoffCf:
-                W1 = W1 + AN[:,i]
+            if i <= self.cutoffCf:
+                W1 = W1 + AN[:, i]
                 CN = CN + Rcn[0:timeLen]
                 IC = IC + Ric[0:timeLen]
 
-            RanF[i,:] = AN[:,i]
-            RicF[i,:] = Ric[0:timeLen]
-            RcnF[i,:] = Rcn[0:timeLen]
-
-
-
-
-
-
-
+            RanF[i, :] = AN[:, i]
+            RicF[i, :] = Ric[0:timeLen]
+            RcnF[i, :] = Rcn[0:timeLen]
