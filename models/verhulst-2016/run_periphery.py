@@ -98,6 +98,7 @@ class RunPeriphery:
         out.anfL = anfL
         out.conf = self.conf
         out.stimulusLevel = self.conf.stimulusLevels[ii]
+        out.outputFolder = self.output_folder
 
         if self.conf.savePeripheryData:
             self.save_model_results(ii, coch, anfH, anfM, anfL, rp)
@@ -109,8 +110,7 @@ class RunPeriphery:
 
         # let's store every run along with a serialized snapshot of its parameters in its own directory.
         # mf makes a fully qualified file path to the output file.
-        def mf(x):
-            path.join(self.output_folder, x + self.conf.stimulusLevels[ii] + 'dB')
+        mf = lambda x: path.join(self.output_folder, x + str(self.conf.stimulusLevels[ii]) + ' dB')
 
         # saveMap makes a dict of tuples. the key is the storeFlag character, [1] is the prefix to the file name,
         # and [2] is the function that saves the data. todo add handing for "a" here.

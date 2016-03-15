@@ -1,9 +1,12 @@
+import logging
 from collections import namedtuple
 from os import path
 
 import numpy as np
 import numpy.matlib
+import progressbar
 
+import base
 from periphery_configuration import PeripheryOutput
 
 
@@ -38,7 +41,7 @@ class NelsonCarney04:
 
     LowFrequencyCutoff = 175.0  # hz
 
-    BrainstemOutput = namedtuple("NelsonCarney04 Output", ["W1", "CN", "IC", "RanF", "RicF", "RcnF"])
+    BrainstemOutput = namedtuple("NelsonCarney04Output", ["W1", "CN", "IC", "RanF", "RicF", "RcnF"])
 
     def __init__(self, an: PeripheryOutput):
         self.anfOut = an
@@ -63,8 +66,10 @@ class NelsonCarney04:
         self._save(output)
 
     def _save(self, output):
-        np.savez(path.join(self.anfOut.conf.output_folder, "nc04 response {0}dB".format(self.anfOut.stimulusLevel)),
-                 output)
+        name = "nc04 response {0}dB".format(self.anfOut.stimulusLevel)
+        outpath = self.anfOut.outputFolder
+        np.savez(path.join(outpath, name), output)
+        logging.log(logging.INFO, "wrote {0:<10} to {1}".format(name, path.relpath(outpath, base.rootPath)))
 
     def _shift(self, delay: float) -> int:
         return int(round(delay * self.Fs))
@@ -117,23 +122,26 @@ class NelsonCarney04:
         RicF = np.zeros((bmSegments, timeLen))
         RcnF = np.zeros((bmSegments, timeLen))
 
-        for i in range(bmSegments):
-            Rcn1 = self.Acn * np.convolve(self._excitation_time_weight(), AN[:, i])
-            Rcn2 = np.convolve(inhCn, np.roll(AN[:, i], self._shift(self.Dcn)))
-            Rcn = (Rcn1 - Rcn2) * self.M3
+        with progressbar.ProgressBar(max_value=bmSegments, redirect_stdout=True) as bar:
+            for i in range(bmSegments):
+                Rcn1 = self.Acn * np.convolve(self._excitation_time_weight(), AN[:, i])
+                Rcn2 = np.convolve(inhCn, np.roll(AN[:, i], self._shift(self.Dcn)))
+                Rcn = (Rcn1 - Rcn2) * self.M3
 
-            Ric1 = self.Aic * np.convolve(self._excitation_time_weight(), Rcn)
-            Ric2 = np.convolve(inhIc, np.roll(Rcn, self._shift(self.Dic)))
-            Ric = (Ric1 - Ric2) * self.M5
+                Ric1 = self.Aic * np.convolve(self._excitation_time_weight(), Rcn)
+                Ric2 = np.convolve(inhIc, np.roll(Rcn, self._shift(self.Dic)))
+                Ric = (Ric1 - Ric2) * self.M5
 
-            if i <= self.cutoffCf:
-                W1 += AN[:, i]
-                CN += Rcn[0:timeLen]
-                IC += Ric[0:timeLen]
+                if i <= self.cutoffCf:
+                    W1 += AN[:, i]
+                    CN += Rcn[0:timeLen]
+                    IC += Ric[0:timeLen]
 
-            RanF[i, :] = AN[:, i]
-            RicF[i, :] = Ric[0:timeLen]
-            RcnF[i, :] = Rcn[0:timeLen]
+                RanF[i, :] = AN[:, i]
+                RicF[i, :] = Ric[0:timeLen]
+                RcnF[i, :] = Rcn[0:timeLen]
+                bar.update(i)
+
 
         retval = self.BrainstemOutput(W1=W1, CN=CN, IC=IC, RanF=RanF, RicF=RicF, RcnF=RcnF)
         return retval

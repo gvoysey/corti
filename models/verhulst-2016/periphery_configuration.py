@@ -154,3 +154,4 @@ class PeripheryOutput:
         self.anfL = None
         self.conf = None
         self.stimulusLevel = None
+        self.outputFolder = None
