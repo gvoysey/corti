@@ -64,6 +64,7 @@ class NelsonCarney04:
         AN = self._make_summed_an_response()
         output = self._simulate_brainstem_and_midbrain(AN, inhCn, inhIc)
         self._save(output)
+        return output
 
     def _save(self, output):
         name = "nc04 response {0}dB".format(self.anfOut.stimulusLevel)
