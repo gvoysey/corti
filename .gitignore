@@ -11,6 +11,7 @@ __pycache__/
 # Data files
 *.npy
 *.npz
+models/verhulst-2016/output
 
 # crap
 *.DS_store
