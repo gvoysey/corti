@@ -68,7 +68,8 @@ class NelsonCarney04:
     def _save(self, output):
         name = "nc04 response {0}dB".format(self.anfOut.stimulusLevel)
         outpath = self.anfOut.outputFolder
-        np.savez(path.join(outpath, name), output)
+        # save the data out to a npz file whose keys are the field names of output.
+        np.savez(path.join(outpath, name), **output._asdict())
         logging.log(logging.INFO, "wrote {0:<10} to {1}".format(name, path.relpath(outpath, base.rootPath)))
 
     def _shift(self, delay: float) -> int:
@@ -138,8 +139,8 @@ class NelsonCarney04:
                     IC += Ric[0:timeLen]
 
                 RanF[i, :] = AN[:, i]
-                RicF[i, :] = Ric[0:timeLen] # chop off the duplicated convolution side
-                RcnF[i, :] = Rcn[0:timeLen] # chop off the duplicated convolution side
+                RicF[i, :] = Ric[0:timeLen]  # chop off the duplicated convolution side
+                RcnF[i, :] = Rcn[0:timeLen]  # chop off the duplicated convolution side
                 bar.update(i)
 
         return self.BrainstemOutput(W1=W1, CN=CN, IC=IC, RanF=RanF, RicF=RicF, RcnF=RcnF)
