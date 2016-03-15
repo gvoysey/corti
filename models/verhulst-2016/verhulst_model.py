@@ -29,7 +29,7 @@ from periphery_configuration import PeripheryConfiguration
 from run_periphery import RunPeriphery
 
 warnings.simplefilter(action="ignore", category=FutureWarning)
-logging.basicConfig(format='%(levelname)s %(asctime)s-%(message)s', datefmt='%d %b %H:%M:%S', level=logging.INFO)
+logging.basicConfig(format='%(levelname)s %(asctime)s- %(message)s', datefmt='%d %b %H:%M:%S', level=logging.INFO)
 
 
 def main():
@@ -38,8 +38,9 @@ def main():
     except subprocess.CalledProcessError:
         label = "unknown"
         logging.log(logging.ERROR, "version broken until i write setup.py")
+    # get the command line args
     args = docopt(__doc__, version="verhulst_model version " + label.decode("utf-8"))
-
+    # configure the log level appropriately
     if not args["--verbose"]:
         logging.getLogger().setLevel(logging.ERROR)
 
@@ -55,7 +56,9 @@ def main():
 
 
 def __get_output_path(temp: str) -> str:
-    if temp == "~/verhulst-output":
+    """ Return the fully qualified path to store model output.
+    """
+    if temp == "~/verhulst-output":  # ugh, string comparisons.
         return path.expanduser(temp)
     if path.isabs(temp):
         return temp

@@ -18,7 +18,6 @@ class PeripheryConfiguration:
         :parameter self.PolesFileName: name of file containing starting Shera poles
         :parameter self.preDuration:
         :parameter self.postDuration:
-
     """
 
     # Magic Constants.

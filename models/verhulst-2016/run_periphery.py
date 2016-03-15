@@ -6,7 +6,6 @@ from os import path
 
 import yaml
 
-import base
 from ANF_Sarah import *
 from Sarah_ihc import *
 from cochlear_model_old import *
@@ -129,14 +128,15 @@ class RunPeriphery:
                 np.save(fname, value)
                 logging.info(
                     "wrote {0:<10} to {1}".format(os.path.basename(fname),
-                                                  path.relpath(self.output_folder, base.rootPath)))
+                                                  path.relpath(self.output_folder, os.getcwd())))
 
     def save_model_configuration(self):
         # and store the configuration parameters so we know what we did.
         with open(path.join(self.output_folder, "conf.yaml"), "w") as _:
             yaml.dump(self.conf, _)
-            logging.info("wrote conf.yaml to {}".format(path.relpath(self.output_folder, base.rootPath)))
+            logging.info("wrote conf.yaml to {}".format(path.relpath(self.output_folder, os.getcwd())))
 
 
 if __name__ == "__main__":
-    RunPeriphery().run()
+    conf = PeripheryConfiguration(path.join(os.getcwd(), "verhulst-output"))
+    RunPeriphery(conf).run()
