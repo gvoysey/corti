@@ -138,10 +138,8 @@ class NelsonCarney04:
                     IC += Ric[0:timeLen]
 
                 RanF[i, :] = AN[:, i]
-                RicF[i, :] = Ric[0:timeLen]
-                RcnF[i, :] = Rcn[0:timeLen]
+                RicF[i, :] = Ric[0:timeLen] # chop off the duplicated convolution side
+                RcnF[i, :] = Rcn[0:timeLen] # chop off the duplicated convolution side
                 bar.update(i)
 
-
-        retval = self.BrainstemOutput(W1=W1, CN=CN, IC=IC, RanF=RanF, RicF=RicF, RcnF=RcnF)
-        return retval
+        return self.BrainstemOutput(W1=W1, CN=CN, IC=IC, RanF=RanF, RicF=RicF, RcnF=RcnF)
