@@ -124,9 +124,7 @@ class ProbeType:
     Half = "half"
 
 
-# @base.as_namedtuple()
-class PeripheryOutput:  # namedtuple("Periphery Output",
-    #          "bmAcceleration bmVelocity bmDisplacement emission cf ihc anfH anfM anfL")):
+class PeripheryOutput:
     """
         PeripheryOutput:
             :parameter self.bmAcceleration: BM acceleration (store 'a')
@@ -140,6 +138,7 @@ class PeripheryOutput:  # namedtuple("Periphery Output",
             :parameter self.anfL: LSR fiber spike probability [0,1] (store 'l')
             :parameter self.conf: the configuration that generated these outputs
             :type self.conf: PeripheryConfiguration
+            :parameter self.stimulusLevel: the sound level for this response, dB re 20 uPa
         :return:
     """
 
@@ -154,3 +153,4 @@ class PeripheryOutput:  # namedtuple("Periphery Output",
         self.anfM = None
         self.anfL = None
         self.conf = None
+        self.stimulusLevel = None

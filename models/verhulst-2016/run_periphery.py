@@ -5,10 +5,10 @@ from datetime import datetime, timedelta
 from os import path
 
 import yaml
+
 import base
 from ANF_Sarah import *
 from Sarah_ihc import *
-from brainstem import NelsonCarney04
 from cochlear_model_old import *
 from periphery_configuration import PeripheryConfiguration, Constants, PeripheryOutput
 
@@ -97,6 +97,7 @@ class RunPeriphery:
         out.anfM = anfM
         out.anfL = anfL
         out.conf = self.conf
+        out.stimulusLevel = self.conf.stimulusLevels[ii]
 
         if self.conf.savePeripheryData:
             self.save_model_results(ii, coch, anfH, anfM, anfL, rp)
@@ -105,20 +106,25 @@ class RunPeriphery:
     def save_model_results(self, ii, coch, anfH, anfM, anfL, rp):
         # always store CFs
         storeFlag = self.storeFlag + "c"
+
         # let's store every run along with a serialized snapshot of its parameters in its own directory.
         # mf makes a fully qualified file path to the output file.
-        mf = lambda x: path.join(self.output_folder, x + str(ii + 1))
+        def mf(x):
+            path.join(self.output_folder, x + self.conf.stimulusLevels[ii] + 'dB')
+
         # saveMap makes a dict of tuples. the key is the storeFlag character, [1] is the prefix to the file name,
         # and [2] is the function that saves the data. todo add handing for "a" here.
-        saveMap = {'v': (mf('v'), coch.Vsolution),
-                   'y': (mf('y'), coch.Ysolution),
-                   'c': (mf('cf'), coch.cf),
-                   'e': (mf('emission'), coch.oto_emission),
-                   'h': (mf('anfH'), anfH),
-                   'm': (mf('anfM'), anfM),
-                   'l': (mf('anfL'), anfL),
-                   'i': (mf('ihc'), rp),
-                   's': (mf('stim'), self.conf.stimulus[ii])}
+        saveMap = {
+            'v': (mf('v'), coch.Vsolution),
+            'y': (mf('y'), coch.Ysolution),
+            'c': (mf('cf'), coch.cf),
+            'e': (mf('emission'), coch.oto_emission),
+            'h': (mf('anfH'), anfH),
+            'm': (mf('anfM'), anfM),
+            'l': (mf('anfL'), anfL),
+            'i': (mf('ihc'), rp),
+            's': (mf('stim'), self.conf.stimulus[ii])
+        }
         # walk through the map and save the stuff we said we should.
         for flag in set(storeFlag):
             if flag in saveMap:

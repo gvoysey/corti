@@ -1,8 +1,7 @@
-import os
-from collections import namedtuple as namedtuple
 import logging
+import os
 import warnings
-
+from collections import namedtuple as namedtuple
 
 warnings.simplefilter(action="ignore", category=FutureWarning)
 logging.basicConfig(format='%(levelname)s %(asctime)s-%(message)s', datefmt='%d %b %H:%M:%S', level=logging.INFO)
@@ -18,6 +17,7 @@ def as_namedtuple(*fields_and_global_default, **defaults):
     If any of the expected arguments are not passed to the class, they
     are set to the specific default value or global default value (if any).
 
+    http://code.activestate.com/recipes/578456-a-class-decorator-for-creating-named-tuples/
     """
     num_args = len(fields_and_global_default)
     if num_args > 2 or num_args < 1:

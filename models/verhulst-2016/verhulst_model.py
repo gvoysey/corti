@@ -1,5 +1,5 @@
 """
-Verulst Model.
+Verhulst Model.
 
 Usage: verhulst_model
 
@@ -7,14 +7,31 @@ Options:
     -h --help:  Show this screen
     --version:  Display the version and exit
 """
-import sys
-from docopt import docopt
+import logging
 import subprocess
+import sys
+
+from docopt import docopt
+
+from brainstem import NelsonCarney04
+from run_periphery import RunPeriphery
+
 
 def main():
-    label = subprocess.check_output(["git", "describe"])
-    args = docopt(__doc__, version=)
+    try:
+        label = subprocess.check_output(["git", "describe"])
+    except subprocess.CalledProcessError:
+        label = "unknown"
+        logging.log(logging.ERROR, "version broken until i write setup.py")
+    args = docopt(__doc__, version=label.decode("utf-8"))
+
+    anResults = RunPeriphery().run()
+    brainResults = []
+    for result in anResults:
+        brainResults.append(NelsonCarney04(result).run())
+
+    sys.exit(0)
 
 
-if __name__ == "__file__":
+if __name__ == "__main__":
     sys.exit(main())

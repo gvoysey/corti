@@ -1,3 +1,6 @@
+from collections import namedtuple
+from os import path
+
 import numpy as np
 import numpy.matlib
 
@@ -35,11 +38,13 @@ class NelsonCarney04:
 
     LowFrequencyCutoff = 175.0  # hz
 
+    BrainstemOutput = namedtuple("NelsonCarney04 Output", ["W1", "CN", "IC", "RanF", "RicF", "RcnF"])
+
     def __init__(self, an: PeripheryOutput):
         self.anfOut = an
         self.Fs = an.conf.Fs
         self.cf = an.cf
-        dur = len(an.conf.stimulus)
+        count, dur = an.conf.stimulus.shape
         self.time = np.linspace(0, dur / self.Fs, num=dur)
 
         self.anfh = self.anfOut.anfH[:, 1::2]
@@ -54,7 +59,12 @@ class NelsonCarney04:
         inhIc = self._make_inhibition_component(self.Sic, self.Dic)
 
         AN = self._make_summed_an_response()
-        self._simulate_brainstem_and_midbrain(AN, inhCn, inhIc)
+        output = self._simulate_brainstem_and_midbrain(AN, inhCn, inhIc)
+        self._save(output)
+
+    def _save(self, output):
+        np.savez(path.join(self.anfOut.conf.output_folder, "nc04 response {0}dB".format(self.anfOut.stimulusLevel)),
+                 output)
 
     def _shift(self, delay: float) -> int:
         return int(round(delay * self.Fs))
@@ -96,16 +106,16 @@ class NelsonCarney04:
 
         return (lsr + msr + hsr) * self.M1
 
-    def _simulate_brainstem_and_midbrain(self, AN:np.ndarray, inhCn:np.ndarray, inhIc:np.ndarray)->None:
+    def _simulate_brainstem_and_midbrain(self, AN: np.ndarray, inhCn: np.ndarray, inhIc: np.ndarray) -> BrainstemOutput:
         bmSegments = self.bmSegments
         timeLen = self.timeLen
 
-        W1 = []
-        IC = []
-        CN = []
-        RanF = []
-        RicF = []
-        RcnF = []
+        W1 = np.zeros(timeLen)
+        IC = np.zeros(timeLen)
+        CN = np.zeros(timeLen)
+        RanF = np.zeros((bmSegments, timeLen))
+        RicF = np.zeros((bmSegments, timeLen))
+        RcnF = np.zeros((bmSegments, timeLen))
 
         for i in range(bmSegments):
             Rcn1 = self.Acn * np.convolve(self._excitation_time_weight(), AN[:, i])
@@ -124,3 +134,6 @@ class NelsonCarney04:
             RanF[i, :] = AN[:, i]
             RicF[i, :] = Ric[0:timeLen]
             RcnF[i, :] = Rcn[0:timeLen]
+
+        retval = self.BrainstemOutput(W1=W1, CN=CN, IC=IC, RanF=RanF, RicF=RicF, RcnF=RcnF)
+        return retval
