@@ -1,6 +1,12 @@
-# some really basic plotting for now
+from os import path
+
+from brainstem import BrainstemOutput
 from periphery_configuration import PeripheryOutput
 
 
-def make_plots(result: PeripheryOutput, fname=None):
-    pass
+def make_summary_plots(periphery: [PeripheryOutput], nc04: [BrainstemOutput], fname=None):
+    if fname is None:
+        fname = path.join(periphery[0].outputFolder, "summary plots.pdf")
+        # plot the stimulus, a summary of the configuration as a title and text block,
+        # different SR fiber responses at some CFs
+        # population response of AN, CN, IC ...

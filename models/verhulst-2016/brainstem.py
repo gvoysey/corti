@@ -17,6 +17,9 @@ class CarneyMTFs:
     pass
 
 
+BrainstemOutput = namedtuple("NelsonCarney04Output", ["W1", "CN", "IC", "RanF", "RicF", "RcnF"])
+
+
 class NelsonCarney04:
     """
     This class ports the Verhulst implementation of the Nelson and Carney (2004) brainstem and IC model.
@@ -40,8 +43,6 @@ class NelsonCarney04:
     Tin = 2e-3
 
     LowFrequencyCutoff = 175.0  # hz
-
-    BrainstemOutput = namedtuple("NelsonCarney04Output", ["W1", "CN", "IC", "RanF", "RicF", "RcnF"])
 
     def __init__(self, an: PeripheryOutput):
         self.anfOut = an
@@ -144,4 +145,4 @@ class NelsonCarney04:
                 RcnF[i, :] = Rcn[0:timeLen]  # chop off the duplicated convolution side
                 bar.update(i)
 
-        return self.BrainstemOutput(W1=W1, CN=CN, IC=IC, RanF=RanF, RicF=RicF, RcnF=RcnF)
+        return BrainstemOutput(W1=W1, CN=CN, IC=IC, RanF=RanF, RicF=RicF, RcnF=RcnF)

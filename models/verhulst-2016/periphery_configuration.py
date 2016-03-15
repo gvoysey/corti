@@ -64,6 +64,7 @@ class PeripheryConfiguration:
         levels = np.array(self.stimulusLevels)[:, None]
         self.stimulus = 2 * math.sqrt(2) * sc * self.p0 * 10 ** (levels / 20.0)
 
+
 class ProbeType:
     All = "all"
     Half = "half"
