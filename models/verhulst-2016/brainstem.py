@@ -56,29 +56,37 @@ class NelsonCarney04:
         AN = self._make_summed_an_response()
         self._simulate_brainstem_and_midbrain(AN, inhCn, inhIc)
 
-    def shift(self, delay: float) -> int:
+    def _shift(self, delay: float) -> int:
         return int(round(delay * self.Fs))
 
-    def inhibition_time_weight(self) -> np.ndarray:
+    def _inhibition_time_weight(self) -> np.ndarray:
+        """ Create a weighted exponential
+        :return:
+        """
         return np.multiply((1 / (self.Tin ** 2)) * self.time, np.exp((-1 * self.time) / self.Tin))
 
-    def excitation_time_weight(self) -> np.ndarray:
+    def _excitation_time_weight(self) -> np.ndarray:
+        """ Create a weighted exponential
+        :return:
+        """
         return np.multiply((1 / (self.Tex ** 2)) * self.time, np.exp((-1 * self.time) / self.Tex))
 
     def _make_inhibition_component(self, s: float, delay: float) -> np.ndarray:
-        """ Make the DCN part.
+        """ Make the DCN or ICN inhibition component.
         Returns $S_{cn}*\frac{1}{t_{in}^2}*\vec{t}*e^{\frac{-\vec{t}}{t_{in}}}$ time shifted by delay
-        :param s: ??
+        :param s: some weighting factor
         :param delay: time period, in units of (Fs^-1)s.  This value will be converted to an integer number of samples.
         """
-        lag = self.shift(delay)
-        inhibition = s * self.inhibition_time_weight()
+        lag = self._shift(delay)
+        inhibition = s * self._inhibition_time_weight()
         return np.pad(inhibition, (lag, 0), 'constant')[:-lag]
 
     def _make_summed_an_response(self) -> np.ndarray:
-
-        # downsample the BM data (not sure why we do this.. but we do it with cfs in _simulate_brainstem too.)
-
+        """Create an auditory nerve population response.
+        Contains the contributions of low, medium, and high spontaneous rate fibers individually weighted by fiber count,
+        and overall weighted by some magic constant.
+        :return:
+        """
         bmSegments = self.bmSegments
         timeLen = self.timeLen
 
@@ -88,7 +96,7 @@ class NelsonCarney04:
 
         return (lsr + msr + hsr) * self.M1
 
-    def _simulate_brainstem_and_midbrain(self, AN, inhCn, inhIc):
+    def _simulate_brainstem_and_midbrain(self, AN:np.ndarray, inhCn:np.ndarray, inhIc:np.ndarray)->None:
         bmSegments = self.bmSegments
         timeLen = self.timeLen
 
@@ -100,18 +108,18 @@ class NelsonCarney04:
         RcnF = []
 
         for i in range(bmSegments):
-            Rcn1 = self.Acn * np.convolve(self.excitation_time_weight(), AN[:, i])
-            Rcn2 = np.convolve(inhCn, np.roll(AN[:, i], self.shift(self.Dcn)))
+            Rcn1 = self.Acn * np.convolve(self._excitation_time_weight(), AN[:, i])
+            Rcn2 = np.convolve(inhCn, np.roll(AN[:, i], self._shift(self.Dcn)))
             Rcn = (Rcn1 - Rcn2) * self.M3
 
-            Ric1 = self.Aic * np.convolve(self.excitation_time_weight(), Rcn)
-            Ric2 = np.convolve(inhIc, np.roll(Rcn, self.shift(self.Dic)))
+            Ric1 = self.Aic * np.convolve(self._excitation_time_weight(), Rcn)
+            Ric2 = np.convolve(inhIc, np.roll(Rcn, self._shift(self.Dic)))
             Ric = (Ric1 - Ric2) * self.M5
 
             if i <= self.cutoffCf:
-                W1 = W1 + AN[:, i]
-                CN = CN + Rcn[0:timeLen]
-                IC = IC + Ric[0:timeLen]
+                W1 += AN[:, i]
+                CN += Rcn[0:timeLen]
+                IC += Ric[0:timeLen]
 
             RanF[i, :] = AN[:, i]
             RicF[i, :] = Ric[0:timeLen]

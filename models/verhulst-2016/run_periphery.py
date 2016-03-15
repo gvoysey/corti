@@ -5,15 +5,12 @@ from datetime import datetime, timedelta
 from os import path
 
 import yaml
-
 import base
 from ANF_Sarah import *
 from Sarah_ihc import *
+from brainstem import NelsonCarney04
 from cochlear_model_old import *
 from periphery_configuration import PeripheryConfiguration, Constants, PeripheryOutput
-
-warnings.simplefilter(action="ignore", category=FutureWarning)
-logging.basicConfig(format='%(levelname)s %(asctime)s-%(message)s', datefmt='%d %b %H:%M:%S', level=logging.INFO)
 
 
 class RunPeriphery:
@@ -42,9 +39,12 @@ class RunPeriphery:
                               range(self.channels)]
 
     def run(self):
+        """Simulates sound propagation up to the auditory nerve.
+        :return:
+        """
         s1 = datetime.now()
         p = mp.Pool(mp.cpu_count(), maxtasksperchild=1)
-        p.map(self.solve_one_cochlea, self.cochlear_list)
+        results = p.map(self.solve_one_cochlea, self.cochlear_list)
         p.close()
         p.join()
         self.save_model_configuration()
@@ -52,6 +52,7 @@ class RunPeriphery:
             self.clean()
         print("cochlear simulation of {} channels finished in {:0.3f}s".format(self.channels, timedelta.total_seconds(
             datetime.now() - s1)))
+        return results
 
     def clean(self):
         """
@@ -85,7 +86,7 @@ class RunPeriphery:
         anfH = anf_model(rp, coch.cf, fs, 'high')
         anfM = anf_model(rp, coch.cf, fs, 'medium')
         anfL = anf_model(rp, coch.cf, fs, 'low')
-        # save these out to the output container (and possibly to disk)
+        # save intermediate results out to the output container (and possibly to disk)
         out = PeripheryOutput()
         out.bmVelocity = coch.Vsolution
         out.bmDisplacement = coch.Ysolution
@@ -96,8 +97,10 @@ class RunPeriphery:
         out.anfM = anfM
         out.anfL = anfL
         out.conf = self.conf
+
         if self.conf.savePeripheryData:
             self.save_model_results(ii, coch, anfH, anfM, anfL, rp)
+        return out
 
     def save_model_results(self, ii, coch, anfH, anfM, anfL, rp):
         # always store CFs

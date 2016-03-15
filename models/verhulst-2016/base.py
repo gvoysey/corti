@@ -1,5 +1,12 @@
 import os
 from collections import namedtuple as namedtuple
+import logging
+import warnings
+
+
+warnings.simplefilter(action="ignore", category=FutureWarning)
+logging.basicConfig(format='%(levelname)s %(asctime)s-%(message)s', datefmt='%d %b %H:%M:%S', level=logging.INFO)
+
 
 
 rootPath = os.path.dirname(os.path.abspath(__file__))
