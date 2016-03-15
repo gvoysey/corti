@@ -1,16 +1,20 @@
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
+
 # PyCharm files
 .idea/
+
 # C extensions
 *.so
+
 # Data files
 *.npy
 *.npz
 
 # crap
 *.DS_store
+
 # Distribution / packaging
 .Python
 env/
