@@ -25,6 +25,8 @@ def main():
         logging.log(logging.ERROR, "version broken until i write setup.py")
     args = docopt(__doc__, version=label.decode("utf-8"))
 
+    # todo : extract output folder, other operational shit to this class, not run_periphery.   Redo NPZ saving so it sucks less.
+
     anResults = RunPeriphery().run()
     brainResults = []
     for result in anResults:
