@@ -12,7 +12,7 @@ Usage:
 Options:
     -h --help   Show this screen and exit.
     --version   Display the version and exit.
-    --out=<outpath>     Specify the output location for saved data. [default: verhulst-output]
+    --out=<outpath>     Specify the output location for saved data. [default: ~/verhulst-output]
     -c --clean  Previous runs will be deleted to save disk space.
     -v --verbose    Display detailed debug log output to STDOUT.
 """
@@ -20,10 +20,12 @@ import logging
 import subprocess
 import sys
 import warnings
+from os import path, getcwd
 
 from docopt import docopt
 
 from brainstem import NelsonCarney04
+from periphery_configuration import PeripheryConfiguration
 from run_periphery import RunPeriphery
 
 warnings.simplefilter(action="ignore", category=FutureWarning)
@@ -39,11 +41,12 @@ def main():
     args = docopt(__doc__, version="verhulst_model version " + label.decode("utf-8"))
 
     if not args["--verbose"]:
-        logging.getLogger().setLevel(logging.CRITICAL)
+        logging.getLogger().setLevel(logging.ERROR)
 
-    # todo : extract output folder, other operational shit to this class, not run_periphery.
+    # todo : periphery and brainstem saveflags.
 
-    anResults = RunPeriphery().run()
+    conf = PeripheryConfiguration(__get_output_path(args["--out"]), args["--clean"])
+    anResults = RunPeriphery(conf).run()
     brainResults = []
     for result in anResults:
         brainResults.append(NelsonCarney04(result).run())
@@ -51,5 +54,12 @@ def main():
     sys.exit(0)
 
 
+def __get_output_path(temp: str) -> str:
+    if temp == "~/verhulst-output":
+        return path.expanduser(temp)
+    if path.isabs(temp):
+        return temp
+    else:
+        return path.join(getcwd(), temp)
 if __name__ == "__main__":
     sys.exit(main())

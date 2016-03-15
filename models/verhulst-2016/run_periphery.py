@@ -10,16 +10,12 @@ import base
 from ANF_Sarah import *
 from Sarah_ihc import *
 from cochlear_model_old import *
-from periphery_configuration import PeripheryConfiguration, Constants, PeripheryOutput
+from periphery_configuration import PeripheryConfiguration, PeripheryOutput
 
 
 class RunPeriphery:
-    def __init__(self, yamlPath=None):
-        if yamlPath is not None:
-            self.conf = PeripheryConfiguration().from_yaml(yamlPath)
-        else:
-            self.conf = PeripheryConfiguration()
-
+    def __init__(self, conf: PeripheryConfiguration):
+        self.conf = conf
         self.probes = self.conf.probeString
         self.storeFlag = self.conf.storeFlag
         self.stimulus = self.conf.stimulus
@@ -32,7 +28,8 @@ class RunPeriphery:
         self.sheraPo = np.loadtxt(self.conf.polePath)
         self.irregularities = self.conf.irregularities
         self.irr_on = self.conf.irregularities
-        self.output_folder = path.join(base.rootPath, self.conf.dataFolder, datetime.now().strftime('%d %b %y - %H%M'))
+
+        self.output_folder = path.join(self.conf.dataFolder, datetime.now().strftime('%d %b %y - %H%M'))
         if not path.isdir(self.output_folder):
             os.makedirs(self.output_folder)
         self.cochlear_list = [[CochleaModel(), self.stimulus[i], self.irr_on[i], i, (0, i)] for i in
@@ -110,7 +107,7 @@ class RunPeriphery:
 
         # let's store every run along with a serialized snapshot of its parameters in its own directory.
         # mf makes a fully qualified file path to the output file.
-        mf = lambda x: path.join(self.output_folder, x + str(self.conf.stimulusLevels[ii]) + ' dB')
+        mf = lambda x: path.join(self.output_folder, x + " " + str(self.conf.stimulusLevels[ii]) + 'dB')
 
         # saveMap makes a dict of tuples. the key is the storeFlag character, [1] is the prefix to the file name,
         # and [2] is the function that saves the data. todo add handing for "a" here.
@@ -142,9 +139,4 @@ class RunPeriphery:
 
 
 if __name__ == "__main__":
-    # todo: pass in yaml here in a more sane way?
-    yamlPath = path.join(base.rootPath, Constants.DefaultYamlName)
-    if path.isfile(yamlPath):
-        RunPeriphery(yamlPath).run()
-    else:
-        RunPeriphery().run()
+    RunPeriphery().run()

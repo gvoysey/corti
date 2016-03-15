@@ -1,11 +1,7 @@
-"""
-This is the container class that replaces input.mat.
-"""
 import math
 from os import path
 
 import numpy as np
-import yaml
 
 import base
 
@@ -20,7 +16,6 @@ class PeripheryConfiguration:
         :parameter self.NumberOfSections: number of basilar membrane sections to simulate (1000)
         :parameter self.PolesDirectoryName: relative path to PolesFileName
         :parameter self.PolesFileName: name of file containing starting Shera poles
-        :parameter self.DataFolder: base relative directory name to where model output directories are stored.
         :parameter self.preDuration:
         :parameter self.postDuration:
 
@@ -28,15 +23,14 @@ class PeripheryConfiguration:
 
     # Magic Constants.
     Fs = 100000  # Sampling frequency. No idea why Fs is so high, but i guess we'll find out.
-    Implementation = 0  # no idea what this does.
-    p0 = 2e-5  # no idea what this even _is_
-    NumberOfSections = 1000
+    Implementation = 0  # no idea what this does (it's not used as of commit 43bf3be01)
+    p0 = 2e-5  # no idea.
+    NumberOfSections = 1000  # possibly also "number of frequency bands", if there's a 1:1 between section and cf.
     # Operational Constants
     PolesDirectoryName = "sysfiles"
     PolesFileName = "StartingPoles.dat"
-    DataFolder = "output"
 
-    def __init__(self):
+    def __init__(self, dataFolder, clean=True):
         # model parameters from RUN_BMAN
         # these are used in making the stimulus waveform
         self.postDuration = int(round(self.Fs * 50e-3))  # a magic number
@@ -54,8 +48,8 @@ class PeripheryConfiguration:
         self.irregularities = [1] * self.channels
         # operational parameters
         self.polePath = path.join(base.rootPath, self.PolesDirectoryName, self.PolesFileName)
-        self.dataFolder = path.join(base.rootPath, self.DataFolder)
-        self.clean = True
+        self.dataFolder = dataFolder
+        self.clean = clean
         self.savePeripheryData = True
         # these come from periphery.m
         self.storeFlag = "avihlmes"
@@ -70,54 +64,6 @@ class PeripheryConfiguration:
         sc = np.hstack([np.zeros(self.preDuration), np.ones(self.cDur), np.zeros(self.postDuration)])
         levels = np.array(self.stimulusLevels)[:, None]
         self.stimulus = 2 * math.sqrt(2) * sc * self.p0 * 10 ** (levels / 20.0)
-
-    @staticmethod
-    def from_yaml(yamlPath: str):
-        """
-        Factory method for returning a configuration.
-        :type yamlPath: str
-        :param yamlPath: a fully qualified path the the stored configuration file.
-        :return: An instance of a configuration class
-        """
-        assert path.isfile(yamlPath), "no configuration found."
-        with open(yamlPath) as _:
-            conf = yaml.load(_)
-        # read out the dict into a new object here
-        retval = PeripheryConfiguration()
-
-        # parse in model parameters
-        # todo: more rigorous input checking here.
-        retval.channels = conf[Constants.Channels]
-        probe = conf[Constants.ProbeType]
-        if probe.lower() == "all":
-            retval.probeString = ProbeType.All
-        elif probe.lower() == "half":
-            retval.probeString = ProbeType.Half
-        else:
-            raise SyntaxError("probe string not recognized; must be `half` or `all`")
-        retval.subject = conf[Constants.Subject]
-        retval.normalizedRMS = np.zeros((1, retval.channels))
-        retval.stimulusLevels = conf[Constants.StimulusLevels]
-        retval.irregularities = [conf[Constants.Irregularities]] * retval.channels
-
-        # stimulus generation
-        retval.generate_stimulus()
-        return retval
-
-
-class Constants:
-    """
-    This is a class that holds constant string values that define the YAML syntax for storing a periphery configuration.
-    """
-    Channels = "channels"
-    ProbeType = "probeType"
-    Subject = "subject"
-    StimulusLevels = "stimulusLevels"
-    Irregularities = "irregularities"
-
-    # operational parameter defaults (optional)
-    DefaultYamlName = "input.yaml"
-
 
 class ProbeType:
     All = "all"
