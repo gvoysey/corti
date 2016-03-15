@@ -29,7 +29,7 @@ class PeripheryConfiguration:
     PolesDirectoryName = "sysfiles"
     PolesFileName = "StartingPoles.dat"
 
-    def __init__(self, dataFolder, clean=True):
+    def __init__(self, dataFolder: str, clean: bool = True):
         # model parameters from RUN_BMAN
         # these are used in making the stimulus waveform
         self.postDuration = int(round(self.Fs * 50e-3))  # a magic number
@@ -58,7 +58,7 @@ class PeripheryConfiguration:
         # make the stimulus
         self.generate_stimulus()
 
-    def generate_stimulus(self):
+    def generate_stimulus(self) -> None:
         # we can synthesize the stimulus here, somehow(..?!)
         sc = np.hstack([np.zeros(self.preDuration), np.ones(self.cDur), np.zeros(self.postDuration)])
         levels = np.array(self.stimulusLevels)[:, None]

@@ -34,7 +34,7 @@ class RunPeriphery:
         self.cochlear_list = [[CochleaModel(), self.stimulus[i], self.irr_on[i], i, (0, i)] for i in
                               range(self.channels)]
 
-    def run(self):
+    def run(self) -> [PeripheryOutput]:
         """Simulates sound propagation up to the auditory nerve.
         :return:
         """
@@ -61,7 +61,7 @@ class RunPeriphery:
                 logging.info("removed " + d)
         logging.info("cleaned.")
 
-    def solve_one_cochlea(self, model: CochleaModel):
+    def solve_one_cochlea(self, model: CochleaModel) -> PeripheryOutput:
 
         ii = model[3]
         coch = model[0]
@@ -100,7 +100,8 @@ class RunPeriphery:
             self.save_model_results(ii, coch, anfH, anfM, anfL, rp)
         return out
 
-    def save_model_results(self, ii, coch, anfH, anfM, anfL, rp):
+    def save_model_results(self, ii: int, coch: CochleaModel, anfH: np.ndarray, anfM: np.ndarray, anfL: np.ndarray,
+                           rp: np.ndarray) -> None:
         # always store CFs
         storeFlag = self.storeFlag + "c"
 
@@ -130,7 +131,7 @@ class RunPeriphery:
                     "wrote {0:<10} to {1}".format(os.path.basename(fname),
                                                   path.relpath(self.output_folder, os.getcwd())))
 
-    def save_model_configuration(self):
+    def save_model_configuration(self) -> None:
         # and store the configuration parameters so we know what we did.
         with open(path.join(self.output_folder, "conf.yaml"), "w") as _:
             yaml.dump(self.conf, _)

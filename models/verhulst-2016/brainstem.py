@@ -58,7 +58,7 @@ class NelsonCarney04:
         self.cutoffCf = [index for index, value in enumerate(self.cf) if value >= 175.0][-1]
         self.timeLen, self.bmSegments = self.anfh.shape
 
-    def run(self):
+    def run(self) -> BrainstemOutput:
         inhCn = self._make_inhibition_component(self.Scn, self.Dcn)
         inhIc = self._make_inhibition_component(self.Sic, self.Dic)
 
@@ -67,7 +67,7 @@ class NelsonCarney04:
         self._save(output)
         return output
 
-    def _save(self, output):
+    def _save(self, output: BrainstemOutput) -> None:
         name = "nc04 response {0}dB".format(self.anfOut.stimulusLevel)
         outpath = self.anfOut.outputFolder
         # save the data out to a npz file whose keys are the field names of output.
