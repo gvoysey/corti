@@ -32,6 +32,12 @@ warnings.simplefilter(action="ignore", category=FutureWarning)
 logging.basicConfig(format='%(levelname)s %(asctime)s- %(message)s', datefmt='%d %b %H:%M:%S', level=logging.INFO)
 
 
+class BrainstemRunner:
+    @staticmethod
+    def solve_one(periphery: PeripheryOutput) -> BrainstemOutput:
+        return NelsonCarney04(periphery).run()
+
+
 def main():
     try:
         label = subprocess.check_output(["git", "describe"])
@@ -49,18 +55,17 @@ def main():
     conf = PeripheryConfiguration(__get_output_path(args["--out"]), args["--pSave"], args["--clean"])
     anResults = RunPeriphery(conf).run()
     print("Simulating brainstem response")
-    brainResults = []
-    for result in anResults:
-        brainResults.append(NelsonCarney04(result).run())
+    brainResults = __simulate_brainstem(anResults)
     print("Finshed.")
     sys.exit(0)
 
 
 def __simulate_brainstem(anResults: [PeripheryOutput]) -> [BrainstemOutput]:
     p = mp.Pool(mp.cpu_count(), maxtasksperchild=1)
-    # brainResults = p.map(NelsonCarney04().run(), anResults)
+    retval = p.map(BrainstemRunner.solve_one, anResults)
     p.close()
     p.join()
+    return retval
 
 
 def __get_output_path(temp: str) -> str:
