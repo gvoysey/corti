@@ -502,7 +502,7 @@ class CochleaModel:
         self.ZweigImpedance()
         w = Writer(location) #, fd=w
         # with progressbar.ProgressBar(max_value=length, fd=w) as bar:  # when run from a command line
-        with progressbar.ProgressBar(max_value=length, redirect_stdout=True) as bar:
+        with progressbar.ProgressBar(max_value=length, fd=w) as bar:
             for j in range(length):
                 if j > 0:
                     self.interplPoint1 = self.stim[j - 1]

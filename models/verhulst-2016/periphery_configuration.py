@@ -21,15 +21,15 @@ class PeripheryConfiguration:
     """
 
     # Magic Constants.
-    Fs = 100000  # Sampling frequency. No idea why Fs is so high, but i guess we'll find out.
+    Fs = 100000  # Sampling frequency. No idea why Fs is so high.
     Implementation = 0  # no idea what this does (it's not used as of commit 43bf3be01)
-    p0 = 2e-5  # no idea.
+    p0 = 2e-5  # no idea.  Stimulus generation constant.
     NumberOfSections = 1000  # possibly also "number of frequency bands", if there's a 1:1 between section and cf.
     # Operational Constants
     PolesDirectoryName = "sysfiles"
     PolesFileName = "StartingPoles.dat"
 
-    def __init__(self, dataFolder: str, clean: bool = True):
+    def __init__(self, dataFolder: str, storeFlag: str, clean: bool = True):
         # model parameters from RUN_BMAN
         # these are used in making the stimulus waveform
         self.postDuration = int(round(self.Fs * 50e-3))  # a magic number
@@ -50,8 +50,8 @@ class PeripheryConfiguration:
         self.dataFolder = dataFolder
         self.clean = clean
         self.savePeripheryData = True
+        self.storeFlag = storeFlag
         # these come from periphery.m
-        self.storeFlag = "avihlmes"
         self.irrPct = 0.05
         self.nonlinearType = "vel"
 

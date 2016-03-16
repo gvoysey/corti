@@ -1,4 +1,5 @@
 import logging
+import os
 from collections import namedtuple
 from os import path
 
@@ -6,7 +7,6 @@ import numpy as np
 import numpy.matlib
 import progressbar
 
-import base
 from periphery_configuration import PeripheryOutput
 
 
@@ -72,7 +72,7 @@ class NelsonCarney04:
         outpath = self.anfOut.outputFolder
         # save the data out to a npz file whose keys are the field names of output.
         np.savez(path.join(outpath, name), **output._asdict())
-        logging.log(logging.INFO, "wrote {0:<10} to {1}".format(name, path.relpath(outpath, base.rootPath)))
+        logging.log(logging.INFO, "wrote {0:<10} to {1}".format(name, path.relpath(outpath, os.getcwd())))
 
     def _shift(self, delay: float) -> int:
         return int(round(delay * self.Fs))

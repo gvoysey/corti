@@ -31,7 +31,7 @@ class RunPeriphery:
         self.output_folder = path.join(self.conf.dataFolder, datetime.now().strftime('%d %b %y - %H%M'))
         if not path.isdir(self.output_folder):
             os.makedirs(self.output_folder)
-        self.cochlear_list = [[CochleaModel(), self.stimulus[i], self.irr_on[i], i, (0, i)] for i in
+        self.cochlear_list = [[CochleaModel(), self.stimulus[i], self.irr_on[i], i, (0, i + 1)] for i in
                               range(self.channels)]
 
     def run(self) -> [PeripheryOutput]:
@@ -46,7 +46,7 @@ class RunPeriphery:
         self.save_model_configuration()
         if self.conf.clean:
             self.clean()
-        print("cochlear simulation of {} channels finished in {:0.3f}s".format(self.channels, timedelta.total_seconds(
+        print("\ncochlear simulation of {} channels finished in {:0.3f}s".format(self.channels, timedelta.total_seconds(
             datetime.now() - s1)))
         return results
 
@@ -61,8 +61,7 @@ class RunPeriphery:
                 logging.info("removed " + d)
         logging.info("cleaned.")
 
-    def solve_one_cochlea(self, model: CochleaModel) -> PeripheryOutput:
-
+    def solve_one_cochlea(self, model: []) -> PeripheryOutput:
         ii = model[3]
         coch = model[0]
         stimulus = model[1]
@@ -96,8 +95,7 @@ class RunPeriphery:
         out.stimulusLevel = self.conf.stimulusLevels[ii]
         out.outputFolder = self.output_folder
 
-        if self.conf.savePeripheryData:
-            self.save_model_results(ii, coch, anfH, anfM, anfL, rp)
+        self.save_model_results(ii, coch, anfH, anfM, anfL, rp)
         return out
 
     def save_model_results(self, ii: int, coch: CochleaModel, anfH: np.ndarray, anfM: np.ndarray, anfL: np.ndarray,
@@ -139,5 +137,5 @@ class RunPeriphery:
 
 
 if __name__ == "__main__":
-    conf = PeripheryConfiguration(path.join(os.getcwd(), "verhulst-output"))
+    conf = PeripheryConfiguration(path.join(os.getcwd(), "verhulst-output"), "avihlmes")
     RunPeriphery(conf).run()
