@@ -2,7 +2,7 @@ import logging
 import os
 from collections import namedtuple
 from os import path
-
+import multiprocessing as mp
 import numpy as np
 import numpy.matlib
 import progressbar
@@ -17,7 +17,20 @@ class CarneyMTFs:
     pass
 
 
-BrainstemOutput = namedtuple("NelsonCarney04Output", ["W1", "CN", "IC", "RanF", "RicF", "RcnF"])
+NelsonCarney04Output = namedtuple("NelsonCarney04Output", ["W1", "CN", "IC", "RanF", "RicF", "RcnF"])
+
+
+def simulate_brainstem(anResults: [PeripheryOutput]) -> [NelsonCarney04Output]:
+    p = mp.Pool(mp.cpu_count(), maxtasksperchild=1)
+    retval = p.map(solve_one, anResults)
+    p.close()
+    p.join()
+    return retval
+
+
+
+def solve_one(periphery: PeripheryOutput) -> NelsonCarney04Output:
+    return NelsonCarney04(periphery).run()
 
 
 class NelsonCarney04:
@@ -58,7 +71,7 @@ class NelsonCarney04:
         self.cutoffCf = [index for index, value in enumerate(self.cf) if value >= 175.0][-1]
         self.timeLen, self.bmSegments = self.anfh.shape
 
-    def run(self) -> BrainstemOutput:
+    def run(self) -> NelsonCarney04Output:
         inhCn = self._make_inhibition_component(self.Scn, self.Dcn)
         inhIc = self._make_inhibition_component(self.Sic, self.Dic)
 
@@ -67,7 +80,7 @@ class NelsonCarney04:
         self._save(output)
         return output
 
-    def _save(self, output: BrainstemOutput) -> None:
+    def _save(self, output: NelsonCarney04Output) -> None:
         name = "nc04 response {0}dB".format(self.anfOut.stimulusLevel)
         outpath = self.anfOut.outputFolder
         # save the data out to a npz file whose keys are the field names of output.
@@ -114,7 +127,7 @@ class NelsonCarney04:
 
         return (lsr + msr + hsr) * self.M1
 
-    def _simulate_brainstem_and_midbrain(self, AN: np.ndarray, inhCn: np.ndarray, inhIc: np.ndarray) -> BrainstemOutput:
+    def _simulate_brainstem_and_midbrain(self, AN: np.ndarray, inhCn: np.ndarray, inhIc: np.ndarray) -> NelsonCarney04Output:
         bmSegments = self.bmSegments
         timeLen = self.timeLen
 
@@ -145,4 +158,4 @@ class NelsonCarney04:
                 RcnF[i, :] = Rcn[0:timeLen]  # chop off the duplicated convolution side
                 bar.update(i)
 
-        return BrainstemOutput(W1=W1, CN=CN, IC=IC, RanF=RanF, RicF=RicF, RcnF=RcnF)
+        return NelsonCarney04Output(W1=W1, CN=CN, IC=IC, RanF=RanF, RicF=RicF, RcnF=RcnF)

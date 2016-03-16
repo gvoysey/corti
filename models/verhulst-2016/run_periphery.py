@@ -54,12 +54,13 @@ class RunPeriphery:
         """
         Removes all the previous model runs except the current one.
         """
-        logging.info("cleaning up...")
-        for d in os.listdir(self.conf.dataFolder):
-            if (not d == path.basename(self.output_folder)) and path.isdir(path.join(self.conf.dataFolder, d)):
-                shutil.rmtree(path.join(self.conf.dataFolder, d))
-                logging.info("removed " + d)
-        logging.info("cleaned.")
+        #logging.info("cleaning up...")
+        #for d in os.listdir(self.conf.dataFolder):
+        #    if (not d == path.basename(self.output_folder)) and path.isdir(path.join(self.conf.dataFolder, d)):
+        #        shutil.rmtree(path.join(self.conf.dataFolder, d))
+        #        logging.info("removed " + d)
+        #logging.info("cleaned.")
+        pass
 
     def solve_one_cochlea(self, model: []) -> PeripheryOutput:
         ii = model[3]
