@@ -29,7 +29,7 @@ class PeripheryConfiguration:
     PolesDirectoryName = "sysfiles"
     PolesFileName = "StartingPoles.dat"
 
-    def __init__(self, dataFolder: str, storeFlag: str, clean: bool = True):
+    def __init__(self, dataFolder: str, storeFlag: str):
         # model parameters from RUN_BMAN
         # these are used in making the stimulus waveform
         self.postDuration = int(round(self.Fs * 50e-3))  # a magic number
@@ -48,7 +48,6 @@ class PeripheryConfiguration:
         # operational parameters
         self.polePath = path.join(base.rootPath, self.PolesDirectoryName, self.PolesFileName)
         self.dataFolder = dataFolder
-        self.clean = clean
         self.savePeripheryData = True
         self.storeFlag = storeFlag
         # these come from periphery.m

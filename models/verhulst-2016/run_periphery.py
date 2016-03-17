@@ -1,11 +1,11 @@
 import logging
 import multiprocessing as mp
-import shutil
 from datetime import datetime, timedelta
 from os import path
 
 import yaml
 
+import base
 from ANF_Sarah import *
 from Sarah_ihc import *
 from cochlear_model_old import *
@@ -28,7 +28,7 @@ class RunPeriphery:
         self.irregularities = self.conf.irregularities
         self.irr_on = self.conf.irregularities
 
-        self.output_folder = path.join(self.conf.dataFolder, datetime.now().strftime('%d %b %y - %H%M'))
+        self.output_folder = path.join(self.conf.dataFolder, datetime.now().strftime(base.ResultDirectoryNameFormat))
         if not path.isdir(self.output_folder):
             os.makedirs(self.output_folder)
         self.cochlear_list = [[CochleaModel(), self.stimulus[i], self.irr_on[i], i, (0, i + 1)] for i in
@@ -44,23 +44,9 @@ class RunPeriphery:
         p.close()
         p.join()
         self.save_model_configuration()
-        if self.conf.clean:
-            self.clean()
         print("\ncochlear simulation of {} channels finished in {:0.3f}s".format(self.channels, timedelta.total_seconds(
             datetime.now() - s1)))
         return results
-
-    def clean(self):
-        """
-        Removes all the previous model runs except the current one.
-        """
-        #logging.info("cleaning up...")
-        #for d in os.listdir(self.conf.dataFolder):
-        #    if (not d == path.basename(self.output_folder)) and path.isdir(path.join(self.conf.dataFolder, d)):
-        #        shutil.rmtree(path.join(self.conf.dataFolder, d))
-        #        logging.info("removed " + d)
-        #logging.info("cleaned.")
-        pass
 
     def solve_one_cochlea(self, model: []) -> PeripheryOutput:
         ii = model[3]

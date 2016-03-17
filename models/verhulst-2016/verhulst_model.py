@@ -16,15 +16,18 @@ Options:
     -v --verbose    Display detailed debug log output to STDOUT.
 """
 import os
-from logging import log, basicConfig, INFO, ERROR, getLogger
+import shutil
 import subprocess
 import sys
 import warnings
+from datetime import datetime
+from logging import info, error, basicConfig, getLogger, ERROR, INFO
 from os import path, system, name
 
 from docopt import docopt
 
 import base
+from analysis.plots import make_summary_plots
 from brainstem import simulate_brainstem
 from periphery_configuration import PeripheryConfiguration
 from run_periphery import RunPeriphery
@@ -33,13 +36,13 @@ warnings.simplefilter(action="ignore", category=FutureWarning)
 basicConfig(format='%(levelname)s %(asctime)s- %(message)s', datefmt='%d %b %H:%M:%S', level=INFO)
 
 
-
 def main():
     try:
         label = subprocess.check_output(["git", "describe"])
+        label = label.decode()
     except subprocess.CalledProcessError:
         label = "unknown"
-        log(ERROR, "version broken until i write setup.py")
+        error("version broken until i write setup.py")
     # get the command line args
     args = docopt(__doc__, version="verhulst_model version " + label)
 
@@ -49,36 +52,62 @@ def main():
 
     system('cls' if name == 'nt' else 'clear')
     print("Simulating periphery and auditory nerve...")
-    log(INFO, "output directory set to {0}".format(__get_output_path(args["--out"])))
-    conf = PeripheryConfiguration(__get_output_path(args["--out"]), args["--pSave"], args["--clean"])
+    info("output directory set to {0}".format(__set_output_dir(args["--out"])))
+    conf = PeripheryConfiguration(__set_output_dir(args["--out"]), args["--pSave"])
     anResults = RunPeriphery(conf).run()
     print("Simulating brainstem response")
     brainResults = simulate_brainstem(anResults)
+    print("Generating summary figure")
+    make_summary_plots(anResults, brainResults)
+    if args["--clean"]:
+        print("Cleaning old model runs ... ")
+        __clean(conf.dataFolder, anResults[0].outputFolder)
     print("Finshed.")
     sys.exit(0)
 
 
+def __clean(rootDir: str, current_results: str) -> None:
+    """
+    Removes all the previous model runs except the current one found in the current base output directory
+    """
+    contents = os.listdir(rootDir)
+    if base.ModelDirectoryLabelName not in contents:
+        info("Specified directory was not a model output directory. No data removed.")
+        return
+    info("cleaning up...")
+    for d in contents:
+        if (not d == path.basename(current_results)) and path.isdir(path.join(rootDir, d)) and datetime.strptime(d,
+                                                                                                                 base.ResultDirectoryNameFormat):
+            shutil.rmtree(path.join(rootDir, d))
+            info("removed " + d)
+    info("cleaned.")
+    pass
+
+
 def __touch(fname, times=None):
+    """ As coreutils touch; may not work on windows.
+    """
     with open(fname, 'a+'):
         os.utime(fname, times)
 
-def __get_output_path(temp: str) -> str:
-    """ Return the fully qualified path to store model output.
+
+def __set_output_dir(temp: str) -> str:
+    """ Return the fully qualified path to store model output, and creates it if it does not exist.
     """
     # just in case we're on windows.
     temp.replace("\\", "\\\\")
-    if temp[0] == "~":
-        retval = path.expanduser(path.join(*path.split(temp)))
-    else:
-        retval = path.realpath(path.join(*path.split(temp)))
+
+    retval = path.realpath(path.join(*path.split(path.expanduser(temp))))
+    dirname = path.split(retval)[1]
     # if the output path exists and is empty, make it the output root and return it.
     if path.exists(retval) and not os.listdir(retval):
-        __touch(path.join(retval,base.ModelDirectoryLabelName))
+        __touch(path.join(retval, base.ModelDirectoryLabelName))
         return retval
     # if it exists and has stuff in it, make a subdirectory in it, make IT the root, and return it.
     elif path.exists(retval) and os.listdir(retval):
-        retval = path.join(retval, "verhulst output")
-        os.makedirs(retval)
+        if dirname != base.DefaultModelOutputDirectoryRoot:
+            retval = path.join(retval, base.DefaultModelOutputDirectoryRoot)
+        os.makedirs(retval, exist_ok=True)
         __touch(path.join(retval, base.ModelDirectoryLabelName))
         return retval
     # if it doesn't exist, make it, make it the root, and return it.
@@ -86,6 +115,7 @@ def __get_output_path(temp: str) -> str:
         os.makedirs(retval)
         __touch(path.join(retval, base.ModelDirectoryLabelName))
         return retval
+
 
 if __name__ == "__main__":
     sys.exit(main())

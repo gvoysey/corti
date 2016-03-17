@@ -1,8 +1,9 @@
 import logging
+import multiprocessing as mp
 import os
 from collections import namedtuple
 from os import path
-import multiprocessing as mp
+
 import numpy as np
 import numpy.matlib
 import progressbar
@@ -138,7 +139,7 @@ class NelsonCarney04:
         RicF = np.zeros((bmSegments, timeLen))
         RcnF = np.zeros((bmSegments, timeLen))
 
-        with progressbar.ProgressBar(max_value=bmSegments, redirect_stdout=True) as bar:
+        with progressbar.ProgressBar(max_value=bmSegments) as bar:
             for i in range(bmSegments):
                 Rcn1 = self.Acn * np.convolve(self._excitation_time_weight(), AN[:, i])
                 Rcn2 = np.convolve(inhCn, np.roll(AN[:, i], self._shift(self.Dcn)))
