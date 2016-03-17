@@ -21,7 +21,7 @@ class CarneyMTFs:
 NelsonCarney04Output = namedtuple("NelsonCarney04Output", ["W1", "CN", "IC", "RanF", "RicF", "RcnF"])
 
 
-def simulate_brainstem(anResults: [PeripheryOutput]) -> [NelsonCarney04Output]:
+def simulate_brainstem(anResults: [(PeripheryOutput, bool)]) -> [NelsonCarney04Output]:
     p = mp.Pool(mp.cpu_count(), maxtasksperchild=1)
     retval = p.map(solve_one, anResults)
     p.close()
@@ -30,8 +30,8 @@ def simulate_brainstem(anResults: [PeripheryOutput]) -> [NelsonCarney04Output]:
 
 
 
-def solve_one(periphery: PeripheryOutput) -> NelsonCarney04Output:
-    return NelsonCarney04(periphery).run()
+def solve_one(periphery: (PeripheryOutput, bool)) -> NelsonCarney04Output:
+    return NelsonCarney04(periphery[0]).run(periphery[1])
 
 
 class NelsonCarney04:
@@ -72,13 +72,14 @@ class NelsonCarney04:
         self.cutoffCf = [index for index, value in enumerate(self.cf) if value >= 175.0][-1]
         self.timeLen, self.bmSegments = self.anfh.shape
 
-    def run(self) -> NelsonCarney04Output:
+    def run(self, saveFlag: bool) -> NelsonCarney04Output:
         inhCn = self._make_inhibition_component(self.Scn, self.Dcn)
         inhIc = self._make_inhibition_component(self.Sic, self.Dic)
 
         AN = self._make_summed_an_response()
         output = self._simulate_brainstem_and_midbrain(AN, inhCn, inhIc)
-        self._save(output)
+        if saveFlag:
+            self._save(output)
         return output
 
     def _save(self, output: NelsonCarney04Output) -> None:

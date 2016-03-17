@@ -55,8 +55,13 @@ def main():
     info("output directory set to {0}".format(__set_output_dir(args["--out"])))
     conf = PeripheryConfiguration(__set_output_dir(args["--out"]), args["--pSave"])
     anResults = RunPeriphery(conf).run()
+    inputs = []
+    for result in anResults:
+        inputs.append((result,args["--bSave"]))
     print("Simulating brainstem response")
-    brainResults = simulate_brainstem(anResults)
+    brainResults = simulate_brainstem(inputs)
+
+
     print("Generating summary figure")
     make_summary_plots(anResults, brainResults)
     if args["--clean"]:
@@ -76,8 +81,9 @@ def __clean(rootDir: str, current_results: str) -> None:
         return
     info("cleaning up...")
     for d in contents:
-        if (not d == path.basename(current_results)) and path.isdir(path.join(rootDir, d)) and datetime.strptime(d,
-                                                                                                                 base.ResultDirectoryNameFormat):
+        if (not d == path.basename(current_results)) and \
+                path.isdir(path.join(rootDir, d)) and \
+                datetime.strptime(d,base.ResultDirectoryNameFormat):
             shutil.rmtree(path.join(rootDir, d))
             info("removed " + d)
     info("cleaned.")
@@ -107,7 +113,8 @@ def __set_output_dir(temp: str) -> str:
     elif path.exists(retval) and os.listdir(retval):
         if dirname != base.DefaultModelOutputDirectoryRoot:
             retval = path.join(retval, base.DefaultModelOutputDirectoryRoot)
-        os.makedirs(retval, exist_ok=True)
+        if not path.exists(retval):
+            os.makedirs(retval,exist_ok=True)
         __touch(path.join(retval, base.ModelDirectoryLabelName))
         return retval
     # if it doesn't exist, make it, make it the root, and return it.
