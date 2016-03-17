@@ -10,7 +10,7 @@ Options:
     -h --help   Show this screen and exit.
     --version   Display the version and exit.
     --out=<outpath>     Specify the output location for saved data. [default: ~/verhulst-output]
-    --pSave=<peripheryFlag>      Which components of the peripheral response to save.  [default: avihlmes]
+    --pSave=<peripheryFlag>      Which components of the peripheral response to save.  [default: cavihlmes]
     --bSave      Brainstem output will be saved if set.
     -c --clean  Previous runs will be deleted to save disk space.
     -v --verbose    Display detailed debug log output to STDOUT.
@@ -55,13 +55,8 @@ def main():
     info("output directory set to {0}".format(__set_output_dir(args["--out"])))
     conf = PeripheryConfiguration(__set_output_dir(args["--out"]), args["--pSave"])
     anResults = RunPeriphery(conf).run()
-    inputs = []
-    for result in anResults:
-        inputs.append((result,args["--bSave"]))
     print("Simulating brainstem response")
-    brainResults = simulate_brainstem(inputs)
-
-
+    brainResults = simulate_brainstem([(anr,args["--bSave"]) for anr in anResults])
     print("Generating summary figure")
     make_summary_plots(anResults, brainResults)
     if args["--clean"]:

@@ -2,6 +2,7 @@ import math
 from os import path
 
 import numpy as np
+from datetime import datetime
 
 import base
 
@@ -53,6 +54,8 @@ class PeripheryConfiguration:
         # these come from periphery.m
         self.irrPct = 0.05
         self.nonlinearType = "vel"
+
+        self.run_timestamp = datetime.now()
 
         # make the stimulus
         self.generate_stimulus()
