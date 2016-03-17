@@ -20,15 +20,12 @@ class CarneyMTFs:
 
 NelsonCarney04Output = namedtuple("NelsonCarney04Output", ["W1", "CN", "IC", "RanF", "RicF", "RcnF"])
 
-
 def simulate_brainstem(anResults: [(PeripheryOutput, bool)]) -> [NelsonCarney04Output]:
     p = mp.Pool(mp.cpu_count(), maxtasksperchild=1)
     retval = p.map(solve_one, anResults)
     p.close()
     p.join()
     return retval
-
-
 
 def solve_one(periphery: (PeripheryOutput, bool)) -> NelsonCarney04Output:
     return NelsonCarney04(periphery[0]).run(periphery[1])
@@ -92,17 +89,11 @@ class NelsonCarney04:
     def _shift(self, delay: float) -> int:
         return int(round(delay * self.Fs))
 
-    def _inhibition_time_weight(self) -> np.ndarray:
-        """ Create a weighted exponential
-        :return:
+    def _weight_and_shift_exponential(self, scalingFactor:float) -> np.ndarray:
+        """Make a shifted exponential
+        Returns $\frac{1}{sF^2}*\vec{t}*e^{\frac{-\vec{t}}{sF}}$
         """
-        return np.multiply((1 / (self.Tin ** 2)) * self.time, np.exp((-1 * self.time) / self.Tin))
-
-    def _excitation_time_weight(self) -> np.ndarray:
-        """ Create a weighted exponential
-        :return:
-        """
-        return np.multiply((1 / (self.Tex ** 2)) * self.time, np.exp((-1 * self.time) / self.Tex))
+        return np.multiply((1 / (scalingFactor ** 2)) * self.time, np.exp((-1 * self.time) / scalingFactor))
 
     def _make_inhibition_component(self, s: float, delay: float) -> np.ndarray:
         """ Make the DCN or ICN inhibition component.
@@ -111,7 +102,7 @@ class NelsonCarney04:
         :param delay: time period, in units of (Fs^-1)s.  This value will be converted to an integer number of samples.
         """
         lag = self._shift(delay)
-        inhibition = s * self._inhibition_time_weight()
+        inhibition = s * self._weight_and_shift_exponential(self.Tin)
         return np.pad(inhibition, (lag, 0), 'constant')[:-lag]
 
     def _make_summed_an_response(self) -> np.ndarray:
@@ -142,11 +133,11 @@ class NelsonCarney04:
 
         with progressbar.ProgressBar(max_value=bmSegments) as bar:
             for i in range(bmSegments):
-                Rcn1 = self.Acn * np.convolve(self._excitation_time_weight(), AN[:, i])
+                Rcn1 = self.Acn * np.convolve(self._weight_and_shift_exponential(self.Tex), AN[:, i])
                 Rcn2 = np.convolve(inhCn, np.roll(AN[:, i], self._shift(self.Dcn)))
                 Rcn = (Rcn1 - Rcn2) * self.M3
 
-                Ric1 = self.Aic * np.convolve(self._excitation_time_weight(), Rcn)
+                Ric1 = self.Aic * np.convolve(self._weight_and_shift_exponential(self.Tex), Rcn)
                 Ric2 = np.convolve(inhIc, np.roll(Rcn, self._shift(self.Dic)))
                 Ric = (Ric1 - Ric2) * self.M5
 
