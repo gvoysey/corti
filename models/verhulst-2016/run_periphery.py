@@ -5,9 +5,9 @@ from os import path
 
 import yaml
 
-import base
 from ANF_Sarah import *
 from Sarah_ihc import *
+from base import const
 from cochlear_model_old import *
 from periphery_configuration import PeripheryConfiguration, PeripheryOutput
 
@@ -28,7 +28,7 @@ class RunPeriphery:
         self.irregularities = self.conf.irregularities
         self.irr_on = self.conf.irregularities
 
-        self.output_folder = path.join(self.conf.dataFolder, datetime.now().strftime(base.ResultDirectoryNameFormat))
+        self.output_folder = path.join(self.conf.dataFolder, datetime.now().strftime(const.ResultDirectoryNameFormat))
         if not path.isdir(self.output_folder):
             os.makedirs(self.output_folder)
         self.cochlear_list = [[CochleaModel(), self.stimulus[i], self.irr_on[i], i, (0, i + 1)] for i in
@@ -111,8 +111,9 @@ class RunPeriphery:
                 name, value = saveMap[flag]
                 saveDict[name] = value
         if saveDict:
-            np.savez(path.join(self.output_folder, mf(base.PeripheryOutputFilePrefix)),**saveDict)
-            logging.info("wrote {0} to {1}".format(mf(base.PeripheryOutputFilePrefix),path.relpath(self.output_folder, os.getcwd())))
+            np.savez(path.join(self.output_folder, mf(const.PeripheryOutputFilePrefix)), **saveDict)
+            logging.info("wrote {0} to {1}".format(mf(const.PeripheryOutputFilePrefix),
+                                                   path.relpath(self.output_folder, os.getcwd())))
 
     def save_model_configuration(self) -> None:
         # and store the configuration parameters so we know what we did.
