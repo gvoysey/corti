@@ -111,16 +111,11 @@ class RunPeriphery:
                 name, value = saveMap[flag]
                 saveDict[name] = value
         if saveDict:
-            np.savez(path.join(self.output_folder, mf("periphery response ")),**saveDict)
-            logging.info("wrote {0} to {1}".format(mf("periphery response "),path.relpath(self.output_folder, os.getcwd())))
+            np.savez(path.join(self.output_folder, mf(base.PeripheryOutputFilePrefix)),**saveDict)
+            logging.info("wrote {0} to {1}".format(mf(base.PeripheryOutputFilePrefix),path.relpath(self.output_folder, os.getcwd())))
 
     def save_model_configuration(self) -> None:
         # and store the configuration parameters so we know what we did.
         with open(path.join(self.output_folder, "conf.yaml"), "w") as _:
             yaml.dump(self.conf, _)
             logging.info("wrote conf.yaml to {}".format(path.relpath(self.output_folder, os.getcwd())))
-
-
-if __name__ == "__main__":
-    conf = PeripheryConfiguration(path.join(os.getcwd(), "verhulst-output"), "avihlmes")
-    RunPeriphery(conf).run()

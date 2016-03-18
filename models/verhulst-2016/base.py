@@ -6,3 +6,6 @@ ModelDirectoryLabelName = ".verhulst-model-output-root"
 DefaultModelOutputDirectoryRoot = "verhulst-output"
 
 ResultDirectoryNameFormat = '%d %b %y - %H%M'
+
+PeripheryOutputFilePrefix = "periphery-output-"
+NelsonCarneyOutputFilePrefix = "nelson-carney-output-"
