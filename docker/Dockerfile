@@ -46,6 +46,7 @@ RUN cd /usr/local/bin \
 	&& ln -s python-config3 python-config
 
 RUN apt-get update
+# without this, scipy doesn't install
 RUN apt-get install -y build-essential python-dev python-setuptools gfortran libblas-dev libatlas-dev liblapack-dev
 
 RUN pip install --upgrade pip
@@ -53,6 +54,9 @@ RUN pip install numpy
 RUN pip install scipy
 RUN pip install progressbar2
 RUN pip install pyyaml
-RUN pip install jupyter
+RUN pip install docopt
+RUN pip install matplotlib
+RUN pip install blessings
+
 
 CMD ["python3"]
