@@ -32,7 +32,9 @@ from brainstem import simulate_brainstem
 from periphery_configuration import PeripheryConfiguration
 from run_periphery import RunPeriphery
 
+# PyYAML has some warnings we'll suppress
 warnings.simplefilter(action="ignore", category=FutureWarning)
+# By default, log INFO and up.
 basicConfig(format='%(levelname)s %(asctime)s- %(message)s', datefmt='%d %b %H:%M:%S', level=INFO)
 
 
@@ -43,6 +45,7 @@ def main():
     except subprocess.CalledProcessError:
         label = "unknown"
         error("version broken until i write setup.py")
+
     # get the command line args
     args = docopt(__doc__, version="verhulst_model version " + label)
 
@@ -50,6 +53,7 @@ def main():
     if not args["--verbose"]:
         getLogger().setLevel(ERROR)
 
+    # actually run the simulation
     system('cls' if name == 'nt' else 'clear')
     print("Simulating periphery and auditory nerve...")
     info("output directory set to {0}".format(__set_output_dir(args["--out"])))
@@ -57,18 +61,19 @@ def main():
     anResults = RunPeriphery(conf).run()
     print("Simulating brainstem response")
     brainResults = simulate_brainstem([(anr, args["--bSave"]) for anr in anResults])
-    print("Generating summary figure")
+    print("Generating summary figures")
     make_summary_plots(anResults, brainResults)
     if args["--clean"]:
         print("Cleaning old model runs ... ")
         __clean(conf.dataFolder, anResults[0].outputFolder)
-    print("Finshed.")
+    print("Simulation finished.")
     sys.exit(0)
 
 
 def __clean(rootDir: str, current_results: str) -> None:
     """
-    Removes all the previous model runs except the current one found in the current base output directory
+    Removes all the previous model runs except the current one found in the current base output directory.
+    All directories that are named like model output directories are removed recursively; no other files are touched.
     """
     contents = os.listdir(rootDir)
     if const.ModelDirectoryLabelName not in contents:
@@ -93,20 +98,22 @@ def __touch(fname, times=None):
 
 
 def __set_output_dir(temp: str) -> str:
-    """ Return the fully qualified path to store model output, and creates it if it does not exist.
+    """ Returns a fully qualified path to the model output root directory.
+    The directory is created it if it does not exist.
     """
     # just in case we're on windows.
     temp.replace("\\", "\\\\")
 
     retval = path.realpath(path.join(*path.split(path.expanduser(temp))))
-    dirname = path.split(retval)[1]
+    if path.isfile(retval):
+        retval = path.dirname(retval)
     # if the output path exists and is empty, make it the output root and return it.
     if path.exists(retval) and not os.listdir(retval):
         __touch(path.join(retval, const.ModelDirectoryLabelName))
         return retval
     # if it exists and has stuff in it, make a subdirectory in it, make IT the root, and return it.
     elif path.exists(retval) and os.listdir(retval):
-        if dirname != const.DefaultModelOutputDirectoryRoot:
+        if path.basename(retval) != const.DefaultModelOutputDirectoryRoot:
             retval = path.join(retval, const.DefaultModelOutputDirectoryRoot)
         if not path.exists(retval):
             os.makedirs(retval, exist_ok=True)
