@@ -10,6 +10,10 @@ gain = 1.0
 
 
 def ihc(input1, fs):
+    """Compute IHC voltages
+    :parameter input1: the BM Velocity solution (?)
+    :parameter fs: the sampling frequency
+    """
     dim_in = shape(input1)
     size = (dim_in[1])
     FS = fs

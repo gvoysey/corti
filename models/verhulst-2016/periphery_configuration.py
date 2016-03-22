@@ -24,7 +24,7 @@ class PeripheryConfiguration:
     # Magic Constants.
     Fs = 100000  # Sampling frequency. No idea why Fs is so high.
     Implementation = 0  # no idea what this does (it's not used as of commit 43bf3be01)
-    p0 = 2e-5  # no idea.  Stimulus generation constant.
+    p0 = 2e-5  # 20 uPa for dB conversion in stimulus making.
     NumberOfSections = 1000  # possibly also "number of frequency bands", if there's a 1:1 between section and cf.
     # Operational Constants
     PolesDirectoryName = "sysfiles"
@@ -53,7 +53,7 @@ class PeripheryConfiguration:
         self.storeFlag = storeFlag
         # these come from periphery.m
         self.irrPct = 0.05
-        self.nonlinearType = "vel"
+        self.nonlinearType = "vel" #todo this is defined twice
 
         self.run_timestamp = datetime.now()
 
