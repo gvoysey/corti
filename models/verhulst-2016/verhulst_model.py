@@ -26,7 +26,7 @@ from os import path, system, name
 
 from docopt import docopt
 
-from analysis.plots import make_summary_plots
+#from analysis.plots import make_summary_plots
 from base import const
 from brainstem import simulate_brainstem
 from periphery_configuration import PeripheryConfiguration
@@ -62,7 +62,7 @@ def main():
     print("Simulating brainstem response")
     brainResults = simulate_brainstem([(anr, args["--bSave"]) for anr in anResults])
     print("Generating summary figures")
-    make_summary_plots(anResults, brainResults)
+    #make_summary_plots(anResults, brainResults)
     if args["--clean"]:
         print("Cleaning old model runs ... ")
         __clean(conf.dataFolder, anResults[0].outputFolder)
