@@ -47,7 +47,7 @@ class PeripheryConfiguration:
         assert len(self.stimulusLevels) == self.channels, "A stimulus level must be given for each channel"
         self.irregularities = [1] * self.channels
         # operational parameters
-        self.polePath = path.join(base.rootPath, self.PolesDirectoryName, self.PolesFileName)
+        self.polePath = path.join(base.rootPath, "verhulst_model_core",self.PolesDirectoryName, self.PolesFileName) #todo!!
         self.dataFolder = dataFolder
         self.savePeripheryData = True
         self.storeFlag = storeFlag
