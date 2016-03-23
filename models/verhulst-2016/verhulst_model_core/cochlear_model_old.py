@@ -4,7 +4,7 @@ import os
 
 import numpy as np
 import progressbar
-from blessings import Terminal
+# from blessings import Terminal
 from scipy import signal
 from scipy.integrate import ode
 

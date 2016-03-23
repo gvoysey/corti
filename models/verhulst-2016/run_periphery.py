@@ -5,11 +5,11 @@ from os import path
 
 import yaml
 
-from ANF_Sarah import *
-from Sarah_ihc import *
 from base import const
-from cochlear_model_old import *
 from periphery_configuration import PeripheryConfiguration, PeripheryOutput
+from verhulst_model_core.Sarah_ihc import *
+from verhulst_model_core.cochlear_model_old import *
+from verhulst_model_core.ANF_Sarah import *
 
 
 class RunPeriphery:
