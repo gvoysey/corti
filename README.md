@@ -7,9 +7,11 @@ This repository contains the core functionality of the model developed by Dr. Sa
 2. Verhulst, S., Dau, T. and Shera, C.A. (2012). Nonlinear time-domain cochlear model for transient stimulation and human otoacoustic emission. Journal of the Acoustical Society of America, 132 (6), 3842-3848.
 
 This repository contains the version of this code that was used by Dr. Goldbarg  Mehraei in her dissertation: 
+
 1.  Mehraei, G. (2015). Auditory brainstem response latency in noise as a marker of cochlear synaptopathy Massachusetts Institute of Technology.
 
 It has been subsequently refactored by Graham Voysey (gvoysey@bu.edu), to incorporate it into a modeling framework being used in his [M.S. thesis](https://github.com/gvoysey/thesis-code) at Boston University.   Changes include: 
+
     1. PEP-8 compliance (somewhat)
     2. Addition of `core.py`, a container for tracking operational parameters such as location of starting poles. 
     3. Support for a progress bar display during computation of each BM section
