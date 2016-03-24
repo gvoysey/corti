@@ -10,6 +10,9 @@ This repository contains the version of this code that was used by Dr. Goldbarg 
 
 1.  Mehraei, G. (2015). Auditory brainstem response latency in noise as a marker of cochlear synaptopathy Massachusetts Institute of Technology.
 
+
+**This repository does NOT include an implementation of the brainstem and midbrain component described in the above publications.  For a reference version, please consult Nelson, P. C., and Carney, L. H. (2004). “A phenomenological model of peripheral and central neural responses to amplitude-modulated tones,” J. Acoust. Soc. Am., 116, 2173. doi:10.1121/1.1784442 **.  An implementation of this component in python is present in @gvoysey's [https://github.com/gvoysey/thesis-code](thesis repository)
+
 ## Subsequent Changes
 The code in this repository has been subsequently refactored by Graham Voysey (gvoysey@bu.edu), to incorporate it into a modeling framework being used in his [M.S. thesis](https://github.com/gvoysey/thesis-code) at Boston University.   Changes include: 
 
