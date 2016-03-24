@@ -1,31 +1,33 @@
 # -*- coding: utf-8 -*-
 import ctypes
-import os
 
 import numpy as np
 import progressbar
-# from blessings import Terminal
+from blessings import Terminal
 from scipy import signal
 from scipy.integrate import ode
 
-# term = Terminal()
-#
-#
-# class Writer(object):
-#     """Create an object with a write method that writes to a
-#     specific place on the screen, defined at instantiation.
-#     This is the glue between blessings and progressbar.
-#     """
-#     def __init__(self, location):
-#         """
-#         Input: location - tuple of ints (x, y), the position
-#                           of the bar in the terminal
-#         """
-#         self.location = location
-#
-#     def write(self, string):
-#         with term.location(*self.location):
-#             print(string)
+from verhulst_model_core.core import *
+
+term = Terminal()
+
+
+class Writer(object):
+    """Create an object with a write method that writes to a
+ specific place on the screen, defined at instantiation.
+ This is the glue between blessings and progressbar.
+ """
+
+    def __init__(self, location):
+        """
+     Input: location - tuple of ints (x, y), the position
+                       of the bar in the terminal
+     """
+        self.location = location
+
+    def write(self, string):
+        with term.location(*self.location):
+            print(string)
 
 
 DOUBLE = ctypes.c_double
@@ -42,8 +44,7 @@ class TridiagMatrix(ctypes.Structure):
 
 
 # load C library
-libPath = os.path.dirname(os.path.abspath(__file__))
-libtrisolv = np.ctypeslib.load_library("tridiag.so", libPath)
+libtrisolv = np.ctypeslib.load_library(core_const.TridiagName, rootPath)
 
 # load tridiagonal solver function and defines input
 libtrisolv.solve_tridiagonal.restype = None

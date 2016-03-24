@@ -1,10 +1,10 @@
 import math
+from datetime import datetime
 from os import path
 
 import numpy as np
-from datetime import datetime
 
-import base
+from verhulst_model_core import core
 
 
 class PeripheryConfiguration:
@@ -26,9 +26,6 @@ class PeripheryConfiguration:
     Implementation = 0  # no idea what this does (it's not used as of commit 43bf3be01)
     p0 = 2e-5  # 20 uPa for dB conversion in stimulus making.
     NumberOfSections = 1000  # possibly also "number of frequency bands", if there's a 1:1 between section and cf.
-    # Operational Constants
-    PolesDirectoryName = "sysfiles"
-    PolesFileName = "StartingPoles.dat"
 
     def __init__(self, dataFolder: str, storeFlag: str):
         # model parameters from RUN_BMAN
@@ -47,13 +44,12 @@ class PeripheryConfiguration:
         assert len(self.stimulusLevels) == self.channels, "A stimulus level must be given for each channel"
         self.irregularities = [1] * self.channels
         # operational parameters
-        self.polePath = path.join(base.rootPath, "verhulst_model_core",self.PolesDirectoryName, self.PolesFileName) #todo!!
+        self.polePath = path.join(core.polesPath)
         self.dataFolder = dataFolder
-        self.savePeripheryData = True
         self.storeFlag = storeFlag
         # these come from periphery.m
         self.irrPct = 0.05
-        self.nonlinearType = "vel" #todo this is defined twice
+        self.nonlinearType = "vel"  # todo this is defined in two places
 
         self.run_timestamp = datetime.now()
 

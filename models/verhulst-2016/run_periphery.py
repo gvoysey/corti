@@ -5,11 +5,11 @@ from os import path
 
 import yaml
 
-from base import const
+import base
 from periphery_configuration import PeripheryConfiguration, PeripheryOutput
+from verhulst_model_core.ANF_Sarah import *
 from verhulst_model_core.Sarah_ihc import *
 from verhulst_model_core.cochlear_model_old import *
-from verhulst_model_core.ANF_Sarah import *
 
 
 class RunPeriphery:
@@ -28,7 +28,8 @@ class RunPeriphery:
         self.irregularities = self.conf.irregularities
         self.irr_on = self.conf.irregularities
 
-        self.output_folder = path.join(self.conf.dataFolder, datetime.now().strftime(const.ResultDirectoryNameFormat))
+        self.output_folder = path.join(self.conf.dataFolder,
+                                       datetime.now().strftime(base.const.ResultDirectoryNameFormat))
         if not path.isdir(self.output_folder):
             os.makedirs(self.output_folder)
         self.cochlear_list = [[CochleaModel(), self.stimulus[i], self.irr_on[i], i, (0, i + 1)] for i in
@@ -111,8 +112,8 @@ class RunPeriphery:
                 name, value = saveMap[flag]
                 saveDict[name] = value
         if saveDict:
-            np.savez(path.join(self.output_folder, mf(const.PeripheryOutputFilePrefix)), **saveDict)
-            logging.info("wrote {0} to {1}".format(mf(const.PeripheryOutputFilePrefix),
+            np.savez(path.join(self.output_folder, mf(base.const.PeripheryOutputFilePrefix)), **saveDict)
+            logging.info("wrote {0} to {1}".format(mf(base.const.PeripheryOutputFilePrefix),
                                                    path.relpath(self.output_folder, os.getcwd())))
 
     def save_model_configuration(self) -> None:
