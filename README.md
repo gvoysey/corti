@@ -5,12 +5,12 @@ This repository contains the core functionality of the model developed by Dr. Sa
 1.  Verhulst, S., Bharadwaj, H. M., Mehraei, G., Shera, C. A., and Shinn-Cunningham, B. G. (2015). “Functional modeling of the human auditory brainstem response to broadband stimulations,” J. Acoust. Soc. Am., 138, 1637–1659. doi:10.1121/1.4928305
 2. Verhulst, S., Dau, T. and Shera, C.A. (2012). Nonlinear time-domain cochlear model for transient stimulation and human otoacoustic emission. Journal of the Acoustical Society of America, 132 (6), 3842-3848.
 
-This repository contains the version of this code that was used by Dr. Goldbarg  Mehraei in her dissertation: 
+This repository contains a lightly modified version of this model that was used by Dr. Goldbarg  Mehraei in her dissertation: 
 
 1.  Mehraei, G. (2015). Auditory brainstem response latency in noise as a marker of cochlear synaptopathy Massachusetts Institute of Technology.
 
-**This repository does NOT include an implementation of the brainstem and midbrain component described in the above publications.**  
-For a reference version, please consult Nelson, P. C., and Carney, L. H. (2004). “A phenomenological model of peripheral and central neural responses to amplitude-modulated tones,” J. Acoust. Soc. Am., 116, 2173. doi:10.1121/1.1784442 . 
+**This repository does _not_ include an implementation of the brainstem and midbrain component described in the above publications.**  
+For a reference version of that brainstem component, please consult Nelson, P. C., and Carney, L. H. (2004). “A phenomenological model of peripheral and central neural responses to amplitude-modulated tones,” J. Acoust. Soc. Am., 116, 2173. doi:10.1121/1.1784442 . 
 
 An implementation of the Nelson & Carney 2004 component in python is present in @gvoysey's [thesis repository](https://github.com/gvoysey/thesis-code).
 
