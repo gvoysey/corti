@@ -6,7 +6,6 @@ from os import path
 import yaml
 
 import base
-from verhulst_model_core.core import polesPath
 from periphery_configuration import PeripheryConfiguration, PeripheryOutput
 from verhulst_model_core.ANF_Sarah import *
 from verhulst_model_core.Sarah_ihc import *
