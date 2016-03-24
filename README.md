@@ -12,9 +12,9 @@ This repository contains the version of this code that was used by Dr. Goldbarg 
 
 It has been subsequently refactored by Graham Voysey (gvoysey@bu.edu), to incorporate it into a modeling framework being used in his [M.S. thesis](https://github.com/gvoysey/thesis-code) at Boston University.   Changes include: 
 
-    1. PEP-8 compliance (somewhat)
-    2. Addition of `core.py`, a container for tracking operational parameters such as location of starting poles. 
-    3. Support for a progress bar display during computation of each BM section
-    4. Minor name changes (e.g., `class cochlea_model` --> `class CochleaModel`).
+1. PEP-8 compliance (somewhat)
+2. Addition of `core.py`, a container for tracking operational parameters such as location of starting poles. 
+3. Support for a progress bar display during computation of each BM section
+4. Minor name changes (e.g., `class cochlea_model` --> `class CochleaModel`).
 
 
