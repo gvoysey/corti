@@ -8,7 +8,7 @@ import numpy as np
 import numpy.matlib
 import progressbar
 
-from base import const
+from base import runtime_consts
 from periphery_configuration import PeripheryOutput
 
 
@@ -81,7 +81,7 @@ class NelsonCarney04:
         return output
 
     def _save(self, output: NelsonCarney04Output) -> None:
-        name = const.NelsonCarneyOutputFilePrefix + "{0}dB".format(self.anfOut.stimulusLevel)
+        name = runtime_consts.NelsonCarneyOutputFilePrefix + "{0}dB".format(self.anfOut.stimulusLevel)
         outpath = self.anfOut.outputFolder
         # save the data out to a npz file whose keys are the field names of output.
         np.savez(path.join(outpath, name), **output._asdict())

@@ -5,7 +5,7 @@ from os import path
 
 import yaml
 
-import base
+from base import runtime_consts, periph_consts
 from periphery_configuration import PeripheryConfiguration, PeripheryOutput
 from verhulst_model_core.ANF_Sarah import *
 from verhulst_model_core.Sarah_ihc import *
@@ -29,7 +29,7 @@ class RunPeriphery:
         self.irr_on = self.conf.irregularities
 
         self.output_folder = path.join(self.conf.dataFolder,
-                                       datetime.now().strftime(base.const.ResultDirectoryNameFormat))
+                                       datetime.now().strftime(runtime_consts.ResultDirectoryNameFormat))
         if not path.isdir(self.output_folder):
             os.makedirs(self.output_folder)
         self.cochlear_list = [[CochleaModel(), self.stimulus[i], self.irr_on[i], i, (0, i + 1)] for i in
@@ -89,21 +89,19 @@ class RunPeriphery:
     def save_model_results(self, ii: int, coch: CochleaModel, anfH: np.ndarray, anfM: np.ndarray, anfL: np.ndarray,
                            rp: np.ndarray) -> None:
         # let's store every run along with a serialized snapshot of its parameters in its own directory.
-        # mf makes a fully qualified file path to the output file.
-        mf = lambda x: x + str(self.conf.stimulusLevels[ii]) + 'dB'
 
-        # saveMap makes a dict of tuples. the key is the storeFlag character, [1] is the prefix to the file name,
-        # and [2] is the function that saves the data. todo add handing for "a" here.
+        # saveMap makes a dict of tuples. the key is the storeFlag character, [0] is the key that will be used in the npz file,
+        # and [1] is the value saved to that key. todo add handing for "a" here.
         saveMap = {
-            'v': (mf('bmvel'), coch.Vsolution),
-            'y': (mf('bmpos'), coch.Ysolution),
-            'c': (mf('cf'), coch.cf),
-            'e': (mf('emission'), coch.oto_emission),
-            'h': (mf('anfH'), anfH),
-            'm': (mf('anfM'), anfM),
-            'l': (mf('anfL'), anfL),
-            'i': (mf('ihc'), rp),
-            's': (mf('stim'), self.conf.stimulus[ii])
+            'v': (periph_consts.BMVelocity, coch.Vsolution),
+            'y': (periph_consts.BMDisplacement, coch.Ysolution),
+            'c': (periph_consts.CenterFrequency, coch.cf),
+            'e': (periph_consts.OtoacousticEmission, coch.oto_emission),
+            'h': (periph_consts.AuditoryNerveFiberHighSpont, anfH),
+            'm': (periph_consts.AuditoryNerveFiberMediumSpont, anfM),
+            'l': (periph_consts.AuditoryNerveFiberLowSpont, anfL),
+            'i': (periph_consts.InnerHairCell, rp),
+            's': (periph_consts.Stimulus, self.conf.stimulus[ii])
         }
         # walk through the map and save the stuff we said we should.
         saveDict = {}
@@ -112,9 +110,9 @@ class RunPeriphery:
                 name, value = saveMap[flag]
                 saveDict[name] = value
         if saveDict:
-            np.savez(path.join(self.output_folder, mf(base.const.PeripheryOutputFilePrefix)), **saveDict)
-            logging.info("wrote {0} to {1}".format(mf(base.const.PeripheryOutputFilePrefix),
-                                                   path.relpath(self.output_folder, os.getcwd())))
+            outfile= runtime_consts.PeripheryOutputFilePrefix+str(self.conf.stimulusLevels[ii])+"dB"
+            np.savez(path.join(self.output_folder,outfile), **saveDict)
+            logging.info("wrote {0} to {1}".format(outfile, path.relpath(self.output_folder, os.getcwd())))
 
     def save_model_configuration(self) -> None:
         # and store the configuration parameters so we know what we did.

@@ -27,7 +27,7 @@ from os import path, system, name
 from docopt import docopt
 
 #from analysis.plots import make_summary_plots
-from base import const
+from base import runtime_consts
 from brainstem import simulate_brainstem
 from periphery_configuration import PeripheryConfiguration
 from run_periphery import RunPeriphery
@@ -61,7 +61,7 @@ def main():
     anResults = RunPeriphery(conf).run()
     print("Simulating brainstem response")
     brainResults = simulate_brainstem([(anr, args["--bSave"]) for anr in anResults])
-    print("Generating summary figures")
+    #print("Generating summary figures")
     #make_summary_plots(anResults, brainResults)
     if args["--clean"]:
         print("Cleaning old model runs ... ")
@@ -76,14 +76,14 @@ def __clean(rootDir: str, current_results: str) -> None:
     All directories that are named like model output directories are removed recursively; no other files are touched.
     """
     contents = os.listdir(rootDir)
-    if const.ModelDirectoryLabelName not in contents:
+    if runtime_consts.ModelDirectoryLabelName not in contents:
         info("Specified directory was not a model output directory. No data removed.")
         return
     info("cleaning up...")
     for d in contents:
         if (not d == path.basename(current_results)) and \
                 path.isdir(path.join(rootDir, d)) and \
-                datetime.strptime(d, const.ResultDirectoryNameFormat):
+                datetime.strptime(d, runtime_consts.ResultDirectoryNameFormat):
             shutil.rmtree(path.join(rootDir, d))
             info("removed " + d)
     info("cleaned.")
@@ -109,20 +109,20 @@ def __set_output_dir(temp: str) -> str:
         retval = path.dirname(retval)
     # if the output path exists and is empty, make it the output root and return it.
     if path.exists(retval) and not os.listdir(retval):
-        __touch(path.join(retval, const.ModelDirectoryLabelName))
+        __touch(path.join(retval, runtime_consts.ModelDirectoryLabelName))
         return retval
     # if it exists and has stuff in it, make a subdirectory in it, make IT the root, and return it.
     elif path.exists(retval) and os.listdir(retval):
-        if path.basename(retval) != const.DefaultModelOutputDirectoryRoot:
-            retval = path.join(retval, const.DefaultModelOutputDirectoryRoot)
+        if path.basename(retval) != runtime_consts.DefaultModelOutputDirectoryRoot:
+            retval = path.join(retval, runtime_consts.DefaultModelOutputDirectoryRoot)
         if not path.exists(retval):
             os.makedirs(retval, exist_ok=True)
-        __touch(path.join(retval, const.ModelDirectoryLabelName))
+        __touch(path.join(retval, runtime_consts.ModelDirectoryLabelName))
         return retval
     # if it doesn't exist, make it, make it the root, and return it.
     elif not path.exists(retval):
         os.makedirs(retval)
-        __touch(path.join(retval, const.ModelDirectoryLabelName))
+        __touch(path.join(retval, runtime_consts.ModelDirectoryLabelName))
         return retval
 
 
