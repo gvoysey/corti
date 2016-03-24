@@ -44,7 +44,7 @@ class TridiagMatrix(ctypes.Structure):
 
 
 # load C library
-libtrisolv = np.ctypeslib.load_library(core_const.TridiagName, rootPath)
+libtrisolv = np.ctypeslib.load_library(core_const.TridiagName, core_root)
 
 # load tridiagonal solver function and defines input
 libtrisolv.solve_tridiagonal.restype = None
