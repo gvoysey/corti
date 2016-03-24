@@ -44,7 +44,6 @@ class PeripheryConfiguration:
         assert len(self.stimulusLevels) == self.channels, "A stimulus level must be given for each channel"
         self.irregularities = [1] * self.channels
         # operational parameters
-        self.polePath = path.join(core.polesPath)
         self.dataFolder = dataFolder
         self.storeFlag = storeFlag
         # these come from periphery.m

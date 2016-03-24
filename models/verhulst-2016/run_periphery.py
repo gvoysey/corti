@@ -6,6 +6,7 @@ from os import path
 import yaml
 
 import base
+from verhulst_model_core.core import polesPath
 from periphery_configuration import PeripheryConfiguration, PeripheryOutput
 from verhulst_model_core.ANF_Sarah import *
 from verhulst_model_core.Sarah_ihc import *
@@ -24,7 +25,7 @@ class RunPeriphery:
         self.subject = self.conf.subject
         self.irrPct = self.conf.irrPct
         self.nonlinearType = self.conf.nonlinearType
-        self.sheraPo = np.loadtxt(self.conf.polePath)
+        self.sheraPo = np.loadtxt(polesPath)
         self.irregularities = self.conf.irregularities
         self.irr_on = self.conf.irregularities
 

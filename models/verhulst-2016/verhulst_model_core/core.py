@@ -7,5 +7,5 @@ core_const = OperationalConstants(PolesDirectoryName="sysfiles",
                                   TridiagName="tridiag.so"
                                   )
 
-rootPath = os.path.dirname(os.path.abspath(__file__))
-polesPath = os.path.join(rootPath, core_const.PolesDirectoryName, core_const.PolesFileName)
+core_root = os.path.dirname(os.path.abspath(__file__))
+polesPath = os.path.join(core_root, core_const.PolesDirectoryName, core_const.PolesFileName)
