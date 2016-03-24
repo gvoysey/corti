@@ -16,7 +16,7 @@ def anf_model(ihcout, cf, fs, ftype):
     # fth and srth change the relative threshholds of spontaneous rate fibers.  "always 40dB above SR fibers"
     FTH = 50e-6
     # SRTH = FTH + 2e-3
-    # per goldie, induces 20dB threshold difference between low/high SR fibers for pure tone threshold at 1kHz.
+    # per goldie, induces **20dB** threshold difference between low/high SR fibers for pure tone threshold at 1kHz.
     SRTH = FTH + (0.2e-3) * 4
     Vsatmax = 1e-3
     spont = spont / (1 - 0.75e-3 * spont) * ones(
