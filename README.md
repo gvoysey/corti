@@ -18,7 +18,7 @@ The code in this repository has been subsequently refactored by Graham Voysey (g
 3. Support for a progress bar display during computation of each BM section
 4. Minor name changes (e.g., `class cochlea_model` --> `class CochleaModel`).
 
-On 22 March 2016, @gvoysey and @GerardEncina diffed original versions of model code to the code in this model as of [9177c1249]) https://github.com/AuditoryBiophysicsLab/verhulst-model-core/commit/9177c12498bf92790d203a6a87dbe54c39e1f0c4) and found them to be substantively identical.  
+On 22 March 2016, @gvoysey and @GerardEncina diffed original versions of model code to the code in this model as of [9177c1249] (https://github.com/AuditoryBiophysicsLab/verhulst-model-core/commit/9177c12498bf92790d203a6a87dbe54c39e1f0c4) and found them to be substantively identical.  
 
 Later on 22 March 2016, @gvoysey, per the suggestion of Mehraei, modified [this](https://github.com/AuditoryBiophysicsLab/verhulst-model-core/blob/9177c12498bf92790d203a6a87dbe54c39e1f0c4/ANF_Sarah.py#L20) line to change the threshold difference between low- and high- spontaneous rate fibers to 20dB re 20uPa (from 40 dB). 
 
