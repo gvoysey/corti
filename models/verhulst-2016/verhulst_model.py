@@ -18,15 +18,15 @@ Options:
 """
 import os
 import shutil
-import subprocess
 import sys
 import warnings
 from datetime import datetime
-from logging import info, error, basicConfig, getLogger, ERROR, INFO
+from logging import info, basicConfig, getLogger, ERROR, INFO
 from os import path, system, name
 
 from docopt import docopt
 
+from _version import __version__
 from analysis.plots import save_summary_pdf
 from base import runtime_consts
 from brainstem import simulate_brainstem
@@ -40,15 +40,8 @@ basicConfig(format='%(levelname)s %(asctime)s- %(message)s', datefmt='%d %b %H:%
 
 
 def main():
-    try:
-        label = subprocess.check_output(["git", "describe"])
-        label = label.decode()
-    except subprocess.CalledProcessError:
-        label = "unknown"
-        error("version broken until i write setup.py")
-
     # get the command line args
-    args = docopt(__doc__, version="verhulst_model version " + label)
+    args = docopt(__doc__, version=__version__)
 
     # configure the log level appropriately
     if not args["--verbose"]:
@@ -56,10 +49,12 @@ def main():
 
     # actually run the simulation
     system('cls' if name == 'nt' else 'clear')
-    print("Simulating periphery and auditory nerve...")
     info("output directory set to {0}".format(__set_output_dir(args["--out"])))
     conf = PeripheryConfiguration(__set_output_dir(args["--out"]), args["--pSave"])
+
+    print("Simulating periphery and auditory nerve...")
     anResults = RunPeriphery(conf).run()
+
     brainResults = None
     if not args["--noBrainstem"]:
         print("Simulating brainstem response")
@@ -67,10 +62,13 @@ def main():
 
     print("Generating summary figures")
     save_summary_pdf(anResults, brainResults, conf, "summary-plots.pdf", anResults[0].outputFolder)
+
     if args["--clean"]:
         print("Cleaning old model runs ... ")
         __clean(conf.dataFolder, anResults[0].outputFolder)
+
     print("Simulation finished.")
+
     sys.exit(0)
 
 
