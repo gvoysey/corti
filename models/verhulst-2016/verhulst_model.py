@@ -10,7 +10,7 @@ Options:
     -h --help   Show this screen and exit.
     --version   Display the version and exit.
     --out=<outpath>     Specify the output location for saved data. [default: ~/verhulst-output]
-    --pSave=<peripheryFlag>      Which components of the peripheral response to save.  [default: cavihlmes]
+    --pSave=<peripheryFlag>      Which components of the peripheral response to save.  [default: cavihlmesd]
     --bSave      Brainstem output will be saved if set.
     -c --clean  Previous runs will be deleted to save disk space.
     -v --verbose    Display detailed debug log output to STDOUT.
@@ -26,7 +26,7 @@ from os import path, system, name
 
 from docopt import docopt
 
-#from analysis.plots import make_summary_plots
+from analysis.plots import make_summary_plots
 from base import runtime_consts
 from brainstem import simulate_brainstem
 from periphery_configuration import PeripheryConfiguration
@@ -61,8 +61,8 @@ def main():
     anResults = RunPeriphery(conf).run()
     print("Simulating brainstem response")
     brainResults = simulate_brainstem([(anr, args["--bSave"]) for anr in anResults])
-    #print("Generating summary figures")
-    #make_summary_plots(anResults, brainResults)
+    print("Generating summary figures")
+    make_summary_plots(anResults, brainResults, conf, "summary-plots.pdf", anResults[0].outputFolder)
     if args["--clean"]:
         print("Cleaning old model runs ... ")
         __clean(conf.dataFolder, anResults[0].outputFolder)

@@ -13,6 +13,8 @@ from verhulst_model_core.cochlear_model_old import *
 
 
 class RunPeriphery:
+    """ A front-end for running the verhulst periphery model
+    """
     def __init__(self, conf: PeripheryConfiguration):
         self.conf = conf
         self.probes = self.conf.probeString
@@ -36,8 +38,8 @@ class RunPeriphery:
                               range(self.channels)]
 
     def run(self) -> [PeripheryOutput]:
-        """Simulates sound propagation up to the auditory nerve.
-        :return:
+        """Simulate sound propagation up to the auditory nerve for many stimulus levels
+        :return: A list of output data, one for each stimulus level
         """
         s1 = datetime.now()
         p = mp.Pool(mp.cpu_count(), maxtasksperchild=1)
@@ -50,6 +52,9 @@ class RunPeriphery:
         return results
 
     def solve_one_cochlea(self, model: []) -> PeripheryOutput:
+        """Compute unweighted periphery and AN output for one stimulus level
+        :return: a periphery output container
+        """
         ii = model[3]
         coch = model[0]
         stimulus = model[1]
@@ -80,7 +85,8 @@ class RunPeriphery:
             p.AuditoryNerveFiberLowSpont: anfL,
             p.AuditoryNerveFiberMediumSpont: anfM,
             p.AuditoryNerveFiberHighSpont: anfH,
-            p.Stimulus: self.conf.stimulus[ii]
+            p.Stimulus: self.conf.stimulus[ii],
+            p.StimulusLevel: self.conf.stimulusLevels[ii]
         }
         out.conf = self.conf
         out.stimulusLevel = self.conf.stimulusLevels[ii]
@@ -90,10 +96,15 @@ class RunPeriphery:
         return out
 
     def save_model_results(self, ii: int, periph: {}) -> None:
-        # let's store every run along with a serialized snapshot of its parameters in its own directory.
+        """ store the parts of the periphery output specified in storeflag.
+        """
+        if not self.storeFlag:
+            return
         tm = lambda x: (x, periph[x])
-        # saveMap makes a dict of tuples. the key is the storeFlag character, [0] is the key that will be used in the npz file,
-        # and [1] is the value saved to that key. todo add handing for "a" here.
+        # saveMap makes a dict of tuples. the key is the storeFlag character,
+        # [0] is the key that will be used in the npz file,
+        # [1] is the value saved to that key.
+        # todo add handing for "a" here.
         saveMap = {
             'v': tm(p.BMVelocity),
             'y': tm(p.BMDisplacement),
@@ -103,26 +114,21 @@ class RunPeriphery:
             'm': tm(p.AuditoryNerveFiberMediumSpont),
             'l': tm(p.AuditoryNerveFiberLowSpont),
             'i': tm(p.InnerHairCell),
-            's': tm(p.Stimulus)
+            's': tm(p.Stimulus),
+            'd': tm(p.StimulusLevel)
         }
         # {k:v for k,v in bar.items() if k in foo}
         # walk through the map and save the stuff we said we should.
         tosave = {key: value for key, value in saveMap.items() if key in self.storeFlag}
-        if tosave:
-            outfile = runtime_consts.PeripheryOutputFilePrefix + str(self.conf.stimulusLevels[ii]) + "dB"
-            np.savez(path.join(self.output_folder, outfile), **{name: data for name, data in tosave.values()})
-            logging.info("wrote {0} to {1}".format(outfile, path.relpath(self.output_folder, os.getcwd())))
-            # saveDict = {}
-            # for flag in set(self.storeFlag).intersection(set(saveMap)):
-            #     name, value = saveMap[flag]
-            #     saveDict[name] = value
-            # if saveDict:
-            #     outfile = runtime_consts.PeripheryOutputFilePrefix + str(self.conf.stimulusLevels[ii]) + "dB"
-            #     np.savez(path.join(self.output_folder, outfile), **saveDict)
-            #     logging.info("wrote {0} to {1}".format(outfile, path.relpath(self.output_folder, os.getcwd())))
+        if not tosave:
+            return
+        outfile = runtime_consts.PeripheryOutputFilePrefix + str(self.conf.stimulusLevels[ii]) + "dB"
+        np.savez(path.join(self.output_folder, outfile), **{name: data for name, data in tosave.values()})
+        logging.info("wrote {0} to {1}".format(outfile, path.relpath(self.output_folder, os.getcwd())))
 
     def save_model_configuration(self) -> None:
         # and store the configuration parameters so we know what we did.
-        with open(path.join(self.output_folder, "conf.yaml"), "w") as _:
+        with open(path.join(self.output_folder, runtime_consts.PeripheryConfigurationName), "w") as _:
             yaml.dump(self.conf, _)
-            logging.info("wrote conf.yaml to {}".format(path.relpath(self.output_folder, os.getcwd())))
+            logging.info("wrote {} to {}".format(runtime_consts.PeripheryConfigurationName,
+                                                 path.relpath(self.output_folder, os.getcwd())))

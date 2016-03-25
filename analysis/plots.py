@@ -1,53 +1,83 @@
+import glob
 from datetime import datetime
+from logging import info
+from os import path
 
 import matplotlib.gridspec as gridspec
 import matplotlib.pyplot as plt
 import numpy as np
+import yaml
 from matplotlib.backends.backend_pdf import PdfPages
 
-from periphery_configuration import PeripheryConfiguration
+from base import runtime_consts as r, periph_consts as p
+from periphery_configuration import PeripheryOutput, PeripheryConfiguration
 
 
-def make_summary_plots(periphery: [], brain: [], fname):
-    assert len(periphery) > 0 and len(brain) > 0 and len(periphery) == len(brain)
-    if periphery[0].output is dict:
-        pass
+def plot_periphery(periphery_output: {}) -> plt.Figure:
+    pass
 
+
+def plot_brainstem(brainstem_output: {}) -> plt.Figure:
+    pass
+
+
+def make_summary_plots(periphery: [], brain: [], conf: PeripheryConfiguration, fileName: str, outputPath: str):
+    if isinstance(periphery[0], PeripheryOutput):
+        periphery = [x.output for x in periphery]
+
+    # description = """ A {0} dB SPL {1} stimulus with duration {2} was used to simulate the response of the auditory periphery, auditory nerve"""
     # plot the stimulus, a summary of the configuration as a title and text block,
     # different SR fiber responses at some CFs
     # population response of AN, CN, IC ...
-    with PdfPages(fname) as pdf:
+    with PdfPages(path.join(outputPath, fileName)) as pdf:
         for i in range(len(periphery)):
+            # plot_periphery(periphery)
+            # plot_brainstem(brain)
             figure = plt.figure(1, (8.5, 11), dpi=300)
             gs = gridspec.GridSpec(6, 4)
             periph = periphery[i]
-            conf = periph.conf
-            pointCount = conf.stimulus.shape[1]
+            stimulus = periph[p.Stimulus]
+            pointCount = len(stimulus)
             time = np.linspace(0, pointCount / conf.Fs, num=pointCount)
 
             # plot stimulus
             stimt = plt.subplot(gs[0, :-3])
-            stimt.plot(time, conf.stimulus, lw=2)
+            stimt.plot(time, stimulus, lw=2)
             stimt.set_xlabel("Time, s")
-            stimt.sey_ylabel("Amplitude ")
-            stimt.title()
+            stimt.set_ylabel("Amplitude ")
+            stimt.set_title("Stimulus")
             stimf = plt.subplot(gs[1, 3:-1])
 
-            # brain = nc04[i]
-
-            figure.suptitle("Verhulst Model Output. Stimulus level {0}dB SPL".format(periph.stimulusLevel), fontsize=18)
-
+            figure.suptitle("Verhulst Model Output. Stimulus level {0}dB SPL".format(periph[p.StimulusLevel]),
+                            fontsize=18)
+            pdf.savefig(figure)
+        for i in range(len(brain)):
+            pass
         d = pdf.infodict()
         d['Title'] = 'Verhulst Model Output'
         # d['Author'] = ""
-        d['Subject'] = 'How to create a multipage pdf file and set its metadata'
         # d['Keywords'] = 'PdfPages multipage keywords author title subject'
         d['CreationDate'] = datetime.today()
         d['ModDate'] = datetime.today()
 
 
-def from_files(dirPath: str):
-    pass
+def plot_directory(dirPath: str):
+    """Generate summary plots for a stored model simulation"""
+    peripheryFiles = glob.glob(path.join(dirPath, r.PeripheryOutputFilePrefix + "*"))
+    brainstemFiles = glob.glob(path.join(dirPath, r.NelsonCarneyOutputFilePrefix + "*"))
+    configFile = glob.glob(path.join(dirPath, r.PeripheryConfigurationName))[0]
 
-def make_title(config: [PeripheryConfiguration]) -> str:
-    pass
+    if not configFile:
+        info("No configuration file was found in the directory to be plotted.  Returning.")
+        return
+
+    if len(peripheryFiles) != len(brainstemFiles):
+        info("Files in the model output directory {0} appear to be missing".format(dirPath))
+        return
+
+    make_summary_plots([np.load(x) for x in peripheryFiles], [np.load(x) for x in brainstemFiles],
+                       yaml.load(open(configFile)), "summary-plots.pdf", dirPath)
+
+
+if __name__ == "__main__":
+    plot_directory("/Users/gvoysey/verhulst-output/25 Mar 16 - 1600")

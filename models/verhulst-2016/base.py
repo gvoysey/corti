@@ -5,18 +5,22 @@ from collections import namedtuple
 rootPath = os.path.dirname(os.path.abspath(__file__))
 
 # This is the tuple that contains operational constants
-RuntimeConstants = namedtuple("Const", "ModelDirectoryLabelName\
-                                  DefaultModelOutputDirectoryRoot\
-                                  ResultDirectoryNameFormat\
-                                  PeripheryOutputFilePrefix\
-                                  NelsonCarneyOutputFilePrefix\
-                              ")
+RuntimeConstants = namedtuple("Const", " ModelDirectoryLabelName \
+                                  DefaultModelOutputDirectoryRoot \
+                                  ResultDirectoryNameFormat \
+                                  PeripheryOutputFilePrefix \
+                                  NelsonCarneyOutputFilePrefix \
+                                  SummaryPlotFileName \
+                                  PeripheryConfigurationName")
+
 
 runtime_consts = RuntimeConstants(ModelDirectoryLabelName=".verhulst-model-output-root",
                                   DefaultModelOutputDirectoryRoot="verhulst-output",
                                   ResultDirectoryNameFormat="%d %b %y - %H%M",
                                   PeripheryOutputFilePrefix="periphery-output-",
-                                  NelsonCarneyOutputFilePrefix="nelson-carney-output-"
+                                  NelsonCarneyOutputFilePrefix="nelson-carney-output-",
+                                  PeripheryConfigurationName="simulation-configuration.yaml",
+                                  SummaryPlotFileName="summary-plots.pdf"
                                   )
 
 # This is the tuple that contains the naming conventions for Periphery output
@@ -28,7 +32,8 @@ PeripheryConstants = namedtuple("PeripheryConstants", "BMVelocity \
                                                     AuditoryNerveFiberMediumSpont \
                                                     AuditoryNerveFiberLowSpont \
                                                     InnerHairCell \
-                                                    Stimulus")
+                                                    Stimulus \
+                                                    StimulusLevel")
 
 periph_consts = PeripheryConstants(BMVelocity="bm_velocity",
                                    BMDisplacement="bm_position",
@@ -38,7 +43,8 @@ periph_consts = PeripheryConstants(BMVelocity="bm_velocity",
                                    AuditoryNerveFiberMediumSpont="an_medium_spont",
                                    AuditoryNerveFiberLowSpont="an_low_spont",
                                    InnerHairCell="ihc",
-                                   Stimulus="stimulus")
+                                   Stimulus="stimulus",
+                                   StimulusLevel="stimulus_level")
 # This is the tuple that contains the naming conventions for Brainstem output
 BrainstemConstants = namedtuple("BrainstemConstants", " Wave1_AN \
                                                         Wave3_CN \
