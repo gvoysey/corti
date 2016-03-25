@@ -1,14 +1,13 @@
 import logging
 import multiprocessing as mp
 import os
-from collections import namedtuple
 from os import path
 
 import numpy as np
 import numpy.matlib
 import progressbar
 
-from base import runtime_consts
+from base import runtime_consts, brain_consts as b
 from periphery_configuration import PeripheryOutput
 
 
@@ -19,16 +18,15 @@ class CarneyMTFs:
     pass
 
 
-NelsonCarney04Output = namedtuple("NelsonCarney04Output", ["W1", "CN", "IC", "RanF", "RicF", "RcnF"])
-
-def simulate_brainstem(anResults: [(PeripheryOutput, bool)]) -> [NelsonCarney04Output]:
+def simulate_brainstem(anResults: [(PeripheryOutput, bool)]) -> [{}]:
     p = mp.Pool(mp.cpu_count(), maxtasksperchild=1)
     retval = p.map(solve_one, anResults)
     p.close()
     p.join()
     return retval
 
-def solve_one(periphery: (PeripheryOutput, bool)) -> NelsonCarney04Output:
+
+def solve_one(periphery: (PeripheryOutput, bool)) -> {}:
     return NelsonCarney04(periphery[0]).run(periphery[1])
 
 
@@ -70,7 +68,7 @@ class NelsonCarney04:
         self.cutoffCf = [index for index, value in enumerate(self.cf) if value >= 175.0][-1]
         self.timeLen, self.bmSegments = self.anfh.shape
 
-    def run(self, saveFlag: bool) -> NelsonCarney04Output:
+    def run(self, saveFlag: bool) -> {}:
         inhCn = self._make_inhibition_component(self.Scn, self.Dcn)
         inhIc = self._make_inhibition_component(self.Sic, self.Dic)
 
@@ -80,17 +78,17 @@ class NelsonCarney04:
             self._save(output)
         return output
 
-    def _save(self, output: NelsonCarney04Output) -> None:
+    def _save(self, output: {}) -> None:
         name = runtime_consts.NelsonCarneyOutputFilePrefix + "{0}dB".format(self.anfOut.stimulusLevel)
         outpath = self.anfOut.outputFolder
         # save the data out to a npz file whose keys are the field names of output.
-        np.savez(path.join(outpath, name), **output._asdict())
+        np.savez(path.join(outpath, name), **output)
         logging.log(logging.INFO, "wrote {0:<10} to {1}".format(name, path.relpath(outpath, os.getcwd())))
 
     def _shift(self, delay: float) -> int:
         return int(round(delay * self.Fs))
 
-    def _weight_and_shift_exponential(self, scalingFactor:float) -> np.ndarray:
+    def _weight_and_shift_exponential(self, scalingFactor: float) -> np.ndarray:
         """Make a shifted exponential
         Returns $\frac{1}{sF^2}*\vec{t}*e^{\frac{-\vec{t}}{sF}}$
         """
@@ -121,7 +119,8 @@ class NelsonCarney04:
 
         return (lsr + msr + hsr) * self.M1
 
-    def _simulate_brainstem_and_midbrain(self, AN: np.ndarray, inhCn: np.ndarray, inhIc: np.ndarray) -> NelsonCarney04Output:
+    def _simulate_brainstem_and_midbrain(self, AN: np.ndarray, inhCn: np.ndarray,
+                                         inhIc: np.ndarray) -> {}:
         bmSegments = self.bmSegments
         timeLen = self.timeLen
 
@@ -151,5 +150,11 @@ class NelsonCarney04:
                 RicF[i, :] = Ric[0:timeLen]  # chop off the duplicated convolution side
                 RcnF[i, :] = Rcn[0:timeLen]  # chop off the duplicated convolution side
                 bar.update(i)
-
-        return NelsonCarney04Output(W1=W1, CN=CN, IC=IC, RanF=RanF, RicF=RicF, RcnF=RcnF)
+        return {
+            b.Wave1_AN: W1,
+            b.Wave3_CN: CN,
+            b.Wave5_IC: IC,
+            b.ANPopulation: RanF,
+            b.CNPopulation: RcnF,
+            b.ICPopulation: RicF
+        }
