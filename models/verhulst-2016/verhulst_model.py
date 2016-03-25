@@ -4,7 +4,7 @@ Verhulst Model.
 Usage:
     verhulst_model -h | --help
     verhulst_model --version
-    verhulst_model [--out <outpath>]  [-c | --clean]  [-v | --verbose] [--pSave <peripheryFlag>] [--bSave]
+    verhulst_model [--out <outpath>]  [-c | --clean]  [-v | --verbose] [--pSave <peripheryFlag>] [--bSave] [--noBrainstem]
 
 Options:
     -h --help   Show this screen and exit.
@@ -12,6 +12,7 @@ Options:
     --out=<outpath>     Specify the output location for saved data. [default: ~/verhulst-output]
     --pSave=<peripheryFlag>      Which components of the peripheral response to save.  [default: cavihlmesd]
     --bSave      Brainstem output will be saved if set.
+    --noBrainstem   Simulate the periphery only.
     -c --clean  Previous runs will be deleted to save disk space.
     -v --verbose    Display detailed debug log output to STDOUT.
 """
@@ -26,7 +27,7 @@ from os import path, system, name
 
 from docopt import docopt
 
-from analysis.plots import make_summary_plots
+from analysis.plots import save_summary_pdf
 from base import runtime_consts
 from brainstem import simulate_brainstem
 from periphery_configuration import PeripheryConfiguration
@@ -59,10 +60,13 @@ def main():
     info("output directory set to {0}".format(__set_output_dir(args["--out"])))
     conf = PeripheryConfiguration(__set_output_dir(args["--out"]), args["--pSave"])
     anResults = RunPeriphery(conf).run()
-    print("Simulating brainstem response")
-    brainResults = simulate_brainstem([(anr, args["--bSave"]) for anr in anResults])
+    brainResults = None
+    if not args["--noBrainstem"]:
+        print("Simulating brainstem response")
+        brainResults = simulate_brainstem([(anr, args["--bSave"]) for anr in anResults])
+
     print("Generating summary figures")
-    make_summary_plots(anResults, brainResults, conf, "summary-plots.pdf", anResults[0].outputFolder)
+    save_summary_pdf(anResults, brainResults, conf, "summary-plots.pdf", anResults[0].outputFolder)
     if args["--clean"]:
         print("Cleaning old model runs ... ")
         __clean(conf.dataFolder, anResults[0].outputFolder)
