@@ -1,21 +1,21 @@
 from datetime import datetime
-from os import path
 
 import matplotlib.gridspec as gridspec
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.backends.backend_pdf import PdfPages
 
-from periphery_configuration import PeripheryOutput, PeripheryConfiguration
+from periphery_configuration import PeripheryConfiguration
 
 
-def make_summary_plots(periphery: [PeripheryOutput], nc04: [{}], fname=None):
-    if fname is None:
-        fname = path.join(periphery[0].outputFolder, "summary plots.pdf")
+def make_summary_plots(periphery: [], brain: [], fname):
+    assert len(periphery) > 0 and len(brain) > 0 and len(periphery) == len(brain)
+    if periphery[0].output is dict:
+        pass
+
     # plot the stimulus, a summary of the configuration as a title and text block,
     # different SR fiber responses at some CFs
     # population response of AN, CN, IC ...
-    assert len(periphery) == len(nc04)
     with PdfPages(fname) as pdf:
         for i in range(len(periphery)):
             figure = plt.figure(1, (8.5, 11), dpi=300)

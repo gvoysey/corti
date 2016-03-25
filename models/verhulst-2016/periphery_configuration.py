@@ -1,10 +1,7 @@
 import math
 from datetime import datetime
-from os import path
 
 import numpy as np
-
-from verhulst_model_core import core
 
 
 class PeripheryConfiguration:
@@ -70,15 +67,7 @@ class ProbeType:
 class PeripheryOutput:
     """
         PeripheryOutput:
-            :parameter self.bmAcceleration: BM acceleration (store 'a')
-            :parameter self.bmVelocity: BM velocity     (store 'v')
-            :parameter self.bmDisplacement: BM displacement (store 'y')
-            :parameter self.emission: pressure output from the middle ear (store 'e')
-            :parameter self.cf: center frequencies (always stored)
-            :parameter self.ihc: IHC receptor potential (store 'i')
-            :parameter self.anfH: HSR fiber spike probability [0,1] (store 'h')
-            :parameter self.anfM: MSR fiber spike probability [0,1] (store 'm')
-            :parameter self.anfL: LSR fiber spike probability [0,1] (store 'l')
+           :parameter output: a dict containing the output from the periphery.
             :parameter self.conf: the configuration that generated these outputs
             :type self.conf: PeripheryConfiguration
             :parameter self.stimulusLevel: the sound level for this response, dB re 20 uPa
@@ -86,15 +75,7 @@ class PeripheryOutput:
     """
 
     def __init__(self):
-        self.bmAcceleration = None
-        self.bmVelocity = None
-        self.bmDisplacement = None
-        self.emission = None
-        self.cf = None
-        self.ihc = None
-        self.anfH = None
-        self.anfM = None
-        self.anfL = None
+        self.output = None
         self.conf = None
         self.stimulusLevel = None
         self.outputFolder = None

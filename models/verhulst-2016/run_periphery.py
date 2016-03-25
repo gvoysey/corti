@@ -5,7 +5,7 @@ from os import path
 
 import yaml
 
-from base import runtime_consts, periph_consts
+from base import runtime_consts, periph_consts as p
 from periphery_configuration import PeripheryConfiguration, PeripheryOutput
 from verhulst_model_core.ANF_Sarah import *
 from verhulst_model_core.Sarah_ihc import *
@@ -71,48 +71,55 @@ class RunPeriphery:
         anfL = anf_model(rp, coch.cf, fs, 'low')
         # save intermediate results out to the output container (and possibly to disk)
         out = PeripheryOutput()
-        out.bmVelocity = coch.Vsolution
-        out.bmDisplacement = coch.Ysolution
-        out.emission = coch.oto_emission
-        out.cf = coch.cf
-        out.ihc = rp
-        out.anfH = anfH
-        out.anfM = anfM
-        out.anfL = anfL
+        out.output = {
+            p.BMVelocity: coch.Vsolution,
+            p.BMDisplacement: coch.Ysolution,
+            p.OtoacousticEmission: coch.oto_emission,
+            p.CenterFrequency: coch.cf,
+            p.InnerHairCell: rp,
+            p.AuditoryNerveFiberLowSpont: anfL,
+            p.AuditoryNerveFiberMediumSpont: anfM,
+            p.AuditoryNerveFiberHighSpont: anfH,
+            p.Stimulus: self.conf.stimulus[ii]
+        }
         out.conf = self.conf
         out.stimulusLevel = self.conf.stimulusLevels[ii]
         out.outputFolder = self.output_folder
 
-        self.save_model_results(ii, coch, anfH, anfM, anfL, rp)
+        self.save_model_results(ii, out.output)
         return out
 
-    def save_model_results(self, ii: int, coch: CochleaModel, anfH: np.ndarray, anfM: np.ndarray, anfL: np.ndarray,
-                           rp: np.ndarray) -> None:
+    def save_model_results(self, ii: int, periph: {}) -> None:
         # let's store every run along with a serialized snapshot of its parameters in its own directory.
-
+        tm = lambda x: (x, periph[x])
         # saveMap makes a dict of tuples. the key is the storeFlag character, [0] is the key that will be used in the npz file,
         # and [1] is the value saved to that key. todo add handing for "a" here.
         saveMap = {
-            'v': (periph_consts.BMVelocity, coch.Vsolution),
-            'y': (periph_consts.BMDisplacement, coch.Ysolution),
-            'c': (periph_consts.CenterFrequency, coch.cf),
-            'e': (periph_consts.OtoacousticEmission, coch.oto_emission),
-            'h': (periph_consts.AuditoryNerveFiberHighSpont, anfH),
-            'm': (periph_consts.AuditoryNerveFiberMediumSpont, anfM),
-            'l': (periph_consts.AuditoryNerveFiberLowSpont, anfL),
-            'i': (periph_consts.InnerHairCell, rp),
-            's': (periph_consts.Stimulus, self.conf.stimulus[ii])
+            'v': tm(p.BMVelocity),
+            'y': tm(p.BMDisplacement),
+            'c': tm(p.CenterFrequency),
+            'e': tm(p.OtoacousticEmission),
+            'h': tm(p.AuditoryNerveFiberHighSpont),
+            'm': tm(p.AuditoryNerveFiberMediumSpont),
+            'l': tm(p.AuditoryNerveFiberLowSpont),
+            'i': tm(p.InnerHairCell),
+            's': tm(p.Stimulus)
         }
+        # {k:v for k,v in bar.items() if k in foo}
         # walk through the map and save the stuff we said we should.
-        saveDict = {}
-        for flag in set(self.storeFlag):
-            if flag in saveMap:
-                name, value = saveMap[flag]
-                saveDict[name] = value
-        if saveDict:
-            outfile= runtime_consts.PeripheryOutputFilePrefix+str(self.conf.stimulusLevels[ii])+"dB"
-            np.savez(path.join(self.output_folder,outfile), **saveDict)
+        tosave = {key: value for key, value in saveMap.items() if key in self.storeFlag}
+        if tosave:
+            outfile = runtime_consts.PeripheryOutputFilePrefix + str(self.conf.stimulusLevels[ii]) + "dB"
+            np.savez(path.join(self.output_folder, outfile), **{name: data for name, data in tosave.values()})
             logging.info("wrote {0} to {1}".format(outfile, path.relpath(self.output_folder, os.getcwd())))
+            # saveDict = {}
+            # for flag in set(self.storeFlag).intersection(set(saveMap)):
+            #     name, value = saveMap[flag]
+            #     saveDict[name] = value
+            # if saveDict:
+            #     outfile = runtime_consts.PeripheryOutputFilePrefix + str(self.conf.stimulusLevels[ii]) + "dB"
+            #     np.savez(path.join(self.output_folder, outfile), **saveDict)
+            #     logging.info("wrote {0} to {1}".format(outfile, path.relpath(self.output_folder, os.getcwd())))
 
     def save_model_configuration(self) -> None:
         # and store the configuration parameters so we know what we did.
