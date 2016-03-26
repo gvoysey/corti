@@ -1,14 +1,14 @@
 import logging
 import multiprocessing as mp
-import os
-from os import path
 
 import numpy as np
 import numpy.matlib
+import os
 import progressbar
+from os import path
 
-from base import runtime_consts, brain_consts as b, periph_consts as p
-from periphery_configuration import PeripheryOutput
+from verhulst_runner.base import runtime_consts, brain_consts as b, periph_consts as p
+from .periphery_configuration import PeripheryOutput
 
 
 class CarneyMTFs:

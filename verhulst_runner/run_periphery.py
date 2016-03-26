@@ -1,15 +1,15 @@
 import logging
 import multiprocessing as mp
 from datetime import datetime, timedelta
-from os import path
 
 import yaml
-
-from base import runtime_consts, periph_consts as p
-from periphery_configuration import PeripheryConfiguration, PeripheryOutput
+from os import path
 from verhulst_model_core.ANF_Sarah import *
 from verhulst_model_core.Sarah_ihc import *
 from verhulst_model_core.cochlear_model_old import *
+
+from verhulst_runner.base import runtime_consts, periph_consts as p
+from .periphery_configuration import PeripheryConfiguration, PeripheryOutput
 
 
 class RunPeriphery:
