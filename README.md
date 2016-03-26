@@ -14,9 +14,16 @@ For a reference version of that brainstem component, please consult Nelson, P. C
 
 An implementation of the Nelson & Carney 2004 component in python is present in @gvoysey's [thesis repository](https://github.com/gvoysey/thesis-code).
 
-## Instructions for Use
+## Requirements and Installation
+verhulst-model-core is implemented and tested in python >3.4. 
+**There is currently no windows support.  Consider using Docker, a mac, or a linux box.**  
 
-It is necessary to create the file `tridiag.so` by copying over the version correctly precompiled for your OS, (eg, `tridiag.so_maccompiled`)  or by compiling `cochea_utils.c` as a statically linked library.
+To install, using python 3.x, simply `pip install git+https://github.com/AuditoryBiophysicsLab/verhulst-model-core.git@v0.9.3`.
+## Usage 
+Once installed, reference and use as a standard python module: 
+```python
+import verhulst_model_core
+```
 
 This repository is not really meant to run independently of a framework built on top of it; API documentation is not yet complete.
 
@@ -27,6 +34,7 @@ The code in this repository has been subsequently refactored by Graham Voysey (g
 2. Addition of `core.py`, a container for tracking operational parameters such as location of starting poles. 
 3. Support for a progress bar display during computation of each BM section
 4. Minor name changes (e.g., `class cochlea_model` --> `class CochleaModel`).
+5. Refactoring into a python package
 
 On 22 March 2016, @gvoysey and @GerardEncina diffed original versions of model code to the code in this model as of [9177c1249] (https://github.com/AuditoryBiophysicsLab/verhulst-model-core/commit/9177c12498bf92790d203a6a87dbe54c39e1f0c4) and found them to be substantively identical.  
 
