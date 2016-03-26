@@ -9,7 +9,7 @@ from verhulst_model_core.Sarah_ihc import *
 from verhulst_model_core.cochlear_model_old import *
 
 from verhulst_runner.base import runtime_consts, periph_consts as p
-from .periphery_configuration import PeripheryConfiguration, PeripheryOutput
+from verhulst_runner.periphery_configuration import PeripheryConfiguration, PeripheryOutput
 
 
 class RunPeriphery:
