@@ -1,0 +1,2 @@
+include README.md
+recursive-include verhulst_model_core *

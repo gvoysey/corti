@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import ctypes
+import platform
 
 import numpy as np
 import progressbar
@@ -7,7 +8,7 @@ from blessings import Terminal
 from scipy import signal
 from scipy.integrate import ode
 
-from verhulst_model_core.core import *
+from .core import *
 
 term = Terminal()
 
@@ -44,7 +45,16 @@ class TridiagMatrix(ctypes.Structure):
 
 
 # load C library
-libtrisolv = np.ctypeslib.load_library(core_const.TridiagName, core_root)
+system = platform.system().lower()
+if system == "darwin":
+    tridiagName = "tridiag.so_darwin"
+elif system == "linux":
+    tridiagName = "tridiag.so_linux"
+else:
+    raise NotImplementedError("this library only runs on mac and linux right now.")
+    # tridiagName = "tridiag.so_windows" (one day!)
+
+libtrisolv = np.ctypeslib.load_library(tridiagName, resources_root)
 
 # load tridiagonal solver function and defines input
 libtrisolv.solve_tridiagonal.restype = None
