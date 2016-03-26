@@ -1,8 +1,10 @@
 from distutils.core import setup
+# makes __version__ a local variable
+exec(open('verhulst_model_core/_version.py').read())
 
 setup(
     name='verhulst-model-core',
-    version='0.9.0',
+    version=__version__,
     packages=['verhulst_model_core'],
     url='https://github.com/AuditoryBiophysicsLab/verhulst-model-core',
     license='',
