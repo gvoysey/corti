@@ -1,8 +1,11 @@
 import glob
 from datetime import datetime
 from logging import info
+
+import matplotlib
 from os import path
 
+matplotlib.use('PDF')
 import matplotlib.gridspec as gridspec
 import matplotlib.pyplot as plt
 import numpy as np

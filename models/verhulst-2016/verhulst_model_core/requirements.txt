@@ -1,4 +1,0 @@
-blessings == 1.6
-numpy == 1.10.2
-scipy == 0.17.0
-progressbar2 == 3.6.2
