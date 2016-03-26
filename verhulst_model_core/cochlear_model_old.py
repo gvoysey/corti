@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import ctypes
-from sys import platform
+import platform
 
 import numpy as np
 import progressbar
@@ -52,6 +52,7 @@ elif system == "linux":
     tridiagName = "tridiag.so_linux"
 else:
     raise NotImplementedError("this library only runs on mac and linux right now.")
+    # tridiagName = "tridiag.so_windows" (one day!)
 
 libtrisolv = np.ctypeslib.load_library(tridiagName, resources_root)
 

@@ -8,5 +8,12 @@ setup(
     license='',
     author='Sarah Verhulst',
     author_email='sarah.verhulst@uni-oldenburg.de',
-    description='A nonlinear time-domain cochlear model for transient stimulation and human otoacoustic emission'
+    description='A nonlinear time-domain cochlear model for transient stimulation and human otoacoustic emission',
+    install_requires=[
+        'blessings >= 1.6',
+        'numpy >= 1.10',
+        'scipy >= 0.16',
+        'progressbar2 > 3.6',
+    ]
+
 )
