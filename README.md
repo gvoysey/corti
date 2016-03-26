@@ -18,7 +18,7 @@ An implementation of the Nelson & Carney 2004 component in python is present in 
 verhulst-model-core is implemented and tested in python >3.4. 
 **There is currently no windows support.  Consider using Docker, a mac, or a linux box.**  
 
-To install, using python 3.x, simply `pip install git+https://github.com/AuditoryBiophysicsLab/verhulst-model-core.git@v0.9.3`.
+To install, using python 3.x, simply `pip install git+https://github.com/AuditoryBiophysicsLab/verhulst-model-core.git@v0.9.3`
 ## Usage 
 Once installed, reference and use as a standard python module: 
 ```python
