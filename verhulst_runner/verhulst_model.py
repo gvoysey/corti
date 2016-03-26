@@ -23,7 +23,6 @@ from logging import info, basicConfig, getLogger, ERROR, INFO
 import os
 import shutil
 import warnings
-from _version import __version__
 from base import runtime_consts
 from docopt import docopt
 from os import path, system, name
@@ -32,6 +31,7 @@ from run_periphery import RunPeriphery
 
 from verhulst_runner.analysis.plots import save_summary_pdf
 from verhulst_runner.brainstem import simulate_brainstem
+from . import __version__
 
 # PyYAML has some warnings we'll suppress
 warnings.simplefilter(action="ignore", category=FutureWarning)
@@ -101,7 +101,7 @@ def __touch(fname, times=None):
 
 def __set_output_dir(temp: str) -> str:
     """ Returns a fully qualified path to the model output root directory.
-    The directory is created it if it does not exist.
+    The directory is created if it does not exist.
     """
     # just in case we're on windows.
     temp.replace("\\", "\\\\")
