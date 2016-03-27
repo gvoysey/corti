@@ -12,7 +12,7 @@ from verhulst_runner.base import runtime_consts, periph_consts as p
 from verhulst_runner.periphery_configuration import PeripheryConfiguration, PeripheryOutput
 
 
-class RunPeriphery:
+class Periphery:
     """ A front-end for running the verhulst periphery model
     """
     def __init__(self, conf: PeripheryConfiguration):

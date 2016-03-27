@@ -1,10 +1,14 @@
-from distutils.core import setup
+from setuptools import setup
 
+# makes __version__ a local variable
+exec(open('verhulst_runner/_version.py').read())
+# http://python-packaging.readthedocs.org/en/latest/command-line-scripts.html
 setup(
     name='verhulst-runner',
-    version='',
+    version=__version__,
     packages=['verhulst_runner', 'verhulst_runner.analysis', 'verhulst_runner.utilities',
               'verhulst_runner.utilities.stimulus_generator'],
+
     url='https://github.com/gvoysey/thesis-code',
     license='',
     author='Graham Voysey',

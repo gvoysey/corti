@@ -23,15 +23,15 @@ from logging import info, basicConfig, getLogger, ERROR, INFO
 import os
 import shutil
 import warnings
-from base import runtime_consts
 from docopt import docopt
 from os import path, system, name
-from periphery_configuration import PeripheryConfiguration
-from run_periphery import RunPeriphery
 
+from verhulst_runner import Periphery
+from verhulst_runner._version import __version__
 from verhulst_runner.analysis.plots import save_summary_pdf
+from verhulst_runner.base import runtime_consts
 from verhulst_runner.brainstem import simulate_brainstem
-from . import __version__
+from verhulst_runner.periphery_configuration import PeripheryConfiguration
 
 # PyYAML has some warnings we'll suppress
 warnings.simplefilter(action="ignore", category=FutureWarning)
@@ -53,7 +53,7 @@ def main():
     conf = PeripheryConfiguration(__set_output_dir(args["--out"]), args["--pSave"])
 
     print("Simulating periphery and auditory nerve...")
-    anResults = RunPeriphery(conf).run()
+    anResults = Periphery(conf).run()
 
     brainResults = None
     if not args["--noBrainstem"]:
