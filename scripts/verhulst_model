@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """
 Verhulst Model.
 
@@ -16,6 +17,7 @@ Options:
     -c --clean  Previous runs will be deleted to save disk space.
     -v --verbose    Display detailed debug log output to STDOUT.
 """
+
 import sys
 from datetime import datetime
 from logging import info, basicConfig, getLogger, ERROR, INFO
