@@ -8,7 +8,7 @@ setup(
     version=__version__,
     packages=['verhulst_runner', 'verhulst_runner.analysis', 'verhulst_runner.utilities',
               'verhulst_runner.utilities.stimulus_generator'],
-
+    scripts=['scripts/verhulst_model'],
     url='https://github.com/gvoysey/thesis-code',
     license='',
     author='Graham Voysey',
