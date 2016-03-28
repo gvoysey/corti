@@ -9,7 +9,7 @@ class Stimulus:
     FS = 100e3  # todo this is a magic number...
     P0 = 2e-5  # 20 micropascals
 
-    def __init__(self, prestimulus_time: float, stimulus_time: float, poststimulus_time: float):
+    def __init__(self, prestimulus_time: float = None, stimulus_time: float = None, poststimulus_time: float = None):
         self.poststimulus_time = poststimulus_time
         self.stimulus_time = stimulus_time
         self.prestimulus_time = prestimulus_time
@@ -31,6 +31,9 @@ class Stimulus:
         pass
 
     def make_am(self, level: float) -> np.ndarray:
+        pass
+
+    def default_stimulus(self):
         pass
 
     def generate_stimulus(self, stim_type: str, level: float) -> np.ndarray:

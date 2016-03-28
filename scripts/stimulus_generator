@@ -1,43 +1,41 @@
 #!/usr/bin/env python
 """
-Stimulus Generator.  This tool generates stimuli of different shapes to use as inputs to auditory models.
+Stimulus Generator.  This tool generates stimuli templates and converts prerecorded wav files of different shapes
+                     to use as inputs to auditory models.
 
 Usage:
     stimulus_generator -h | --help
     stimulus_generator --version
-    stimulus_generator  [-v | --verbose] [--out <outpath>] (--type (click|chirp|am) | --from-wav <wavfile>) --level <soundlevel>
+    stimulus_generator --make-template <templatepath> [-v | --verbose]
+    stimulus_generator  [-v | --verbose] [--out <outpath>] --from-wav <wavfile> --level <soundlevel>
 
 Options:
     -h --help               Show this screen and exit.
     --version               Display the version and exit.
     --out=<outpath>         Specify the output location for saved data. [default: ~/stimulus-output]
     -v --verbose            Display detailed debug log output to STDOUT.
-    --type                  Type of stimulus to generate.
     --level=<soundlevel>    Peak stimulus intensity, in dB SPL
     --from-wav=<wavfile>    Load a custom stimulus from the supplied path.
-    --from-template=<stimulusfile>     Load one or more stimuli from a YAML template.
-    --make-template=<templatepath>     Generate a copy of the YAML template at the specified location. [default: ~/stimulus-output/stimulus.yaml]
+    --make-template=<templatepath>     Generate a copy of the YAML template at the specified location.
 """
 
 import sys
-from logging import basicConfig, INFO, ERROR, getLogger
+from datetime import datetime
+from logging import basicConfig, info, error, INFO, ERROR, getLogger
 
 import numpy as np
 import os
+import shutil
 from docopt import docopt
 from os import path
 
 from verhulst_runner._version import __version__
-from verhulst_runner.stimulus import Stimulus as s
+from verhulst_runner.base import stimulusTemplatePath
+from verhulst_runner.stimulus import Stimulus
 
 # By default, log INFO and up.
 basicConfig(format='%(levelname)s %(asctime)s- %(message)s', datefmt='%d %b %H:%M:%S', level=INFO)
 
-
-def _return_stimulus(stimulus: np.ndarray, level: float):
-    """ Prints the generated stimulus and its sound level to STDOUT
-    """
-    np.savetxt(sys.stdout.buffer, [stimulus, level])
 
 def main():
     # get the command line args
@@ -47,27 +45,48 @@ def main():
     if not args["--verbose"]:
         getLogger().setLevel(ERROR)
 
+    # if copying the config file, do nothing else.
+    if args["--make-template"]:
+        make_template(args["--make-template"])
+        exit(0)
+
     # barf if the level isn't a float
     level = args["--level"]
     try:
         level = float(level)
     except ValueError:
-        print("Level must be a number.")
-        exit(1)
+        raise ValueError("Level must be a number.")
 
-    stim_type = args["--type"]
-    if stim_type:
-        stimulus = s.generate_stimulus(stim_type, level)
-    else:
-        stimulus = s.load_stimulus(args["--from-wav"], level)
+    s = Stimulus()
+    stimulus = s.load_stimulus(args["--from-wav"], level)
 
     out = args["--out"]
     if out:
-        _save_stimulus(stimulus, stim_type, level, _set_output_dir(out))
+        _save_stimulus(stimulus, level, _set_output_dir(out))
     else:
         _return_stimulus(stimulus, level)
 
     sys.exit(0)
+
+
+def make_template(outpath):
+    if not path.splitext(outpath)[1].lower() == ".yaml":
+        error("didn't get a yaml file")
+        raise NameError("The template path must specify a YAML file to be created.")
+    retval = path.realpath(path.join(*path.split(path.expanduser(outpath))))
+    info("output path set to " + retval)
+    if not path.exists(path.dirname(retval)):
+        info("path didn't exist, making it.")
+        os.makedirs(path.dirname(retval))
+    shutil.copy(stimulusTemplatePath, retval)
+    info("copied tempate to target.")
+    print("Created {0}".format(retval))
+
+
+def _return_stimulus(stimulus: np.ndarray, level: float):
+    """ Prints the generated stimulus and its sound level to STDOUT
+    """
+    np.savetxt(sys.stdout.buffer, [stimulus, level])
 
 
 def _set_output_dir(temp: str) -> str:
@@ -89,10 +108,9 @@ def _set_output_dir(temp: str) -> str:
         return retval
 
 
-def _save_stimulus(stimulus: np.ndarray, stim_type: str, level: float, outPath: str):
-    outName = stim_type + str(level) + "dB"
+def _save_stimulus(stimulus: np.ndarray, level: float, outPath: str):
+    outName = "wav_converted_{0}".format(datetime.now().strftime("%d%M%y_%H%M%S")) + str(level) + "dB"
     np.savez(path.join(_set_output_dir(outPath), outName), {"stimulus": stimulus, "level": level})
-
 
 if __name__ == "__main__":
     sys.exit(main())

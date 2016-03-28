@@ -1,8 +1,6 @@
 import os
 from collections import namedtuple
-
-# This is the path of __this file__, which we can then base location on
-rootPath = os.path.dirname(os.path.abspath(__file__))
+from os import path
 
 # This is the tuple that contains operational constants
 RuntimeConstants = namedtuple("Const", " ModelDirectoryLabelName \
@@ -11,8 +9,9 @@ RuntimeConstants = namedtuple("Const", " ModelDirectoryLabelName \
                                   PeripheryOutputFilePrefix \
                                   NelsonCarneyOutputFilePrefix \
                                   SummaryPlotFileName \
-                                  PeripheryConfigurationName")
-
+                                  PeripheryConfigurationName \
+                                  ResourceDirectoryName \
+                                  StimulusTemplateName")
 
 runtime_consts = RuntimeConstants(ModelDirectoryLabelName=".verhulst-model-output-root",
                                   DefaultModelOutputDirectoryRoot="verhulst-output",
@@ -20,7 +19,9 @@ runtime_consts = RuntimeConstants(ModelDirectoryLabelName=".verhulst-model-outpu
                                   PeripheryOutputFilePrefix="periphery-output-",
                                   NelsonCarneyOutputFilePrefix="nelson-carney-output-",
                                   PeripheryConfigurationName="simulation-configuration.yaml",
-                                  SummaryPlotFileName="summary-plots.pdf"
+                                  SummaryPlotFileName="summary-plots.pdf",
+                                  ResourceDirectoryName="resources",
+                                  StimulusTemplateName="default_stimulus.yaml"
                                   )
 
 # This is the tuple that contains the naming conventions for Periphery output
@@ -59,3 +60,11 @@ brain_consts = BrainstemConstants(Wave1_AN="wave1_an",
                                   ANPopulation="an_pop_resp",
                                   CNPopulation="cn_pop_resp",
                                   ICPopulation="ic_pop_resp")
+
+# This is the path of __this file__, which we can then base location on
+rootPath = os.path.dirname(os.path.abspath(__file__))
+
+# other paths relative to root
+
+stimulusTemplatePath = path.join(rootPath, runtime_consts.ResourceDirectoryName
+                                 , runtime_consts.StimulusTemplateName)

@@ -24,7 +24,7 @@ class PeripheryConfiguration:
     p0 = 2e-5  # 20 uPa for dB conversion in stimulus making.
     NumberOfSections = 1000  # possibly also "number of frequency bands", if there's a 1:1 between section and cf.
 
-    def __init__(self, dataFolder: str, storeFlag: str):
+    def __init__(self, dataFolder: str, storeFlag: str, stimuli: (np.ndarray, [])):
         # model parameters from RUN_BMAN
         # these are used in making the stimulus waveform
         self.postDuration = int(round(self.Fs * 50e-3))  # a magic number
@@ -65,7 +65,7 @@ class ProbeType:
 class PeripheryOutput:
     """
         PeripheryOutput:
-            :parameter output: a dict containing the output from the periphery.
+            :parameter self.output: a dict containing the output from the periphery.
             :parameter self.conf: the configuration that generated these outputs
             :type self.conf: PeripheryConfiguration
             :parameter self.stimulusLevel: the sound level for this response, dB re 20 uPa
