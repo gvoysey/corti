@@ -32,14 +32,12 @@ class PeripheryConfiguration:
         self.cDur = int(round(80e-6 * self.Fs))  # number of elements that have a 1 in them.
         self.stimulus = None  # init as null, we'll make it on demand.
         # these are more general
-        self.channels = 2
         self.probeString = ProbeType.All  # sometimes called "Fc".
         self.subject = 1
         # this might be unused.  todo
-        self.normalizedRMS = np.zeros(self.channels)
         self.stimulusLevels = [60, 80]
-        assert len(self.stimulusLevels) == self.channels, "A stimulus level must be given for each channel"
-        self.irregularities = [1] * self.channels
+        self.normalizedRMS = np.zeros(len(self.stimulusLevels))
+        self.irregularities = [1] * len(self.stimulusLevels)
         # operational parameters
         self.dataFolder = dataFolder
         self.storeFlag = storeFlag

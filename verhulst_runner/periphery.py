@@ -21,7 +21,6 @@ class Periphery:
         self.storeFlag = self.conf.storeFlag
         self.stimulus = self.conf.stimulus
         self.Fs = self.conf.Fs
-        self.channels = self.conf.channels
         self.sectionsNo = self.conf.NumberOfSections
         self.subject = self.conf.subject
         self.irrPct = self.conf.irrPct
@@ -35,7 +34,7 @@ class Periphery:
         if not path.isdir(self.output_folder):
             os.makedirs(self.output_folder)
         self.cochlear_list = [[CochleaModel(), self.stimulus[i], self.irr_on[i], i, (0, i + 1)] for i in
-                              range(self.channels)]
+                              range(len(self.stimulus))]
 
     def run(self) -> [PeripheryOutput]:
         """Simulate sound propagation up to the auditory nerve for many stimulus levels
@@ -47,7 +46,8 @@ class Periphery:
         p.close()
         p.join()
         self.save_model_configuration()
-        print("\ncochlear simulation of {} channels finished in {:0.3f}s".format(self.channels, timedelta.total_seconds(
+        print("\ncochlear simulation of {} channels finished in {:0.3f}s".format(len(self.stimulus),
+                                                                                 timedelta.total_seconds(
             datetime.now() - s1)))
         return results
 
