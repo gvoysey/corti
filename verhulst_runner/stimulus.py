@@ -9,7 +9,12 @@ class Stimulus:
     FS = 100e3  # todo this is a magic number...
     P0 = 2e-5  # 20 micropascals
 
-    def _to_pascals(self, waveform: np.ndarray, level) -> np.ndarray:
+    def __init__(self, prestimulus_time: float, stimulus_time: float, poststimulus_time: float):
+        self.poststimulus_time = poststimulus_time
+        self.stimulus_time = stimulus_time
+        self.prestimulus_time = prestimulus_time
+
+    def _to_pascals(self, waveform: np.ndarray, level: float) -> np.ndarray:
         """ Rescales a given waveform so that the values are in units of pascals.
         :parameter waveform:  The waveform.
         :parameter level:     The desired resulting intensity, in dB re 20 uPa.
@@ -19,7 +24,8 @@ class Stimulus:
         return normalized * scaling
 
     def make_click(self, level: float) -> np.ndarray:
-        pass
+        template = [np.zeros(self.prestimulus_time), np.ones(self.stimulus_time), np.zeros(self.poststimulus_time)]
+        return self._to_pascals(template, level)
 
     def make_chirp(self, level: float) -> np.ndarray:
         pass
@@ -44,6 +50,6 @@ class Stimulus:
             raise FileNotFoundError
         fs, data = wavfile.read(wav_path)
         if fs != self.FS:
-            raise NotImplementedError("Wav files must be sampled at {0}".format(FS))
+            raise NotImplementedError("Wav files must be sampled at {0}".format(self.FS))
         else:
             return self._to_pascals(data, level)
