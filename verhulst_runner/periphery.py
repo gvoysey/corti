@@ -22,7 +22,7 @@ class Periphery:
         self.stimulus = self.conf.stimulus
         self.Fs = self.conf.Fs
         self.sectionsNo = self.conf.NumberOfSections
-        self.subject = self.conf.subject
+        self.random_seed = self.conf.random_seed
         self.irrPct = self.conf.irrPct
         self.nonlinearType = self.conf.nonlinearType
         self.sheraPo = np.loadtxt(polesPath)
@@ -64,7 +64,7 @@ class Periphery:
                         self.probes,
                         Zweig_irregularities=model[2],
                         sheraPo=self.sheraPo,
-                        subject=self.subject,
+                        subject=self.random_seed,
                         IrrPct=self.irrPct,
                         non_linearity_type=self.nonlinearType)
         # This right here is the rate limiting step.

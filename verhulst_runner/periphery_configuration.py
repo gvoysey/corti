@@ -33,7 +33,7 @@ class PeripheryConfiguration:
         self.stimulus = None  # init as null, we'll make it on demand.
         # these are more general
         self.probeString = ProbeType.All  # sometimes called "Fc".
-        self.subject = 1
+        self.random_seed = 1
         # this might be unused.  todo
         self.stimulusLevels = [60, 80]
         self.normalizedRMS = np.zeros(len(self.stimulusLevels))
