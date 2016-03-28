@@ -15,6 +15,8 @@ Options:
     --type                  Type of stimulus to generate.
     --level=<soundlevel>    Peak stimulus intensity, in dB SPL
     --from-wav=<wavfile>    Load a custom stimulus from the supplied path.
+    --from-template=<stimulusfile>     Load one or more stimuli from a YAML template.
+    --make-template=<templatepath>     Generate a copy of the YAML template at the specified location. [default: ~/stimulus-output/stimulus.yaml]
 """
 
 import sys
