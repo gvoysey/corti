@@ -11,7 +11,7 @@ __pycache__/
 # Data files
 *.npy
 *.npz
-models/verhulst-2016/output
+
 
 # crap
 *.DS_store
@@ -33,7 +33,7 @@ var/
 *.egg-info/
 .installed.cfg
 *.egg
-
+MANIFEST
 # PyInstaller
 #  Usually these files are written by a python script from a template
 #  before PyInstaller builds the exe, so as to inject date/other infos into it.
