@@ -1,4 +1,3 @@
-import math
 from datetime import datetime
 
 import numpy as np
@@ -31,10 +30,7 @@ class PeripheryConfiguration:
         # model parameters from RUN_BMAN
         # these are used in making the stimulus waveform
         self.stimulusLevels = stimuli[sc.Levels]
-        self.preDuration = self.seconds_to_samples(stimuli[sc.PrestimTime])  # a magic number
-        self.cDur = self.seconds_to_samples(stimuli[sc.StimTime])  # number of elements that have a 1 in them.
-        self.postDuration = self.seconds_to_samples(stimuli[sc.PoststimTime])  # a magic number
-        self.stimulus = None  # init as null, we'll make it on demand.
+        self.stimulus = stimuli[sc.Stimulus]  # init as null, we'll make it on demand.
         # these are more general
         self.probeString = ProbeType.All  # sometimes called "Fc".
         self.random_seed = 1
@@ -47,17 +43,7 @@ class PeripheryConfiguration:
         # these come from periphery.m
         self.irrPct = 0.05
         self.nonlinearType = "vel"  # todo this is defined in two places
-
         self.run_timestamp = datetime.now()
-
-        # make the stimulus
-        self.generate_stimulus()
-
-    def generate_stimulus(self) -> None:
-        # we can synthesize the stimulus here, somehow(..?!)
-        sc = np.hstack([np.zeros(self.preDuration), np.ones(self.cDur), np.zeros(self.postDuration)])
-        levels = np.array(self.stimulusLevels)[:, None]
-        self.stimulus = 2 * math.sqrt(2) * sc * self.p0 * 10 ** (levels / 20.0)
 
 
 class ProbeType:
