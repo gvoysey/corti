@@ -11,12 +11,16 @@ The model(s) of the auditory brainstem and midbrain are adapted from Nelson and 
 # Installation 
 this repository may be installed "from source" with `pip`, the python package manager: 
 ```
-pip install git+https://github.com/gvoysey/thesis-code.git@v0.57
+pip install git+https://github.com/gvoysey/thesis-code.git@<TAG>
 ```
+where `<TAG>` is a valid [release](https://github.com/gvoysey/thesis-code/releases)
 
+or, if you have cloned this repository locally and are running it in a virtual environment (like you should be!):
+
+`env/bin/pip install git+file:///path/to/your/git/repo@mybranch` or `@mytag`. 
 # Usage
- - (not yet implemented) stimulus_generator will configure stimuli
- - `python verhulst_model --help`
+ - `stimulus_generator --help` configure stimuli from WAV files or generate stimuli configuration templates.
+ - `verhulst_model --help` load stimuli, configure model parameters, run model, plot output.
   
 # Documentation 
  - Real Soon Now.
