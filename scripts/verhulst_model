@@ -54,16 +54,22 @@ def main():
         getLogger().setLevel(ERROR)
 
     # configure the stimulus
-    stim_loc = args["--stimulus"]
+    stim_loc = args["--stimulusFile"]
+    wav_path = args["--wavFile"]
+    level = args["--level"]
+    s = Stimulus()
     if stim_loc:
-        stimuli, levels = _get_stimuli(stim_loc)
+        stimului_dict = _get_stimuli(stim_loc)
+    elif not wav_path:
+        stimului_dict = s.default_stimulus()
     else:
-        stimuli, levels = Stimulus().default_stimulus()
+        stimului_dict = s.load_stimulus(wav_path, level)
+
 
     # actually run the simulation
     system('cls' if name == 'nt' else 'clear')
     info("output directory set to {0}".format(__set_output_dir(args["--out"])))
-    conf = PeripheryConfiguration(__set_output_dir(args["--out"]), args["--pSave"], (stimuli, levels))
+    conf = PeripheryConfiguration(__set_output_dir(args["--out"]), args["--pSave"], stimului_dict)
 
     print("Simulating periphery and auditory nerve...")
     anResults = Periphery(conf).run()

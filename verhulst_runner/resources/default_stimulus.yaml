@@ -1,16 +1,18 @@
 # Stimulus configuration template
-# The default stimulus.
-- {levels: [60, 80],  
-  stimulus_type: click,   
-  prestim_time: 2000,
-  stim_time: 8,
-  poststim_time: 5000,
-  }
-## TEMPLATE.  Uncomment to add a new stimulus to the list of stimuli.  
-##If you only want one stimulus, just comment out everything else.
-#- {levels: [60, 80],  
+
+## STIMULUS TEMPLATE.
+
+# {levels: [60, 80],
 #  stimulus_type: click,   
 #  prestim_time: 2000,
 #  stim_time: 8,
 #  poststim_time: 5000,
 #  }
+
+# The default stimulus is a short click at two levels.
+ {levels: [60, 80],
+  stimulus_type: click,
+  prestim_time: 2000,
+  stim_time: 8,
+  poststim_time: 5000,
+  }

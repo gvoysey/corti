@@ -24,7 +24,7 @@ class PeripheryConfiguration:
     p0 = 2e-5  # 20 uPa for dB conversion in stimulus making.
     NumberOfSections = 1000  # possibly also "number of frequency bands", if there's a 1:1 between section and cf.
 
-    def __init__(self, dataFolder: str, storeFlag: str, stimuli: (np.ndarray, [])):
+    def __init__(self, dataFolder: str, storeFlag: str, stimuli: {}):
         # model parameters from RUN_BMAN
         # these are used in making the stimulus waveform
         self.postDuration = int(round(self.Fs * 50e-3))  # a magic number

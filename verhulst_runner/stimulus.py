@@ -1,8 +1,11 @@
 import math
 
 import numpy as np
+import yaml
 from os import path
 from scipy.io import wavfile
+
+from verhulst_runner.base import stimulusTemplatePath
 
 
 class Stimulus:
@@ -34,7 +37,7 @@ class Stimulus:
         pass
 
     def default_stimulus(self):
-        pass
+        return yaml.load(open(stimulusTemplatePath, "r"))
 
     def generate_stimulus(self, stim_type: str, level: float) -> np.ndarray:
         stimului = {
@@ -46,8 +49,7 @@ class Stimulus:
             return stimului[stim_type]
 
     def load_stimulus(self, wav_path: str, level: float) -> np.ndarray:
-        """ Loads and returns the specified wav file, resampled with a hamming window to a sample rate useable by
-        the Verhulst model of the auditory periphery.
+        """ Loads and returns the specified wav file.
         """
         if not path.isfile(wav_path):
             raise FileNotFoundError
@@ -55,4 +57,8 @@ class Stimulus:
         if fs != self.FS:
             raise NotImplementedError("Wav files must be sampled at {0}".format(self.FS))
         else:
-            return self._to_pascals(data, level)
+            return {
+                "levels": [level],
+                "stimulus_type": "custom",
+                "stimulus": self._to_pascals(data, level)
+            }
