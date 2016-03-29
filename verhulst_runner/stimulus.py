@@ -5,7 +5,7 @@ import yaml
 from os import path
 from scipy.io import wavfile
 
-from verhulst_runner.base import stimulusTemplatePath
+from verhulst_runner.base import stimulusTemplatePath, stim_consts as sc
 
 
 class Stimulus:
@@ -41,9 +41,9 @@ class Stimulus:
 
     def generate_stimulus(self, stim_type: str, level: float) -> np.ndarray:
         stimului = {
-            "click": self.make_click(level),
-            "chirp": self.make_chirp(level),
-            "am": self.make_am(level)
+            sc.Click: self.make_click(level),
+            sc.Chirp: self.make_chirp(level),
+            sc.AM: self.make_am(level)
         }
         if stim_type in stimului:
             return stimului[stim_type]
@@ -58,7 +58,7 @@ class Stimulus:
             raise NotImplementedError("Wav files must be sampled at {0}".format(self.FS))
         else:
             return {
-                "levels": [level],
-                "stimulus_type": "custom",
-                "stimulus": self._to_pascals(data, level)
+                sc.Levels: [level],
+                sc.StimulusType: "custom",
+                sc.Stimulus: self._to_pascals(data, level)
             }

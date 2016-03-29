@@ -61,6 +61,28 @@ brain_consts = BrainstemConstants(Wave1_AN="wave1_an",
                                   CNPopulation="cn_pop_resp",
                                   ICPopulation="ic_pop_resp")
 
+# This is the tuple that contains the naming conventions for Stimulus specification
+StimulusConstants = namedtuple("StimulusConstants", "Click \
+                                                     Chirp \
+                                                     AM \
+                                                     Custom \
+                                                     Levels \
+                                                     StimulusType \
+                                                     Stimulus \
+                                                     PrestimTime \
+                                                     StimTime \
+                                                     PoststimTime ")
+
+stim_consts = StimulusConstants(Click="click",
+                                Chirp="chirp",
+                                AM="am",
+                                Custom="custom",
+                                Levels="levels",
+                                StimulusType="stimulus_type",
+                                Stimulus="stimulus",
+                                PrestimTime="prestim_time",
+                                StimTime="stim_time",
+                                PoststimTime="poststim_time")
 # This is the path of __this file__, which we can then base location on
 rootPath = os.path.dirname(os.path.abspath(__file__))
 
