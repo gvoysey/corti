@@ -26,7 +26,7 @@ class PeripheryConfiguration:
         # these are used in making the stimulus waveform
         self.stimulus_configuration = stimuli
         self.stimulusLevels = stimuli[sc.Levels]
-        self.stimulus = stimuli[sc.Stimulus]  # init as null, we'll make it on demand.
+        self.stimulus = stimuli[sc.Stimulus]
         # these are more general
         self.probeString = ProbeType.All  # sometimes called "Fc".
         self.random_seed = 1
