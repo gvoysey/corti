@@ -31,11 +31,11 @@ class PeripheryConfiguration:
         self.preDuration = int(round(self.Fs * 20e-3))  # a magic number
         self.cDur = int(round(80e-6 * self.Fs))  # number of elements that have a 1 in them.
         self.stimulus = None  # init as null, we'll make it on demand.
+        self.stimulusLevels = [60, 80]
         # these are more general
         self.probeString = ProbeType.All  # sometimes called "Fc".
         self.random_seed = 1
         # this might be unused.  todo
-        self.stimulusLevels = [60, 80]
         self.normalizedRMS = np.zeros(len(self.stimulusLevels))
         self.irregularities = [1] * len(self.stimulusLevels)
         # operational parameters
