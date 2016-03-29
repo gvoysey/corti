@@ -11,24 +11,20 @@ class PeripheryConfiguration:
         needed to run the model.  Default values come from RUN_BMAN.m
         :parameter self.Fs: Model sampling frequency. (default 100 kHz)
         :parameter self.Implementation: unknown, default 0
-        :parameter self.p0: no idea.
         :parameter self.NumberOfSections: number of basilar membrane sections to simulate (1000)
         :parameter self.PolesDirectoryName: relative path to PolesFileName
         :parameter self.PolesFileName: name of file containing starting Shera poles
-        :parameter self.preDuration:
-        :parameter self.postDuration:
     """
 
     # Magic Constants.
     Fs = 100000  # Sampling frequency. No idea why Fs is so high.
     Implementation = 0  # no idea what this does (it's not used as of commit 43bf3be01)
-    p0 = 2e-5  # 20 uPa for dB conversion in stimulus making.
     NumberOfSections = 1000  # possibly also "number of frequency bands", if there's a 1:1 between section and cf.
-
 
     def __init__(self, dataFolder: str, storeFlag: str, stimuli: {}):
         # model parameters from RUN_BMAN
         # these are used in making the stimulus waveform
+        self.stimulus_configuration = stimuli
         self.stimulusLevels = stimuli[sc.Levels]
         self.stimulus = stimuli[sc.Stimulus]  # init as null, we'll make it on demand.
         # these are more general
