@@ -1,4 +1,5 @@
 import math
+from logging import error
 
 import numpy as np
 import yaml
@@ -26,27 +27,32 @@ class Stimulus:
         scaling = 2 * math.sqrt(2) * self.P0 * 10 ** (level / 20)
         return normalized * scaling
 
-    def make_click(self, level: float) -> np.ndarray:
-        template = [np.zeros(self.prestimulus_time), np.ones(self.stimulus_time), np.zeros(self.poststimulus_time)]
-        return self._to_pascals(template, level)
-
-    def make_chirp(self, level: float) -> np.ndarray:
+    def make_click(self, config: {}) -> np.ndarray:
+        template = [np.zeros(config[sc.PrestimTime]), np.ones(config[sc.StimTime]), np.zeros(config[sc.PoststimTime])]
+        # return self._to_pascals(template, level)
         pass
 
-    def make_am(self, level: float) -> np.ndarray:
+    def make_chirp(self, config: {}) -> np.ndarray:
+        pass
+
+    def make_am(self, config: {}) -> np.ndarray:
         pass
 
     def default_stimulus(self):
         return yaml.load(open(stimulusTemplatePath, "r"))
 
-    def generate_stimulus(self, stim_type: str, level: float) -> np.ndarray:
+    def generate_stimulus(self, stimulus_config: {}) -> np.ndarray:
+        stim_type = stimulus_config[sc.StimulusType]
+
         stimului = {
-            sc.Click: self.make_click(level),
-            sc.Chirp: self.make_chirp(level),
-            sc.AM: self.make_am(level)
+            sc.Click: self.make_click(stimulus_config),
+            sc.Chirp: self.make_chirp(stimulus_config),
+            sc.AM: self.make_am(stimulus_config)
         }
         if stim_type in stimului:
             return stimului[stim_type]
+        else:
+            error("Cannot generate stimulus, wrong parameters given.")
 
     def load_stimulus(self, wav_path: str, level: float) -> np.ndarray:
         """ Loads and returns the specified wav file.

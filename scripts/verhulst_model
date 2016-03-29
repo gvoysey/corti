@@ -59,10 +59,13 @@ def main():
     level = args["--level"]
     s = Stimulus()
     if stim_loc:
+        # use a user-configured stimulus file.
         stimului_dict = _get_stimuli(stim_loc)
     elif not wav_path:
+        # use the default stimulus.
         stimului_dict = s.default_stimulus()
     else:
+        # use a user-created wav stimulus.
         stimului_dict = s.load_stimulus(wav_path, level)
 
 
