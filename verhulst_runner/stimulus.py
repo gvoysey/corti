@@ -35,7 +35,7 @@ class Stimulus:
         pre = self.seconds_to_samples(config[sc.PrestimTime])
         stim = self.seconds_to_samples(config[sc.StimTime])
         post = self.seconds_to_samples(config[sc.PoststimTime])
-        template = [np.zeros(pre), np.ones(stim), np.zeros(post)]
+        template = np.hstack([np.zeros(pre), np.ones(stim), np.zeros(post)])
         levels = np.array(config[sc.Levels])[:, None]
         return self._to_pascals(template, levels)
 

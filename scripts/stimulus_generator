@@ -67,6 +67,7 @@ def main():
 def _sanitize_level(levels: str):
     """ Takes a string list of level parameters and converts them to a list of floats.
     """
+    if levels is None: return
     return [float(f) for f in levels.split(",") if f]
 
 
