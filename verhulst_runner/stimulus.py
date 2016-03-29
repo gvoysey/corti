@@ -18,19 +18,26 @@ class Stimulus:
         self.stimulus_time = stimulus_time
         self.prestimulus_time = prestimulus_time
 
-    def _to_pascals(self, waveform: np.ndarray, level: float) -> np.ndarray:
+    def seconds_to_samples(self, time: str):
+        time = float(time)
+        return int(round(self.FS * time))
+
+    def _to_pascals(self, waveform: np.ndarray, levels: []) -> np.ndarray:
         """ Rescales a given waveform so that the values are in units of pascals.
         :parameter waveform:  The waveform.
         :parameter level:     The desired resulting intensity, in dB re 20 uPa.
         """
         normalized = waveform / max(waveform)
-        scaling = 2 * math.sqrt(2) * self.P0 * 10 ** (level / 20)
+        scaling = 2 * math.sqrt(2) * self.P0 * 10 ** (levels / 20)
         return normalized * scaling
 
     def make_click(self, config: {}) -> np.ndarray:
-        template = [np.zeros(config[sc.PrestimTime]), np.ones(config[sc.StimTime]), np.zeros(config[sc.PoststimTime])]
-        # return self._to_pascals(template, level)
-        pass
+        pre = self.seconds_to_samples(config[sc.PrestimTime])
+        stim = self.seconds_to_samples(config[sc.StimTime])
+        post = self.seconds_to_samples(config[sc.PoststimTime])
+        template = np.hstack([np.zeros(pre), np.ones(stim), np.zeros(post)])
+        levels = np.array(config[sc.Levels])[:, None]
+        return self._to_pascals(template, levels)
 
     def make_chirp(self, config: {}) -> np.ndarray:
         pass
@@ -38,19 +45,25 @@ class Stimulus:
     def make_am(self, config: {}) -> np.ndarray:
         pass
 
-    def default_stimulus(self):
+    def custom_stimulus_template(self, templatePath: str):
+        return yaml.load(open(templatePath, "r"))
+
+    def default_stimulus_template(self):
         return yaml.load(open(stimulusTemplatePath, "r"))
 
-    def generate_stimulus(self, stimulus_config: {}) -> np.ndarray:
+    def generate_stimulus(self, stimulus_config: {}) -> {}:
+        if sc.Stimulus in stimulus_config:
+            return stimulus_config
         stim_type = stimulus_config[sc.StimulusType]
 
         stimului = {
             sc.Click: self.make_click(stimulus_config),
             sc.Chirp: self.make_chirp(stimulus_config),
-            sc.AM: self.make_am(stimulus_config)
+            sc.AM: self.make_am(stimulus_config),
         }
         if stim_type in stimului:
-            return stimului[stim_type]
+            stimulus_config[sc.Stimulus] = stimului[stim_type]
+            return stimulus_config
         else:
             error("Cannot generate stimulus, wrong parameters given.")
 
@@ -66,5 +79,5 @@ class Stimulus:
             return {
                 sc.Levels: [level],
                 sc.StimulusType: "custom",
-                sc.Stimulus: self._to_pascals(data, level)
+                sc.Stimulus: self._to_pascals(data, [level])
             }

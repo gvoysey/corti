@@ -21,7 +21,7 @@ runtime_consts = RuntimeConstants(ModelDirectoryLabelName=".verhulst-model-outpu
                                   PeripheryConfigurationName="simulation-configuration.yaml",
                                   SummaryPlotFileName="summary-plots.pdf",
                                   ResourceDirectoryName="resources",
-                                  StimulusTemplateName="default_stimulus.yaml"
+                                  StimulusTemplateName="default_stimulus_template.yaml"
                                   )
 
 # This is the tuple that contains the naming conventions for Periphery output

@@ -1,0 +1,29 @@
+# Stimulus configuration template
+
+## STIMULUS TEMPLATE.
+# Valid types:
+#    - click : an impulse.
+#    - chirp : a down-chirp
+#    - am    : an amplitude-modulated tone.
+#    - custom : loaded from a WAV file; see stimulus_generator --help for how to do this.  (DO NOT do it here)
+# Valid configuration values:
+#    - prestim_time  : silence before the stimulus comes on.  IN SECONDS.
+#    - stim_time     : stimulus duration.  IN SECONDS.
+#    - poststim_time : silence after the stimulus turns off.  IN SECONDS.
+#    - levels        : A list of intensities to generate te stimulus at, in dB SPL re 20uPa.
+
+## TEMPLATE.
+# {levels: [60, 80],
+#  stimulus_type: click,   
+#  prestim_time: 20e-3,
+#  stim_time: 80e-6,
+#  poststim_time: 50e-3,
+#  }
+
+# The default stimulus is a short click at two levels.
+ {levels: [60, 80],
+  stimulus_type: click,
+  prestim_time: 20e-3,
+  stim_time: 80e-6,
+  poststim_time: 50e-3,
+  }

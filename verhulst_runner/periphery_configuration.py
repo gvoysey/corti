@@ -3,6 +3,8 @@ from datetime import datetime
 
 import numpy as np
 
+from verhulst_runner.base import stim_consts as sc
+
 
 class PeripheryConfiguration:
     """
@@ -24,14 +26,15 @@ class PeripheryConfiguration:
     p0 = 2e-5  # 20 uPa for dB conversion in stimulus making.
     NumberOfSections = 1000  # possibly also "number of frequency bands", if there's a 1:1 between section and cf.
 
+
     def __init__(self, dataFolder: str, storeFlag: str, stimuli: {}):
         # model parameters from RUN_BMAN
         # these are used in making the stimulus waveform
-        self.postDuration = int(round(self.Fs * 50e-3))  # a magic number
-        self.preDuration = int(round(self.Fs * 20e-3))  # a magic number
-        self.cDur = int(round(80e-6 * self.Fs))  # number of elements that have a 1 in them.
+        self.stimulusLevels = stimuli[sc.Levels]
+        self.preDuration = self.seconds_to_samples(stimuli[sc.PrestimTime])  # a magic number
+        self.cDur = self.seconds_to_samples(stimuli[sc.StimTime])  # number of elements that have a 1 in them.
+        self.postDuration = self.seconds_to_samples(stimuli[sc.PoststimTime])  # a magic number
         self.stimulus = None  # init as null, we'll make it on demand.
-        self.stimulusLevels = [60, 80]
         # these are more general
         self.probeString = ProbeType.All  # sometimes called "Fc".
         self.random_seed = 1

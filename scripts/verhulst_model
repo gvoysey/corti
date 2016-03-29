@@ -25,7 +25,6 @@ import sys
 from datetime import datetime
 from logging import info, basicConfig, getLogger, ERROR, INFO
 
-import numpy as np
 import os
 import shutil
 import warnings
@@ -60,15 +59,15 @@ def main():
     s = Stimulus()
     if stim_loc:
         # use a user-configured stimulus file.
-        stimului_dict = _get_stimuli(stim_loc)
+        stimului_dict = s.custom_stimulus_template(stim_loc)
     elif not wav_path:
         # use the default stimulus.
-        stimului_dict = s.default_stimulus()
+        stimului_dict = s.default_stimulus_template()
     else:
         # use a user-created wav stimulus.
         stimului_dict = s.load_stimulus(wav_path, level)
 
-
+    stimului_dict = s.generate_stimulus(stimului_dict)
     # actually run the simulation
     system('cls' if name == 'nt' else 'clear')
     info("output directory set to {0}".format(__set_output_dir(args["--out"])))
@@ -92,10 +91,6 @@ def main():
     print("Simulation finished.")
 
     sys.exit(0)
-
-
-def _get_stimuli(stim_loc: str) -> np.ndarray:
-    pass
 
 
 def __clean(rootDir: str, current_results: str) -> None:
