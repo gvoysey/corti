@@ -7,7 +7,7 @@ Usage:
     stimulus_generator -h | --help
     stimulus_generator --version
     stimulus_generator --make-template <templatepath> [-v | --verbose]
-    stimulus_generator  [-v | --verbose] [--out <outpath>] --from-wav <wavfile> --level <soundlevel>
+    stimulus_generator  [-v | --verbose] [--out <outpath>] (--from-wav <wavfile> --level <soundlevel>)
 
 Options:
     -h --help               Show this screen and exit.
@@ -51,11 +51,7 @@ def main():
         exit(0)
 
     # barf if the level isn't a float
-    level = args["--level"]
-    try:
-        level = float(level)
-    except ValueError:
-        raise ValueError("Level must be a number.")
+    level = _sanitize_level(args["--level"])
 
     s = Stimulus()
     stimulus = s.load_stimulus(args["--from-wav"], level)
@@ -67,6 +63,12 @@ def main():
         _return_stimulus(stimulus, level)
 
     sys.exit(0)
+
+def _sanitize_level(levels: str):
+    """ Takes a string list of level parameters and converts them to a list of floats.
+    """
+    return [float(f) for f in levels.split(",") if f]
+
 
 
 def make_template(outpath):
@@ -83,12 +85,12 @@ def make_template(outpath):
     print("Created {0}".format(retval))
 
 
-def _return_stimulus(stimulus: np.ndarray, level: float):
+def _return_stimulus(stimulus: np.ndarray, level: [float]):
     """ Prints the generated stimulus and its sound level to STDOUT
     """
     np.savetxt(sys.stdout.buffer, {
         sc.Stimulus: stimulus,
-        sc.Levels: [level],
+        sc.Levels: level,
         sc.StimulusType: sc.Custom
         })
 
@@ -112,11 +114,11 @@ def _set_output_dir(temp: str) -> str:
         return retval
 
 
-def _save_stimulus(stimulus: np.ndarray, level: float, outPath: str):
+def _save_stimulus(stimulus: np.ndarray, level: [float], outPath: str):
     outName = "wav_converted_{0}".format(datetime.now().strftime("%d%M%y_%H%M%S")) + str(level) + "dB"
     np.savez(path.join(_set_output_dir(outPath), outName), {
         sc.Stimulus: stimulus,
-        sc.Levels: [level],
+        sc.Levels: level,
         sc.StimulusType: sc.Custom
         })
 

@@ -67,7 +67,7 @@ class Stimulus:
         else:
             error("Cannot generate stimulus, wrong parameters given.")
 
-    def load_stimulus(self, wav_path: str, level: float) -> np.ndarray:
+    def load_stimulus(self, wav_path: str, level: [float]) -> {}:
         """ Loads and returns the specified wav file.
         """
         if not path.isfile(wav_path):
@@ -77,7 +77,7 @@ class Stimulus:
             raise NotImplementedError("Wav files must be sampled at {0}".format(self.FS))
         else:
             return {
-                sc.Levels: [level],
+                sc.Levels: level,
                 sc.StimulusType: "custom",
-                sc.Stimulus: self._to_pascals(data, [level])
+                sc.Stimulus: self._to_pascals(data, level)
             }

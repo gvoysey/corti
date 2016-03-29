@@ -16,7 +16,7 @@ Options:
     --noBrainstem                   Simulate the periphery only.
     --stimulusFile=<stimulusPath>   Provide one or more stimuli templates as YAML (see stimulus_generator --help ).  If no option is provided, a 60dB click will be used.
     --wavFile=<wavPath>             Provide a custom stimulus from a pre-recorded WAV file.
-    --level=<spl>                   Specify the peak sound level of the WAV specified with --wavFile.
+    --level=<spl>                   Specify the peak sound level(s) of the WAV specified with --wavFile.  Separate values with commas.
     -c --clean                      Previous runs will be deleted to save disk space.
     -v --verbose                    Display detailed debug log output to STDOUT.
 """
@@ -44,6 +44,12 @@ warnings.simplefilter(action="ignore", category=FutureWarning)
 basicConfig(format='%(levelname)s %(asctime)s- %(message)s', datefmt='%d %b %H:%M:%S', level=INFO)
 
 
+def _sanitize_level(levels: str):
+    """ Takes a string list of level parameters and converts them to a list of floats.
+    """
+    return [float(f) for f in levels.split(",") if f]
+
+
 def main():
     # get the command line args
     args = docopt(__doc__, version=__version__)
@@ -55,7 +61,7 @@ def main():
     # configure the stimulus
     stim_loc = args["--stimulusFile"]
     wav_path = args["--wavFile"]
-    level = args["--level"]
+    level = _sanitize_level(args["--level"])
     s = Stimulus()
     if stim_loc:
         # use a user-configured stimulus file.
