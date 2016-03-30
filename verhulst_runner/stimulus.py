@@ -27,7 +27,8 @@ class Stimulus:
         :parameter waveform:  The waveform.
         :parameter level:     The desired resulting intensity, in dB re 20 uPa.
         """
-        normalized = np.hstack(waveform / max(waveform))
+        normalized = waveform / max(waveform)
+        levels = np.array(levels)[:, None]
         scaling = 2 * math.sqrt(2) * self.P0 * 10 ** (levels / 20)
         return normalized * scaling
 
@@ -36,8 +37,7 @@ class Stimulus:
         stim = self.seconds_to_samples(config[sc.StimTime])
         post = self.seconds_to_samples(config[sc.PoststimTime])
         template = np.hstack([np.zeros(pre), np.ones(stim), np.zeros(post)])
-        levels = np.array(config[sc.Levels])[:, None]
-        return self._to_pascals(template, levels)
+        return self._to_pascals(template, config[sc.Levels])
 
     def make_chirp(self, config: {}) -> np.ndarray:
         pass

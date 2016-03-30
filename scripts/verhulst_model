@@ -73,7 +73,6 @@ def main():
     else:
         # use a user-created wav stimulus.
         stimului_dict = s.load_stimulus(wav_path, level)
-
     stimului_dict = s.generate_stimulus(stimului_dict)
     # actually run the simulation
     system('cls' if name == 'nt' else 'clear')
