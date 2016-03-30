@@ -47,7 +47,12 @@ basicConfig(format='%(levelname)s %(asctime)s- %(message)s', datefmt='%d %b %H:%
 def _sanitize_level(levels: str):
     """ Takes a string list of level parameters and converts them to a list of floats.
     """
+<<<<<<< HEAD
+    if levels is None:
+        return
+=======
     if levels is None: return
+>>>>>>> 51f48375d593693a5b0fecbb2034c1432ea8fdbe
     return [float(f) for f in levels.split(",") if f]
 
 

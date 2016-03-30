@@ -23,47 +23,58 @@ class Stimulus:
         return int(round(self.FS * time))
 
     def _to_pascals(self, waveform: np.ndarray, levels: []) -> np.ndarray:
-        """ Rescales a given waveform so that the values are in units of pascals.
+        """ Rescale a waveform so that the values are in units of pascals, and returns a matrix of waveforms column-wise
+        by level.
         :parameter waveform:  The waveform.
-        :parameter level:     The desired resulting intensity, in dB re 20 uPa.
+        :parameter level:     The desired resulting intensities, in dB re 20 uPa.
         """
-        normalized = np.hstack(waveform / max(waveform))
+        # make the waveform one-dimensional if it isn't already
+        waveform = np.hstack(waveform)
+        # normalize it
+        normalized = waveform / max(waveform)
+        # make the levels broadcastable
+        levels = np.array(levels)[:, None]
+        # compute the intensity in pascals
         scaling = 2 * math.sqrt(2) * self.P0 * 10 ** (levels / 20)
         return normalized * scaling
 
     def make_click(self, config: {}) -> np.ndarray:
+        """ Generate a click stimulus of a given prestimulus delay, stimulus duration, poststimulus delay, and levels.
+        """
         pre = self.seconds_to_samples(config[sc.PrestimTime])
         stim = self.seconds_to_samples(config[sc.StimTime])
         post = self.seconds_to_samples(config[sc.PoststimTime])
-        template = np.hstack([np.zeros(pre), np.ones(stim), np.zeros(post)])
-        levels = np.array(config[sc.Levels])[:, None]
-        return self._to_pascals(template, levels)
+        # the template for a click is a delay, a rectangular stimulus, and a delay.
+        template = [np.zeros(pre), np.ones(stim), np.zeros(post)]
+        return self._to_pascals(template, config[sc.Levels])
 
     def make_chirp(self, config: {}) -> np.ndarray:
-        pass
-
-    def make_tone(self, config: {}) -> np.ndarray:
         pass
 
     def make_am(self, config: {}) -> np.ndarray:
         pass
 
-    def custom_stimulus_template(self, templatePath: str):
+    def custom_stimulus_template(self, templatePath: str) -> {}:
+        """ Loads a user-created stimulus configuration from disk
+        """
         return yaml.load(open(templatePath, "r"))
 
     def default_stimulus_template(self):
+        """ Returns the default stimulus configuration from the template
+        """
         return yaml.load(open(stimulusTemplatePath, "r"))
 
     def generate_stimulus(self, stimulus_config: {}) -> {}:
+        """ Generate a stimulus from a stimulus configuration and return it appended to the stimulus configuration.
+        """
         if sc.Stimulus in stimulus_config:
             return stimulus_config
         stim_type = stimulus_config[sc.StimulusType]
 
         stimului = {
-            sc.Click:   self.make_click(stimulus_config),
-            sc.Chirp:   self.make_chirp(stimulus_config),
-            sc.Tone:    self.make_tone(stimulus_config),
-            sc.AM:      self.make_am(stimulus_config),
+            sc.Click: self.make_click(stimulus_config),
+            sc.Chirp: self.make_chirp(stimulus_config),
+            sc.AM: self.make_am(stimulus_config),
         }
         if stim_type in stimului:
             stimulus_config[sc.Stimulus] = stimului[stim_type]
