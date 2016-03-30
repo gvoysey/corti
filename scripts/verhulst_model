@@ -62,7 +62,7 @@ def main():
     # configure the stimulus
     stim_loc = args["--stimulusFile"]
     wav_path = args["--wavFile"]
-    level = _sanitize_level(args["--level"])
+    levels = _sanitize_level(args["--level"])
     s = Stimulus()
     if stim_loc:
         # use a user-configured stimulus file.
@@ -72,7 +72,7 @@ def main():
         stimuli_dict = s.default_stimulus_template()
     else:
         # use a user-created wav stimulus.
-        stimuli_dict = s.load_stimulus(wav_path, level)
+        stimuli_dict = s.load_stimulus(wav_path, levels)
     stimuli_dict = s.generate_stimulus(stimuli_dict)
     # actually run the simulation
     system('cls' if name == 'nt' else 'clear')
