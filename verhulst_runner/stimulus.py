@@ -35,11 +35,14 @@ class Stimulus:
         pre = self.seconds_to_samples(config[sc.PrestimTime])
         stim = self.seconds_to_samples(config[sc.StimTime])
         post = self.seconds_to_samples(config[sc.PoststimTime])
-        template = [np.zeros(pre), np.ones(stim), np.zeros(post)]
+        template = np.hstack([np.zeros(pre), np.ones(stim), np.zeros(post)])
         levels = np.array(config[sc.Levels])[:, None]
         return self._to_pascals(template, levels)
 
     def make_chirp(self, config: {}) -> np.ndarray:
+        pass
+
+    def make_tone(self, config: {}) -> np.ndarray:
         pass
 
     def make_am(self, config: {}) -> np.ndarray:
@@ -57,9 +60,10 @@ class Stimulus:
         stim_type = stimulus_config[sc.StimulusType]
 
         stimului = {
-            sc.Click: self.make_click(stimulus_config),
-            sc.Chirp: self.make_chirp(stimulus_config),
-            sc.AM: self.make_am(stimulus_config),
+            sc.Click:   self.make_click(stimulus_config),
+            sc.Chirp:   self.make_chirp(stimulus_config),
+            sc.Tone:    self.make_tone(stimulus_config),
+            sc.AM:      self.make_am(stimulus_config),
         }
         if stim_type in stimului:
             stimulus_config[sc.Stimulus] = stimului[stim_type]
