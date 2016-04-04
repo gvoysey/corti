@@ -50,6 +50,8 @@ if system == "darwin":
     tridiagName = "tridiag.so_darwin"
 elif system == "linux":
     tridiagName = "tridiag.so_linux"
+elif system == "windows":
+    tridiagName = "tridiag.so_windows"
 else:
     raise NotImplementedError("this library only runs on mac and linux right now.")
     # tridiagName = "tridiag.so_windows" (one day!)
