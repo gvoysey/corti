@@ -22,6 +22,7 @@ setup(
     install_requires=[
         'docopt >= 0.6',
         'matplotlib >= 1.5',
+        'blessed >= 1.14',
         'numpy >= 1.10',
         'progressbar2 >= 3.6',
         'PyYAML > 3.10'
