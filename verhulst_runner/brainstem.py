@@ -61,10 +61,10 @@ class NelsonCarney04:
         count, dur = an.conf.stimulus.shape
         self.time = np.linspace(0, dur / self.Fs, num=dur)
 
-        self.anfh = self.anfOut.output[p.AuditoryNerveFiberHighSpont][:, 1::2]
-        self.anfm = self.anfOut.output[p.AuditoryNerveFiberMediumSpont][:, 1::2]
-        self.anfl = self.anfOut.output[p.AuditoryNerveFiberLowSpont][:, 1::2]
-        self.cf = self.anfOut.output[p.CenterFrequency][1::2]
+        self.anfh = self.anfOut.output[p.AuditoryNerveFiberHighSpont]#[:, 1::2]
+        self.anfm = self.anfOut.output[p.AuditoryNerveFiberMediumSpont]#[:, 1::2]
+        self.anfl = self.anfOut.output[p.AuditoryNerveFiberLowSpont]#[:, 1::2]
+        self.cf = self.anfOut.output[p.CenterFrequency]#[1::2]
         self.cutoffCf = [index for index, value in enumerate(self.cf) if value >= 175.0][-1]
         self.timeLen, self.bmSegments = self.anfh.shape
 

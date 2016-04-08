@@ -62,9 +62,9 @@ def save_summary_pdf(periphery: [], brain: [], conf: PeripheryConfiguration, fil
                 plot_brainstem(brain[i], conf, pdf)
 
         d = pdf.infodict()
-        d['Title'] = 'Verhulst Model Output'
-        # d['Author'] = ""
-        # d['Keywords'] = 'PdfPages multipage keywords author title subject'
+        d['Title'] = 'Auditory Periphery Model Output'
+        d['Author'] = "Graham Voysey <gvoysey@bu.edu>"
+        d['Keywords'] = 'ABR auditory model periphery'
         d['CreationDate'] = datetime.today()
         d['ModDate'] = datetime.today()
 
