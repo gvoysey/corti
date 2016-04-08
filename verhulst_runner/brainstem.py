@@ -19,10 +19,10 @@ class CarneyMTFs:
 
 
 def simulate_brainstem(anResults: [(PeripheryOutput, bool)]) -> [{}]:
-    p = mp.Pool(mp.cpu_count(), maxtasksperchild=1)
-    retval = p.map(solve_one, anResults)
-    p.close()
-    p.join()
+    pool = mp.Pool(mp.cpu_count(), maxtasksperchild=1)
+    retval = pool.map(solve_one, anResults)
+    pool.close()
+    pool.join()
     return retval
 
 

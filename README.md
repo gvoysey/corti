@@ -2,7 +2,7 @@
 This repository contains a runtime environment for models of the auditory periphery, brainstem, and midbrain. 
 The model(s) are adapted from Nelson and Carney (2004), Carney (2015), and Zilany and Bruce (2014).   
 
-It is implemented in Python 3.x, and currently supports OSX and Linux. 
+It is implemented in Python 3.x, and currently supports OSX, Linux, and 64-bit windows. 
 
 The goal of this work is to explore the effects of Auditory Neuropathy on representations of complex sounds throughout
 the early stages of the auditory system. 
