@@ -10,13 +10,10 @@ from verhulst_runner.base import stimulusTemplatePath, stim_consts as sc
 
 
 class Stimulus:
-    FS = 100e3  # todo this is a magic number...
     P0 = 2e-5  # 20 micropascals
 
-    def __init__(self, prestimulus_time: float = None, stimulus_time: float = None, poststimulus_time: float = None):
-        self.poststimulus_time = poststimulus_time
-        self.stimulus_time = stimulus_time
-        self.prestimulus_time = prestimulus_time
+    def __init__(self, Fs=100e3):
+        self.FS = Fs
 
     def seconds_to_samples(self, time: str):
         time = float(time)

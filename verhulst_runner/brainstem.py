@@ -61,11 +61,11 @@ class NelsonCarney04:
         count, dur = an.conf.stimulus.shape
         self.time = np.linspace(0, dur / self.Fs, num=dur)
 
-        self.anfh = self.anfOut.output[p.AuditoryNerveFiberHighSpont][:, 1::2]
-        self.anfm = self.anfOut.output[p.AuditoryNerveFiberMediumSpont][:, 1::2]
-        self.anfl = self.anfOut.output[p.AuditoryNerveFiberLowSpont][:, 1::2]
-        self.cf = self.anfOut.output[p.CenterFrequency][1::2]
-        self.cutoffCf = [index for index, value in enumerate(self.cf) if value >= 175.0][-1]
+        self.anfh = self.anfOut.output[p.AuditoryNerveFiberHighSpont]  # [:, 1::2]
+        self.anfm = self.anfOut.output[p.AuditoryNerveFiberMediumSpont]  # [:, 1::2]
+        self.anfl = self.anfOut.output[p.AuditoryNerveFiberLowSpont]  # [:, 1::2]
+        self.cf = self.anfOut.output[p.CenterFrequency]  # [1::2]
+        self.cutoffCf = [index for index, value in enumerate(self.cf) if value >= self.LowFrequencyCutoff][-1]
         self.timeLen, self.bmSegments = self.anfh.shape
 
     def run(self, saveFlag: bool) -> {}:
@@ -104,7 +104,7 @@ class NelsonCarney04:
         inhibition = s * self._weight_and_shift_exponential(self.Tin)
         return np.pad(inhibition, (lag, 0), 'constant')[:-lag]
 
-    def _make_summed_an_response(self) -> np.ndarray:
+    def _make_summed_an_response(self, cf_weighted=False) -> np.ndarray:
         """Create an auditory nerve population response.
         Contains the contributions of low, medium, and high spontaneous rate fibers individually weighted by fiber count,
         and overall weighted by some magic constant.
@@ -112,12 +112,14 @@ class NelsonCarney04:
         """
         bmSegments = self.bmSegments
         timeLen = self.timeLen
+        if not cf_weighted:
+            lsr = numpy.matlib.repmat(self.LSnormal * np.ones((1, bmSegments)), timeLen, 1) * self.anfl
+            msr = numpy.matlib.repmat(self.MSnormal * np.ones((1, bmSegments)), timeLen, 1) * self.anfm
+            hsr = numpy.matlib.repmat(self.HSnormal * np.ones((1, bmSegments)), timeLen, 1) * self.anfh
 
-        lsr = numpy.matlib.repmat(self.LSnormal * np.ones((1, bmSegments)), timeLen, 1) * self.anfl
-        msr = numpy.matlib.repmat(self.MSnormal * np.ones((1, bmSegments)), timeLen, 1) * self.anfm
-        hsr = numpy.matlib.repmat(self.HSnormal * np.ones((1, bmSegments)), timeLen, 1) * self.anfh
-
-        return (lsr + msr + hsr) * self.M1
+            return (lsr + msr + hsr) * self.M1
+        else:
+            return self._cf_weighted_an_response()
 
     def _simulate_brainstem_and_midbrain(self, AN: np.ndarray, inhCn: np.ndarray,
                                          inhIc: np.ndarray) -> {}:
@@ -158,3 +160,6 @@ class NelsonCarney04:
             b.CNPopulation: RcnF,
             b.ICPopulation: RicF
         }
+
+    def _cf_weighted_an_response(self) -> np.ndarray:
+        pass
