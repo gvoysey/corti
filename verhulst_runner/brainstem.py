@@ -11,13 +11,6 @@ from verhulst_runner.base import runtime_consts, brain_consts as b, periph_const
 from .periphery_configuration import PeripheryOutput
 
 
-class CarneyMTFs:
-    """
-    This class will implement weighted MTF responses to generate ABRs.
-    """
-    pass
-
-
 def simulate_brainstem(anResults: [(PeripheryOutput, bool)]) -> [{}]:
     pool = mp.Pool(mp.cpu_count(), maxtasksperchild=1)
     retval = pool.map(solve_one, anResults)
@@ -28,6 +21,76 @@ def simulate_brainstem(anResults: [(PeripheryOutput, bool)]) -> [{}]:
 
 def solve_one(periphery: (PeripheryOutput, bool)) -> {}:
     return NelsonCarney04(periphery[0]).run(periphery[1])
+
+
+class AuditoryNerveResponse:
+    """Provides multiple weightings of the summed AN response
+    """
+
+    LowFrequencyCutoff = 175
+    TotalFiberPerIHC = 19
+    M1 = 0.15e-6 / 2.7676e+07  # last value is uncompensated at 100 dB
+
+    LSnormal = 3
+    MSnormal = 3
+    HSnormal = 13
+
+    def __init__(self, an: PeripheryOutput):
+        self.anfOut = an
+        self.Fs = an.conf.Fs
+        self.cf = an.output[p.CenterFrequency]
+        count, dur = an.conf.stimulus.shape
+        self.time = np.linspace(0, dur / self.Fs, num=dur)
+
+        self.anfh = self.anfOut.output[p.AuditoryNerveFiberHighSpont]
+        self.anfm = self.anfOut.output[p.AuditoryNerveFiberMediumSpont]
+        self.anfl = self.anfOut.output[p.AuditoryNerveFiberLowSpont]
+        self.cf = self.anfOut.output[p.CenterFrequency]
+        self.cutoffCf = [index for index, value in enumerate(self.cf) if value >= self.LowFrequencyCutoff][-1]
+        self.timeLen, self.bmSegments = self.anfh.shape
+
+    def cf_weighted_an_response(self) -> np.ndarray:
+        pass
+
+    def _map_cf_dependent_distribution(self) -> ():
+        """Returns a distribution percentage of hair cell SR types as a function of CF.  Distribution statistics taken from
+        Temchin, A. N., Rich, N. C., and Ruggero, M. a (2008). “Threshold Tuning Curves of Chinchilla Auditory Nerve Fibers II Dependence on Spontaneous Activity and Relation to Cochlear Nonlinearity,” J. Neurophysiol., 100, 2899–2906. doi:10.1152/jn.90639.2008
+        and
+        Bourien, J., Tang, Y., Batrel, C., Huet, A., Lenoir, M., Ladrech, S., Desmadryl, G., et al. (2014). “Contribution of auditory nerve fibers to compound action potential of the auditory nerve,” J. Neurophysiol., 112, 1025–1039. doi:10.1152/jn.00738.2013
+        """
+
+        return [(self.percent_sr(c) / 2, self.percent_sr(c) / 2, 1 - self.percent_sr(c)) for c in self.cf]
+
+    def percent_sr(self, cf):
+        """
+        Returns the  percentage of AN fibers with a SR < 18 s/s as a function of CF, per Temchin and Ruggero (2008).  Distribution is modeled as a logistic function.
+        """
+        # k r and t0 were optimized externally.
+        k = 22
+        r = .0009
+        cf0 = 2500
+        return (21 + k / (1 + np.exp(-r * (cf - cf0)))) / 100
+
+    def unweighted_an_response(self) -> np.ndarray:
+        """Create an auditory nerve population response.
+        Contains the contributions of low, medium, and high spontaneous rate fibers individually weighted by fiber count,
+        and overall weighted by some magic constant.
+        :return:
+        """
+        bmSegments = self.bmSegments
+        timeLen = self.timeLen
+        lsr = numpy.matlib.repmat(self.LSnormal * np.ones((1, bmSegments)), timeLen, 1) * self.anfl
+        msr = numpy.matlib.repmat(self.MSnormal * np.ones((1, bmSegments)), timeLen, 1) * self.anfm
+        hsr = numpy.matlib.repmat(self.HSnormal * np.ones((1, bmSegments)), timeLen, 1) * self.anfh
+
+        return (lsr + msr + hsr) * self.M1
+
+
+class CarneyMTFs:
+    """
+    This class will implement weighted MTF responses to generate ABRs.
+    """
+    pass
 
 
 class NelsonCarney04:
@@ -112,14 +175,11 @@ class NelsonCarney04:
         """
         bmSegments = self.bmSegments
         timeLen = self.timeLen
-        if not cf_weighted:
-            lsr = numpy.matlib.repmat(self.LSnormal * np.ones((1, bmSegments)), timeLen, 1) * self.anfl
-            msr = numpy.matlib.repmat(self.MSnormal * np.ones((1, bmSegments)), timeLen, 1) * self.anfm
-            hsr = numpy.matlib.repmat(self.HSnormal * np.ones((1, bmSegments)), timeLen, 1) * self.anfh
+        lsr = numpy.matlib.repmat(self.LSnormal * np.ones((1, bmSegments)), timeLen, 1) * self.anfl
+        msr = numpy.matlib.repmat(self.MSnormal * np.ones((1, bmSegments)), timeLen, 1) * self.anfm
+        hsr = numpy.matlib.repmat(self.HSnormal * np.ones((1, bmSegments)), timeLen, 1) * self.anfh
 
-            return (lsr + msr + hsr) * self.M1
-        else:
-            return self._cf_weighted_an_response()
+        return (lsr + msr + hsr) * self.M1
 
     def _simulate_brainstem_and_midbrain(self, AN: np.ndarray, inhCn: np.ndarray,
                                          inhIc: np.ndarray) -> {}:
@@ -153,13 +213,10 @@ class NelsonCarney04:
                 RcnF[i, :] = Rcn[0:timeLen]  # chop off the duplicated convolution side
                 bar.update(i)
         return {
-            b.Wave1_AN: W1,
-            b.Wave3_CN: CN,
-            b.Wave5_IC: IC,
+            b.Wave1_AN    : W1,
+            b.Wave3_CN    : CN,
+            b.Wave5_IC    : IC,
             b.ANPopulation: RanF,
             b.CNPopulation: RcnF,
             b.ICPopulation: RicF
         }
-
-    def _cf_weighted_an_response(self) -> np.ndarray:
-        pass
