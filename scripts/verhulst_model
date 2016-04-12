@@ -38,8 +38,7 @@ from verhulst_runner.base import runtime_consts
 from verhulst_runner.brainstem import simulate_brainstem
 from verhulst_runner.periphery_configuration import PeripheryConfiguration
 
-# PyYAML has some warnings we'll suppress
-warnings.simplefilter(action="ignore", category=FutureWarning)
+
 # By default, log INFO and up.
 basicConfig(format='%(levelname)s %(asctime)s- %(message)s', datefmt='%d %b %H:%M:%S', level=INFO)
 

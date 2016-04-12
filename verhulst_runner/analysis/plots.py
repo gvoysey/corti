@@ -23,13 +23,17 @@ def plot_periphery(periph: {}, conf: PeripheryConfiguration, pdf: PdfPages) -> p
     pointCount = len(stimulus)
     time = np.linspace(0, pointCount / conf.Fs, num=pointCount)
 
-    # plot stimulus
+    # plot stimulus, top left.
     stimt = plt.subplot(gs[0, :-3])
     stimt.plot(time, stimulus, lw=2)
     stimt.set_xlabel("Time, s")
     stimt.set_ylabel("Amplitude ")
     stimt.set_title("Stimulus")
     stimf = plt.subplot(gs[1, 3:-1])
+
+    # plot FFT of stimulus, top right
+
+    #Plot
 
     figure.suptitle("Verhulst Model Output. Stimulus level {0}dB SPL".format(periph[p.StimulusLevel]),
                     fontsize=18)

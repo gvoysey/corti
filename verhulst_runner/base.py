@@ -1,6 +1,7 @@
 import os
 from collections import namedtuple
 from os import path
+import warnings
 
 # This is the tuple that contains operational constants
 RuntimeConstants = namedtuple("Const", " ModelDirectoryLabelName \
@@ -90,3 +91,6 @@ rootPath = os.path.dirname(os.path.abspath(__file__))
 
 stimulusTemplatePath = path.join(rootPath, runtime_consts.ResourceDirectoryName
                                  , runtime_consts.StimulusTemplateName)
+
+# PyYAML and blessed have some warnings we'll suppress
+warnings.simplefilter(action="ignore", category=(FutureWarning, UserWarning))
