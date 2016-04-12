@@ -49,8 +49,14 @@ class AuditoryNerveResponse:
         self.cutoffCf = [index for index, value in enumerate(self.cf) if value >= self.LowFrequencyCutoff][-1]
         self.timeLen, self.bmSegments = self.anfh.shape
 
-    def cf_weighted_an_response(self) -> np.ndarray:
+    def cf_weighted_an_response(self, degradation:()=None) -> np.ndarray:
+        """
 
+        :parameter degradation: a tuple representing how much each fiber type should be degraded.
+                                Values should be either scalar or ndarrays of the same shape as each fiber
+                                type component, and contain values between zero and one.
+        :return: the AN population response
+        """
         bmSegments = self.bmSegments
         timeLen = self.timeLen
         lsr_weight, msr_weight, hsr_weight = self._map_cf_dependent_distribution()
@@ -59,6 +65,9 @@ class AuditoryNerveResponse:
         lsr_weight = lsr_weight * self.TotalFiberPerIHC
         msr_weight = msr_weight * self.TotalFiberPerIHC
         hsr_weight = hsr_weight * self.TotalFiberPerIHC
+
+        if degradation is not None:
+            lsr_weight, msr_weight, hsr_weight = self.degrade_an_components(lsr_weight, msr_weight, hsr_weight, degradation)
 
         lsr = numpy.matlib.repmat(lsr_weight* np.ones((1, bmSegments)), timeLen, 1) * self.anfl
         msr = numpy.matlib.repmat(msr_weight * np.ones((1, bmSegments)), timeLen, 1) * self.anfm
@@ -87,10 +96,13 @@ class AuditoryNerveResponse:
         cf0 = 2500
         return (21 + k / (1 + np.exp(-r * (cf - cf0)))) / 100
 
-    def unweighted_an_response(self) -> np.ndarray:
+    def unweighted_an_response(self, degradation:()=None) -> np.ndarray:
         """Create an auditory nerve population response.
         Contains the contributions of low, medium, and high spontaneous rate fibers individually weighted by fiber count,
         and overall weighted by some magic constant.
+        :parameter degradation: a tuple representing how much each fiber type should be degraded.
+                                Values should be either scalar or ndarrays of the same shape as each fiber
+                                type component, and contain values between zero and one.
         """
         bmSegments = self.bmSegments
         timeLen = self.timeLen
@@ -99,6 +111,11 @@ class AuditoryNerveResponse:
         hsr = numpy.matlib.repmat(self.HSnormal * np.ones((1, bmSegments)), timeLen, 1) * self.anfh
 
         return (lsr + msr + hsr) * self.M1
+
+    def degrade_an_components(self, low:np.ndarray, medium: np.ndarray, high: np.ndarray, degradation:()):
+        return (low*degradation[0],
+                medium*degradation[1],
+                high*degradation[2])
 
 
 class CarneyMTFs:
