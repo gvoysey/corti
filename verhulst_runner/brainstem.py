@@ -50,7 +50,22 @@ class AuditoryNerveResponse:
         self.timeLen, self.bmSegments = self.anfh.shape
 
     def cf_weighted_an_response(self) -> np.ndarray:
-        pass
+
+        bmSegments = self.bmSegments
+        timeLen = self.timeLen
+        lsr_weight, msr_weight, hsr_weight = self._map_cf_dependent_distribution()
+        # scale the percentages to "fiber counts" by multiplying by how many fibers are present on a healthy IHC.
+        # non-integer values are OK here; we're modeling population-level behavior.
+        lsr_weight = lsr_weight * self.TotalFiberPerIHC
+        msr_weight = msr_weight * self.TotalFiberPerIHC
+        hsr_weight = hsr_weight * self.TotalFiberPerIHC
+
+        lsr = numpy.matlib.repmat(lsr_weight* np.ones((1, bmSegments)), timeLen, 1) * self.anfl
+        msr = numpy.matlib.repmat(msr_weight * np.ones((1, bmSegments)), timeLen, 1) * self.anfm
+        hsr = numpy.matlib.repmat(hsr_weight * np.ones((1, bmSegments)), timeLen, 1) * self.anfh
+
+        return (lsr + msr + hsr) * self.M1
+
 
     def _map_cf_dependent_distribution(self) -> ():
         """Returns a distribution percentage of hair cell SR types as a function of CF.  Distribution statistics taken from
@@ -58,8 +73,9 @@ class AuditoryNerveResponse:
         and
         Bourien, J., Tang, Y., Batrel, C., Huet, A., Lenoir, M., Ladrech, S., Desmadryl, G., et al. (2014). “Contribution of auditory nerve fibers to compound action potential of the auditory nerve,” J. Neurophysiol., 112, 1025–1039. doi:10.1152/jn.00738.2013
         """
-
-        return [(self.percent_sr(c) / 2, self.percent_sr(c) / 2, 1 - self.percent_sr(c)) for c in self.cf]
+        return (np.array([self.percent_sr(c) / 2 for c in self.cf]),
+                np.array([self.percent_sr(c) / 2 for c in self.cf]),
+                np.array([1- self.percent_sr(c) for c in self.cf]))
 
     def percent_sr(self, cf):
         """
@@ -75,7 +91,6 @@ class AuditoryNerveResponse:
         """Create an auditory nerve population response.
         Contains the contributions of low, medium, and high spontaneous rate fibers individually weighted by fiber count,
         and overall weighted by some magic constant.
-        :return:
         """
         bmSegments = self.bmSegments
         timeLen = self.timeLen

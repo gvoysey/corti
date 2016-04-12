@@ -35,7 +35,7 @@ from verhulst_runner import Periphery, Stimulus
 from verhulst_runner._version import __version__
 from verhulst_runner.analysis.plots import save_summary_pdf
 from verhulst_runner.base import runtime_consts
-from verhulst_runner.brainstem import simulate_brainstem
+from verhulst_runner.brainstem import simulate_brainstem, AuditoryNerveResponse
 from verhulst_runner.periphery_configuration import PeripheryConfiguration
 
 
@@ -80,6 +80,9 @@ def main():
 
     print("Simulating periphery and auditory nerve...")
     anResults = Periphery(conf).run()
+
+    #testing
+    foo = AuditoryNerveResponse(anResults[0]).cf_weighted_an_response()
 
     brainResults = None
     if not args["--noBrainstem"]:
