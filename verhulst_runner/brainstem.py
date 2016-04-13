@@ -44,6 +44,23 @@ class AuditoryNerveResponse:
         self.highSR = None
         self.ANR = None
 
+    def unweighted_an_response(self, ls_normal: float = 3, ms_normal: float = 3, hs_normal: float = 13,
+                               degradation: () = None) -> np.ndarray:
+        """Create an auditory nerve population response.
+        Contains the contributions of low, medium, and high spontaneous rate fibers individually weighted by fiber count,
+        and overall weighted by some magic constant.
+        :param ls_normal: The number of low spont rate fibers per IHC
+        :param ms_normal: The number of medium spont rate fibers per IHC
+        :param hs_normal: The number of high spont rate fibers per IHC
+        :param degradation: a tuple representing how much each fiber type should be degraded.
+                                Values should be either scalar or ndarrays of the same shape as each fiber
+                                type component, and contain values between zero and one.
+        """
+        if (ls_normal + ms_normal + hs_normal) - self.TotalFiberPerIHC > 0.0001:
+            logging.error("More fibers per IHC were specified than the Verhulst model currently supports!")
+
+        return self.sum_fibers(ls_normal, ms_normal, hs_normal, degradation)
+
     def cf_weighted_an_response(self, degradation: () = None) -> np.ndarray:
         """
 
@@ -52,8 +69,6 @@ class AuditoryNerveResponse:
                                 type component, and contain values between zero and one.
         :return: the AN population response
         """
-        cfs = self.cfCount
-        timeLen = self.timeLen
         lsr_weight, msr_weight, hsr_weight = self._map_cf_dependent_distribution()
         # scale the percentages to "fiber counts" by multiplying by how many fibers are present on a healthy IHC.
         # non-integer values are OK here; we're modeling population-level behavior.
@@ -61,17 +76,28 @@ class AuditoryNerveResponse:
         msr_weight *= self.TotalFiberPerIHC
         hsr_weight *= self.TotalFiberPerIHC
 
-        if degradation is not None:
-            lsr_weight, msr_weight, hsr_weight = self.degrade_an_components(lsr_weight,
-                                                                            msr_weight,
-                                                                            hsr_weight,
-                                                                            degradation)
+        return self.sum_fibers(lsr_weight, msr_weight, hsr_weight, degradation)
 
-        self.lowSR = numpy.matlib.repmat(lsr_weight * np.ones((1, cfs)), timeLen, 1) * self.anfl
-        self.medSR = numpy.matlib.repmat(msr_weight * np.ones((1, cfs)), timeLen, 1) * self.anfm
-        self.highSR = numpy.matlib.repmat(hsr_weight * np.ones((1, cfs)), timeLen, 1) * self.anfh
-        self.ANR = (self.lowSR + self.medSR + self.highSR) * self.M1
+    def sum_fibers(self, ls_weight, ms_weight, hs_weight, degradation=None):
+        cfs = self.cfCount
+        timeLen = self.timeLen
+
+        if degradation is not None:
+            ls_weight, ms_weight, hs_weight = self.degrade_an_components(ls_weight, ms_weight, hs_weight, degradation)
+
+        lsr = numpy.matlib.repmat(ls_weight * np.ones((1, cfs)), timeLen, 1) * self.anfl
+        msr = numpy.matlib.repmat(ms_weight * np.ones((1, cfs)), timeLen, 1) * self.anfm
+        hsr = numpy.matlib.repmat(hs_weight * np.ones((1, cfs)), timeLen, 1) * self.anfh
+
+        self.lowSR = lsr
+        self.medSR = msr
+        self.highSR = hsr
+        self.ANR = (lsr + msr + hsr) * self.M1
         return self.ANR
+
+
+
+
 
     def _map_cf_dependent_distribution(self) -> ():
         """Returns a distribution percentage of hair cell SR types as a function of CF.
@@ -100,33 +126,7 @@ class AuditoryNerveResponse:
         cf0 = 2500
         return (21 + k / (1 + np.exp(-r * (cf - cf0)))) / 100
 
-    def unweighted_an_response(self, ls_normal: float = 3, ms_normal: float = 3, hs_normal: float = 13,
-                               degradation: () = None) -> np.ndarray:
-        """Create an auditory nerve population response.
-        Contains the contributions of low, medium, and high spontaneous rate fibers individually weighted by fiber count,
-        and overall weighted by some magic constant.
-        :param ls_normal: The number of low spont rate fibers per IHC
-        :param ms_normal: The number of medium spont rate fibers per IHC
-        :param hs_normal: The number of high spont rate fibers per IHC
-        :param degradation: a tuple representing how much each fiber type should be degraded.
-                                Values should be either scalar or ndarrays of the same shape as each fiber
-                                type component, and contain values between zero and one.
-        """
-        if abs((ls_normal + ms_normal + hs_normal) - self.TotalFiberPerIHC) > 0.01:
-            logging.error("More fibers per IHC were specified than the Verhulst model currently supports!")
-        cfs = self.cfCount
-        timeLen = self.timeLen
-        lsr = numpy.matlib.repmat(ls_normal * np.ones((1, cfs)), timeLen, 1) * self.anfl
-        msr = numpy.matlib.repmat(ms_normal * np.ones((1, cfs)), timeLen, 1) * self.anfm
-        hsr = numpy.matlib.repmat(hs_normal * np.ones((1, cfs)), timeLen, 1) * self.anfh
 
-        if degradation is not None:
-            lsr, msr, hsr = self.degrade_an_components(lsr, msr, hsr, degradation)
-        self.lowSR = lsr
-        self.medSR = msr
-        self.highSR = hsr
-        self.ANR = (lsr + msr + hsr) * self.M1
-        return self.ANR
 
     def degrade_an_components(self, low: np.ndarray, medium: np.ndarray, high: np.ndarray, degradation: ()):
         return (low * degradation[0],
