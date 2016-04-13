@@ -206,17 +206,17 @@ class NelsonCarney04:
 
     def _simulate_brainstem_and_midbrain(self, inhCn: np.ndarray,
                                          inhIc: np.ndarray) -> {}:
-        bmSegments, timeLen = self.anr.shape
+        timeLen, cfCount = self.anr.shape
         AN = self.anr
         W1 = np.zeros(timeLen)
         IC = np.zeros(timeLen)
         CN = np.zeros(timeLen)
-        RanF = np.zeros((bmSegments, timeLen))
-        RicF = np.zeros((bmSegments, timeLen))
-        RcnF = np.zeros((bmSegments, timeLen))
+        RanF = np.zeros((cfCount, timeLen))
+        RicF = np.zeros((cfCount, timeLen))
+        RcnF = np.zeros((cfCount, timeLen))
 
-        with progressbar.ProgressBar(max_value=bmSegments) as bar:
-            for i in range(bmSegments):
+        with progressbar.ProgressBar(max_value=cfCount) as bar:
+            for i in range(cfCount):
                 Rcn1 = self.Acn * np.convolve(self._weight_and_shift_exponential(self.Tex), AN[:, i])
                 Rcn2 = np.convolve(inhCn, np.roll(AN[:, i], self._shift(self.Dcn)))
                 Rcn = (Rcn1 - Rcn2) * self.M3
