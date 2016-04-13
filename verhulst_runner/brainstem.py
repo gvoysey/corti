@@ -1,11 +1,11 @@
 import logging
 import multiprocessing as mp
+import os
+from os import path
 
 import numpy as np
 import numpy.matlib
-import os
 import progressbar
-from os import path
 
 from verhulst_runner.base import runtime_consts, brain_consts as b, periph_consts as p
 from .periphery_configuration import PeripheryOutput
@@ -95,10 +95,6 @@ class AuditoryNerveResponse:
         self.ANR = (lsr + msr + hsr) * self.M1
         return self.ANR
 
-
-
-
-
     def _map_cf_dependent_distribution(self) -> ():
         """Returns a distribution percentage of hair cell SR types as a function of CF.
         Distribution statistics taken from
@@ -125,8 +121,6 @@ class AuditoryNerveResponse:
         r = .0009
         cf0 = 2500
         return (21 + k / (1 + np.exp(-r * (cf - cf0)))) / 100
-
-
 
     def degrade_an_components(self, low: np.ndarray, medium: np.ndarray, high: np.ndarray, degradation: ()):
         return (low * degradation[0],
@@ -235,9 +229,9 @@ class NelsonCarney04:
                 RcnF[i, :] = Rcn[0:timeLen]  # chop off the duplicated convolution side
                 bar.update(i)
         return {
-            b.Wave1_AN    : W1,
-            b.Wave3_CN    : CN,
-            b.Wave5_IC    : IC,
+            b.Wave1_AN: W1,
+            b.Wave3_CN: CN,
+            b.Wave5_IC: IC,
             b.ANPopulation: RanF,
             b.CNPopulation: RcnF,
             b.ICPopulation: RicF
