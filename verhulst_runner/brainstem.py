@@ -27,7 +27,7 @@ class AuditoryNerveResponse:
     """Synthesizes an Auditory Nerve population response from the output of a periphery model
     """
 
-    TotalFiberPerIHC = 19
+    TotalFiberPerIHC = 19  # to match the verhulst model scaling.
     M1 = 0.15e-6 / 2.7676e+07  # last value is uncompensated at 100 dB
 
     def __init__(self, an: PeripheryOutput):
@@ -37,7 +37,6 @@ class AuditoryNerveResponse:
         self.anfh = self.anfOut.output[p.AuditoryNerveFiberHighSpont]
         self.anfm = self.anfOut.output[p.AuditoryNerveFiberMediumSpont]
         self.anfl = self.anfOut.output[p.AuditoryNerveFiberLowSpont]
-        self.cf = self.anfOut.output[p.CenterFrequency]
         self.timeLen, self.cfCount = self.anfh.shape
         self.lowSR = None
         self.medSR = None
@@ -46,15 +45,16 @@ class AuditoryNerveResponse:
 
     def unweighted_an_response(self, ls_normal: float = 3, ms_normal: float = 3, hs_normal: float = 13,
                                degradation: () = None) -> np.ndarray:
-        """Create an auditory nerve population response.
-        Contains the contributions of low, medium, and high spontaneous rate fibers individually weighted by fiber count,
-        and overall weighted by some magic constant.
+        """Create an auditory nerve population response with a fixed distribution of fiber types per hair cell.
+        Contains the contributions of low, medium, and high spontaneous rate fibers individually weighted by fiber count.
+        An optional parameter for modeling hair cell loss is available.
         :param ls_normal: The number of low spont rate fibers per IHC
         :param ms_normal: The number of medium spont rate fibers per IHC
         :param hs_normal: The number of high spont rate fibers per IHC
         :param degradation: a tuple representing how much each fiber type should be degraded.
-                                Values should be either scalar or ndarrays of the same shape as each fiber
-                                type component, and contain values between zero and one.
+                            Values should be either scalar or ndarrays of the same shape as each fiber
+                            type component, and contain values between zero and one.
+        :return: the AN population response.
         """
         if (ls_normal + ms_normal + hs_normal) - self.TotalFiberPerIHC > 0.0001:
             logging.error("More fibers per IHC were specified than the Verhulst model currently supports!")
@@ -62,19 +62,16 @@ class AuditoryNerveResponse:
         return self.sum_fibers(ls_normal, ms_normal, hs_normal, degradation)
 
     def cf_weighted_an_response(self, degradation: () = None) -> np.ndarray:
-        """
-
-        :parameter degradation: a tuple representing how much each fiber type should be degraded.
-                                Values should be either scalar or ndarrays of the same shape as each fiber
-                                type component, and contain values between zero and one.
+        """Create an auditory nerve population response with a logistic distribution of fiber types per hair cell.
+        Contains the contributions of low, medium, and high spontaneous rate fibers individually weighted by fiber count.
+        An optional parameter for modeling hair cell loss is available.
+        :param degradation: a tuple representing how much each fiber type should be degraded.
+                            Values should be either scalar or ndarrays of the same shape as each fiber
+                            type component, and contain values between zero and one.
         :return: the AN population response
         """
-        lsr_weight, msr_weight, hsr_weight = self._map_cf_dependent_distribution()
-        # scale the percentages to "fiber counts" by multiplying by how many fibers are present on a healthy IHC.
-        # non-integer values are OK here; we're modeling population-level behavior.
-        lsr_weight *= self.TotalFiberPerIHC
-        msr_weight *= self.TotalFiberPerIHC
-        hsr_weight *= self.TotalFiberPerIHC
+        lsr_weight, msr_weight, hsr_weight = self._map_cf_dependent_distribution(self.TotalFiberPerIHC)
+
 
         return self.sum_fibers(lsr_weight, msr_weight, hsr_weight, degradation)
 
@@ -95,7 +92,7 @@ class AuditoryNerveResponse:
         self.ANR = (lsr + msr + hsr) * self.M1
         return self.ANR
 
-    def _map_cf_dependent_distribution(self) -> ():
+    def _map_cf_dependent_distribution(self, total_fiber_scaling_factor=1) -> ():
         """Returns a distribution percentage of hair cell SR types as a function of CF.
         Distribution statistics taken from
         Temchin, A. N., Rich, N. C., and Ruggero, M. a (2008). “Threshold Tuning Curves of Chinchilla Auditory Nerve
@@ -108,9 +105,11 @@ class AuditoryNerveResponse:
         """
         # The SR cutoff used by Temchin et. al. for "low SR" is 18.
         # The Verhulst model's medium and low SR fibers are both below that threshold, so we assign half weight to each.
-        return (np.array([self.percent_sr(c) / 2 for c in self.cf]),
-                np.array([self.percent_sr(c) / 2 for c in self.cf]),
-                np.array([1 - self.percent_sr(c) for c in self.cf]))
+        # scale the percentages to "fiber counts" by multiplying by how many fibers are present on a healthy IHC.
+        # getting non-integer values for "number of fibers" is OK here; we're modeling population-level behavior.
+        return (total_fiber_scaling_factor * np.array([self.percent_sr(c) / 2 for c in self.cf]),
+                total_fiber_scaling_factor * np.array([self.percent_sr(c) / 2 for c in self.cf]),
+                total_fiber_scaling_factor * np.array([1 - self.percent_sr(c) for c in self.cf]))
 
     def percent_sr(self, cf):
         """
