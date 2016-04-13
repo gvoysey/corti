@@ -21,23 +21,21 @@ Options:
     -v --verbose                    Display detailed debug log output to STDOUT.
 """
 
+import os
+import shutil
 import sys
 from datetime import datetime
 from logging import info, basicConfig, getLogger, ERROR, INFO
-
-import os
-import shutil
-import warnings
-from docopt import docopt
 from os import path, system, name
+
+from docopt import docopt
 
 from verhulst_runner import Periphery, Stimulus
 from verhulst_runner._version import __version__
 from verhulst_runner.analysis.plots import save_summary_pdf
 from verhulst_runner.base import runtime_consts
-from verhulst_runner.brainstem import simulate_brainstem
+from verhulst_runner.brainstem import simulate_brainstem, AuditoryNerveResponse
 from verhulst_runner.periphery_configuration import PeripheryConfiguration
-
 
 # By default, log INFO and up.
 basicConfig(format='%(levelname)s %(asctime)s- %(message)s', datefmt='%d %b %H:%M:%S', level=INFO)
@@ -78,20 +76,25 @@ def main():
     info("output directory set to {0}".format(__set_output_dir(args["--out"])))
     conf = PeripheryConfiguration(__set_output_dir(args["--out"]), args["--pSave"], stimuli_dict)
 
-    print("Simulating periphery and auditory nerve...")
-    anResults = Periphery(conf).run()
+    print("Simulating periphery...")
+    peripheryResults = Periphery(conf).run()
+    print("Simulating auditory nerve response...")
+    degradation = None
+    auditoryNerveResponses = [AuditoryNerveResponse(p).cf_weighted_an_response(degradation=degradation) for p in peripheryResults]
 
     brainResults = None
     if not args["--noBrainstem"]:
         print("Simulating brainstem response")
-        brainResults = simulate_brainstem([(anr, args["--bSave"]) for anr in anResults])
+        brainResults = simulate_brainstem([(periphs, anrs, args["--bSave"])
+                                           for periphs, anrs in zip(peripheryResults, auditoryNerveResponses)])
 
     print("Generating summary figures")
-    save_summary_pdf(anResults, brainResults, conf, "summary-plots.pdf", anResults[0].outputFolder)
+    save_summary_pdf(peripheryResults, auditoryNerveResponses, brainResults, conf, "summary-plots.pdf",
+                     peripheryResults[0].outputFolder)
 
     if args["--clean"]:
         print("Cleaning old model runs ... ")
-        __clean(conf.dataFolder, anResults[0].outputFolder)
+        __clean(conf.dataFolder, peripheryResults[0].outputFolder)
 
     print("Simulation finished.")
 

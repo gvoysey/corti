@@ -1,9 +1,9 @@
 import glob
 from datetime import datetime
 from logging import info
+from os import path
 
 import matplotlib
-from os import path
 
 matplotlib.use('PDF')
 import matplotlib.gridspec as gridspec
@@ -44,7 +44,11 @@ def plot_brainstem(brainstem_output: {}, conf: PeripheryConfiguration, pdf: PdfP
     pass
 
 
-def save_summary_pdf(periphery: [], brain: [], conf: PeripheryConfiguration, fileName: str, outputPath: str):
+def plot_anr(anr, conf, pdf):
+    pass
+
+
+def save_summary_pdf(periphery: [], brain: [], anr: [], conf: PeripheryConfiguration, fileName: str, outputPath: str):
     """Make canned summary plots for the provided periphery and brainstem responses, and save them as a PDF.
     """
     if isinstance(periphery[0], PeripheryOutput):
@@ -61,14 +65,17 @@ def save_summary_pdf(periphery: [], brain: [], conf: PeripheryConfiguration, fil
         for i in range(len(periph)):
             plot_periphery(periph[i], conf, pdf)
 
+        for i in range(len(anr)):
+            plot_anr(anr[i], conf, pdf)
+
         if brain is not None:
             for i in range(len(brain)):
                 plot_brainstem(brain[i], conf, pdf)
 
         d = pdf.infodict()
-        d['Title'] = 'Verhulst Model Output'
-        # d['Author'] = ""
-        # d['Keywords'] = 'PdfPages multipage keywords author title subject'
+        d['Title'] = 'Auditory Periphery Model Output'
+        d['Author'] = "Graham Voysey <gvoysey@bu.edu>"
+        d['Keywords'] = 'ABR auditory model periphery'
         d['CreationDate'] = datetime.today()
         d['ModDate'] = datetime.today()
 
@@ -88,8 +95,8 @@ def plot_directory(dirPath: str):
         return
 
     save_summary_pdf([np.load(x) for x in peripheryFiles], [np.load(x) for x in brainstemFiles],
-                     yaml.load(open(configFile)), "summary-plots.pdf", dirPath)
+                     None, yaml.load(open(configFile)), "summary-plots.pdf", dirPath)
 
 
 if __name__ == "__main__":
-    plot_directory("/Users/gvoysey/verhulst-output/25 Mar 16 - 1651")
+    plot_directory("C:\\Users\\Graham Voysey\\verhulst-output\\13 Apr 16 - 1419")
