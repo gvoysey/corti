@@ -21,14 +21,14 @@ Options:
     -v --verbose                    Display detailed debug log output to STDOUT.
 """
 
+import os
+import shutil
 import sys
 from datetime import datetime
 from logging import info, basicConfig, getLogger, ERROR, INFO
-
-import os
-import shutil
-from docopt import docopt
 from os import path, system, name
+
+from docopt import docopt
 
 from verhulst_runner import Periphery, Stimulus
 from verhulst_runner._version import __version__
@@ -78,13 +78,13 @@ def main():
 
     print("Simulating periphery and auditory nerve...")
     peripheryResults = Periphery(conf).run()
-    auditoryNerveResponses = [AuditoryNerveResponse(p).unweighted_an_response() for p in peripheryResults]
+    auditoryNerveResponses = [AuditoryNerveResponse(p).cf_weighted_an_response() for p in peripheryResults]
 
     brainResults = None
     if not args["--noBrainstem"]:
         print("Simulating brainstem response")
-        brainResults = simulate_brainstem(
-                [(periphs, anrs, args["--bSave"]) for periphs, anrs in zip(peripheryResults, auditoryNerveResponses)])
+        brainResults = simulate_brainstem([(periphs, anrs, args["--bSave"])
+                                           for periphs, anrs in zip(peripheryResults, auditoryNerveResponses)])
 
     print("Generating summary figures")
     save_summary_pdf(peripheryResults, auditoryNerveResponses, brainResults, conf, "summary-plots.pdf",
