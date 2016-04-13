@@ -78,7 +78,8 @@ def main():
 
     print("Simulating periphery and auditory nerve...")
     peripheryResults = Periphery(conf).run()
-    auditoryNerveResponses = [AuditoryNerveResponse(p).cf_weighted_an_response() for p in peripheryResults]
+    degradation = None
+    auditoryNerveResponses = [AuditoryNerveResponse(p).cf_weighted_an_response(degradation=degradation) for p in peripheryResults]
 
     brainResults = None
     if not args["--noBrainstem"]:
