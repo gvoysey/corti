@@ -21,14 +21,14 @@ Options:
     -v --verbose                    Display detailed debug log output to STDOUT.
 """
 
-import os
-import shutil
 import sys
 from datetime import datetime
 from logging import info, basicConfig, getLogger, ERROR, INFO
-from os import path, system, name
 
+import os
+import shutil
 from docopt import docopt
+from os import path, system, name
 
 from verhulst_runner import Periphery, Stimulus
 from verhulst_runner._version import __version__
@@ -44,7 +44,8 @@ basicConfig(format='%(levelname)s %(asctime)s- %(message)s', datefmt='%d %b %H:%
 def _sanitize_level(levels: str):
     """ Takes a string list of level parameters and converts them to a list of floats.
     """
-    if levels is None: return
+    if levels is None:
+        return
     return [float(f) for f in levels.split(",") if f]
 
 
