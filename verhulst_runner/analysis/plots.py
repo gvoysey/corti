@@ -1,9 +1,9 @@
 import glob
 from datetime import datetime
 from logging import info
-from os import path
 
 import matplotlib
+from os import path
 
 matplotlib.use('PDF')
 import matplotlib.gridspec as gridspec
@@ -101,8 +101,4 @@ def plot_directory(dirPath: str):
 
 
 if __name__ == "__main__":
-<<<<<<< HEAD
-    plot_directory("C:\\Users\\Graham Voysey\\verhulst-output\\13 Apr 16 - 1419")
-=======
     plot_directory("/Users/gvoysey/verhulst-output/13 Apr 16 - 2157")
->>>>>>> feature/cf-weighting
