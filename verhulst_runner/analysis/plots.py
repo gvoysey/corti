@@ -1,9 +1,9 @@
 import glob
 from datetime import datetime
 from logging import info
-from os import path
 
 import matplotlib
+from os import path
 
 matplotlib.use('PDF')
 import matplotlib.gridspec as gridspec
@@ -19,19 +19,20 @@ from verhulst_runner.periphery_configuration import PeripheryOutput, PeripheryCo
 def plot_periphery(periph: {}, conf: PeripheryConfiguration, pdf: PdfPages) -> plt.Figure:
     figure = plt.figure(1, (8.5, 11), dpi=300)
     gs = gridspec.GridSpec(6, 4)
+
+    # plot stimulus, top left.
     stimulus = periph[p.Stimulus]
     pointCount = len(stimulus)
     time = np.linspace(0, pointCount / conf.Fs, num=pointCount)
-
-    # plot stimulus, top left.
     stimt = plt.subplot(gs[0, :-3])
     stimt.plot(time, stimulus, lw=2)
     stimt.set_xlabel("Time, s")
     stimt.set_ylabel("Amplitude ")
     stimt.set_title("Stimulus")
-    stimf = plt.subplot(gs[1, 3:-1])
 
     # plot FFT of stimulus, top right
+    stimf = plt.subplot(gs[1, 3:-1])
+
 
     #Plot
 
@@ -65,8 +66,9 @@ def save_summary_pdf(periphery: [], brain: [], anr: [], conf: PeripheryConfigura
         for i in range(len(periph)):
             plot_periphery(periph[i], conf, pdf)
 
-        for i in range(len(anr)):
-            plot_anr(anr[i], conf, pdf)
+        if anr is not None:
+            for i in range(len(anr)):
+                plot_anr(anr[i], conf, pdf)
 
         if brain is not None:
             for i in range(len(brain)):
@@ -99,4 +101,4 @@ def plot_directory(dirPath: str):
 
 
 if __name__ == "__main__":
-    plot_directory("C:\\Users\\Graham Voysey\\verhulst-output\\13 Apr 16 - 1419")
+    plot_directory("/Users/gvoysey/verhulst-output/13 Apr 16 - 2157")
