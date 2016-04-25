@@ -8,7 +8,7 @@ from verhulst_runner.base import stim_consts as sc
 class PeripheryConfiguration:
     """
         A PODS holding all the parameters that used to be in input.mat  and fully define what's
-        needed to run the model.  Default values come from RUN_BMAN.m
+        needed to run_nc04 the model.  Default values come from RUN_BMAN.m
         :parameter self.Fs: Model sampling frequency. (default 100 kHz)
         :parameter self.Implementation: unknown, default 0
         :parameter self.NumberOfSections: number of basilar membrane sections to simulate (1000)

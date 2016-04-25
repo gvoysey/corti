@@ -1,9 +1,9 @@
 import logging
 import multiprocessing as mp
 from datetime import datetime, timedelta
+from os import path
 
 import yaml
-from os import path
 from verhulst_model_core.ANF_Sarah import *
 from verhulst_model_core.Sarah_ihc import *
 from verhulst_model_core.cochlear_model_old import *
@@ -46,8 +46,8 @@ class Periphery:
         p.close()
         p.join()
         self.save_model_configuration()
-        print("\ncochlear simulation of {} channels finished in {:0.3f}s".format(len(self.stimulus),
-                                                                                 timedelta.total_seconds(
+        print("\ncochlear simulation of {} stimulus levels finished in {:0.3f}s".format(len(self.stimulus),
+                                                                                        timedelta.total_seconds(
             datetime.now() - s1)))
         return results
 

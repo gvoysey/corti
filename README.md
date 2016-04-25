@@ -8,7 +8,7 @@ The goal of this work is to explore the effects of Auditory Neuropathy on repres
 the early stages of the auditory system. 
 
 The auditory periphery is simulated using the model developed by Verhulst et. al., hosted [here](https://github.com/AuditoryBiophysicsLab/verhulst-model-core).
-This code will not run without that module installed. 
+This code will not run_nc04 without that module installed. 
 
 
 
@@ -27,7 +27,7 @@ you can also install it from the cloned repo for development purposes.  In that 
 `env/bin/pip install git+file:///path/to/your/git/repo@mybranch` or `@mytag`. 
 # Usage
  - `stimulus_generator --help` configure stimuli from WAV files or generate stimuli configuration templates.
- - `verhulst_model --help` load stimuli, configure model parameters, run model, plot output.
+ - `verhulst_model --help` load stimuli, configure model parameters, run_nc04 model, plot output.
   
 # Documentation 
  - Real Soon Now.

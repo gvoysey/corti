@@ -20,7 +20,7 @@ def simulate_brainstem(anResults: [(PeripheryOutput, np.ndarray, bool)]) -> [{}]
 
 
 def solve_one(periphery: (PeripheryOutput, np.ndarray, bool)) -> {}:
-    return NelsonCarney04(periphery[0], periphery[1]).run(periphery[2])
+    return CentralAuditoryResponse(periphery[0], periphery[1]).run_nc04(periphery[2])
 
 
 class AuditoryNerveResponse:
@@ -127,14 +127,11 @@ class AuditoryNerveResponse:
                 high * degradation[2])
 
 
-class CarneyMTFs:
-    """
-    This class will implement weighted MTF responses to generate ABRs.
-    """
-    pass
+NelsonCarney04 = 0
+Carney2015 = 1
 
 
-class NelsonCarney04:
+class CentralAuditoryResponse:
     """
     This class ports the Verhulst implementation of the Nelson and Carney (2004) brainstem and IC model.
     """
@@ -162,14 +159,24 @@ class NelsonCarney04:
         self.cf = self.anfOut.output[p.CenterFrequency]
         self.cutoffCf = [index for index, value in enumerate(self.cf) if value >= self.LowFrequencyCutoff][-1]
 
-    def run(self, saveFlag: bool) -> {}:
+    def run_nc04(self, saveFlag: bool) -> {}:
+        """
+        Simulate the brainstem and midbrain according to the single IC component system given in
+        Nelson, P. C., and Carney, L. H. (2004). “A phenomenological model of peripheral and central
+        neural responses to amplitude-modulated tones,” J. Acoust. Soc. Am., 116, 2173. doi:10.1121/1.1784442
+        :param saveFlag: If true, output will be saved to disk.
+        """
         inhCn = self._make_inhibition_component(self.Scn, self.Dcn)
         inhIc = self._make_inhibition_component(self.Sic, self.Dic)
 
-        output = self._simulate_brainstem_and_midbrain(inhCn, inhIc)
+        output = self._simulate_nelson_carney_04(inhCn, inhIc)
         if saveFlag:
             self._save(output)
         return output
+
+    def run(self, saveFlag: bool) -> {}:
+
+        pass
 
     def _save(self, output: {}) -> None:
         name = runtime_consts.NelsonCarneyOutputFilePrefix + "{0}dB".format(self.anfOut.stimulusLevel)
@@ -197,8 +204,42 @@ class NelsonCarney04:
         inhibition = s * self._weight_and_shift_exponential(self.Tin)
         return np.pad(inhibition, (lag, 0), 'constant')[:-lag]
 
-    def _simulate_brainstem_and_midbrain(self, inhCn: np.ndarray,
-                                         inhIc: np.ndarray) -> {}:
+    def _simulate_cn(self, cf) -> np.ndarray:
+        AN = self.anr
+        inhCn = self._make_inhibition_component(self.Scn, self.Dcn)
+        Rcn1 = self.Acn * np.convolve(self._weight_and_shift_exponential(self.Tex), AN[:, cf])
+        Rcn2 = np.convolve(inhCn, np.roll(AN[:, cf], self._shift(self.Dcn)))
+        Rcn = (Rcn1 - Rcn2) * self.M3
+        return Rcn
+
+    def _simulate_IC_bandpass(self, rcn):
+        """
+        Returns the UNWEIGHTED IC modeled as a bank of band-pass filters.
+        :param rcn:
+        :return:
+        """
+        inhIc = self._make_inhibition_component(self.Sic, self.Dic)
+        Ric1 = self.Aic * np.convolve(self._weight_and_shift_exponential(self.Tex), rcn)
+        Ric2 = np.convolve(inhIc, np.roll(rcn, self._shift(self.Dic)))
+        Ric = (Ric1 - Ric2)
+        return Ric
+
+    def _simulate_IC_lowpass(self, rcn):
+        pass
+
+    def _simulate_IC_band_reject(self, rcn):
+        pass
+
+    def __simulate_IC(self, modelType: int, rcn: np.ndarray) -> np.ndarray:
+        if modelType == NelsonCarney04:
+            return self._simulate_IC_bandpass(rcn) * self.M5
+        elif modelType == Carney2015:
+            pass
+        else:
+            raise NotImplementedError
+
+    def _simulate_nelson_carney_04(self, inhCn: np.ndarray,
+                                   inhIc: np.ndarray) -> {}:
         timeLen, cfCount = self.anr.shape
         AN = self.anr
         W1 = np.zeros(timeLen)
@@ -210,13 +251,9 @@ class NelsonCarney04:
 
         with progressbar.ProgressBar(max_value=cfCount) as bar:
             for i in range(cfCount):
-                Rcn1 = self.Acn * np.convolve(self._weight_and_shift_exponential(self.Tex), AN[:, i])
-                Rcn2 = np.convolve(inhCn, np.roll(AN[:, i], self._shift(self.Dcn)))
-                Rcn = (Rcn1 - Rcn2) * self.M3
 
-                Ric1 = self.Aic * np.convolve(self._weight_and_shift_exponential(self.Tex), Rcn)
-                Ric2 = np.convolve(inhIc, np.roll(Rcn, self._shift(self.Dic)))
-                Ric = (Ric1 - Ric2) * self.M5
+                Rcn = self._simulate_cn(i)
+                Ric = self.__simulate_IC(NelsonCarney04, Rcn)
 
                 if i <= self.cutoffCf:
                     W1 += AN[:, i]
