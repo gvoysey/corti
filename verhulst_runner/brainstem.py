@@ -13,13 +13,13 @@ from .periphery_configuration import PeripheryOutput
 
 def simulate_brainstem(anResults: [(PeripheryOutput, np.ndarray, bool)]) -> [{}]:
     pool = mp.Pool(mp.cpu_count(), maxtasksperchild=1)
-    retval = pool.map(solve_one, anResults)
+    retval = pool.map(_solve_one, anResults)
     pool.close()
     pool.join()
     return retval
 
 
-def solve_one(periphery: (PeripheryOutput, np.ndarray, bool)) -> {}:
+def _solve_one(periphery: (PeripheryOutput, np.ndarray, bool)) -> {}:
     return CentralAuditoryResponse(periphery[0], periphery[1]).run_nc04(periphery[2])
 
 
@@ -135,15 +135,6 @@ class CentralAuditoryResponse:
     """
     This class ports the Verhulst implementation of the Nelson and Carney (2004) brainstem and IC model.
     """
-    M3 = (1.5 * 0.15e-6) / 0.0036  # idem  with scaling W1
-    M5 = (2 * 0.15e-6) / 0.0033  # idem with scaling W1 & 3
-
-    Acn = 1.5
-    Aic = 1
-    Scn = 0.6
-    Sic = 1.5
-    Dcn = 1e-3
-    Dic = 2e-3
     Tex = 0.5e-3
     Tin = 2e-3
 
@@ -166,10 +157,8 @@ class CentralAuditoryResponse:
         neural responses to amplitude-modulated tones,” J. Acoust. Soc. Am., 116, 2173. doi:10.1121/1.1784442
         :param saveFlag: If true, output will be saved to disk.
         """
-        inhCn = self._make_inhibition_component(self.Scn, self.Dcn)
-        inhIc = self._make_inhibition_component(self.Sic, self.Dic)
 
-        output = self._simulate_nelson_carney_04(inhCn, inhIc)
+        output = self._simulate_nelson_carney_04()
         if saveFlag:
             self._save(output)
         return output
@@ -196,7 +185,7 @@ class CentralAuditoryResponse:
 
     def _make_inhibition_component(self, s: float, delay: float) -> np.ndarray:
         """ Make the DCN or ICN inhibition component.
-        Returns $S_{cn}*\frac{1}{t_{in}^2}*\vec{t}*e^{\frac{-\vec{t}}{t_{in}}}$ time shifted by delay
+        Returns $S_{cn}*\frac{1}{t_{in}^2}*\vec{t}*e^{\frac{-\vec{t}}{t_{in}}}$ time shifted by delay (an alpha function)
         :param s: some weighting factor
         :param delay: time period, in units of (Fs^-1)s.  This value will be converted to an integer number of samples.
         """
@@ -206,11 +195,21 @@ class CentralAuditoryResponse:
 
     def _simulate_cn(self, cf) -> np.ndarray:
         AN = self.anr
-        inhCn = self._make_inhibition_component(self.Scn, self.Dcn)
-        Rcn1 = self.Acn * np.convolve(self._weight_and_shift_exponential(self.Tex), AN[:, cf])
-        Rcn2 = np.convolve(inhCn, np.roll(AN[:, cf], self._shift(self.Dcn)))
-        Rcn = (Rcn1 - Rcn2) * self.M3
+        Acn = 1.5
+        Scn = 0.6
+        Dcn = 1e-3
+        M3 = (1.5 * 0.15e-6) / 0.0036  # idem  with scaling W1
+        inhCn = self._make_inhibition_component(Scn, Dcn)
+        Rcn1 = Acn * np.convolve(self._weight_and_shift_exponential(self.Tex), AN[:, cf])
+        Rcn2 = np.convolve(inhCn, np.roll(AN[:, cf], self._shift(Dcn)))
+        Rcn = (Rcn1 - Rcn2) * M3
         return Rcn
+
+    def _ic_mtf(self, rcn, aic, sic, dic):
+        inhIc = self._make_inhibition_component(sic, dic)
+        Ric1 = aic * np.convolve(self._weight_and_shift_exponential(self.Tex), rcn)
+        Ric2 = np.convolve(inhIc, np.roll(rcn, self._shift(dic)))
+        return (Ric1 - Ric2)
 
     def _simulate_IC_bandpass(self, rcn):
         """
@@ -218,11 +217,11 @@ class CentralAuditoryResponse:
         :param rcn:
         :return:
         """
-        inhIc = self._make_inhibition_component(self.Sic, self.Dic)
-        Ric1 = self.Aic * np.convolve(self._weight_and_shift_exponential(self.Tex), rcn)
-        Ric2 = np.convolve(inhIc, np.roll(rcn, self._shift(self.Dic)))
-        Ric = (Ric1 - Ric2)
-        return Ric
+        Aic = 1
+        Sic = 1.5
+        Dic = 2e-3
+        return self._ic_mtf(rcn, Aic, Sic, Dic)
+
 
     def _simulate_IC_lowpass(self, rcn):
         pass
@@ -238,8 +237,7 @@ class CentralAuditoryResponse:
         else:
             raise NotImplementedError
 
-    def _simulate_nelson_carney_04(self, inhCn: np.ndarray,
-                                   inhIc: np.ndarray) -> {}:
+    def _simulate_nelson_carney_04(self) -> {}:
         timeLen, cfCount = self.anr.shape
         AN = self.anr
         W1 = np.zeros(timeLen)
