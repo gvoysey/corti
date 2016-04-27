@@ -133,12 +133,15 @@ Carney2015 = 1
 
 class CentralAuditoryResponse:
     """
-    This class ports the Verhulst implementation of the Nelson and Carney (2004) brainstem and IC model.
+    This class implements the midbrain and brainstem models developed by Laurel Carney et al, and set forth in
+    - Nelson, P. C., and Carney, L. H. (2004). “A phenomenological model of peripheral and central
+    neural responses to amplitude-modulated tones,” J. Acoust. Soc. Am., 116, 2173. doi:10.1121/1.1784442
+    - Carney, L. H., Li, T., and McDonough, J. M. (2015). “Speech Coding in the Brain: Representation of Vowel
+    Formants by Midbrain Neurons Tuned to Sound Fluctuations,” eNeuro, 2, 1–12. doi:10.1523/ENEURO.0004-15.2015
     """
-    Tex = 0.5e-3
-    Tin = 2e-3
 
-    LowFrequencyCutoff = 175.0  # hz
+    LowFrequencyCutoff = 175.0  # in Hz.  CFs below this threshold will not be used to estimate the compound action potential
+    M5 = (2 * 0.15e-6) / 0.0033  # idem with scaling W1 & 3
 
     def __init__(self, an: PeripheryOutput, anr: np.ndarray):
         self.anr = anr
@@ -163,7 +166,7 @@ class CentralAuditoryResponse:
             self._save(output)
         return output
 
-    def run(self, saveFlag: bool) -> {}:
+    def run(self, modelType: int, saveFlag: bool) -> {}:
 
         pass
 
@@ -177,41 +180,43 @@ class CentralAuditoryResponse:
     def _shift(self, delay: float) -> int:
         return int(round(delay * self.Fs))
 
-    def _weight_and_shift_exponential(self, scalingFactor: float) -> np.ndarray:
-        """Make a shifted exponential
-        Returns $\frac{1}{sF^2}*\vec{t}*e^{\frac{-\vec{t}}{sF}}$
+    def _alpha(self, scalingFactor: float) -> np.ndarray:
+        """Make an alpha function of the form
+        $\frac{1}{sF^2}*\vec{t}*e^{\frac{-\vec{t}}{sF}}$
         """
         return np.multiply((1 / (scalingFactor ** 2)) * self.time, np.exp((-1 * self.time) / scalingFactor))
 
-    def _make_inhibition_component(self, s: float, delay: float) -> np.ndarray:
+    def _make_inhibition_component(self, s: float, Tin: float, delay: float) -> np.ndarray:
         """ Make the DCN or ICN inhibition component.
         Returns $S_{cn}*\frac{1}{t_{in}^2}*\vec{t}*e^{\frac{-\vec{t}}{t_{in}}}$ time shifted by delay (an alpha function)
         :param s: some weighting factor
         :param delay: time period, in units of (Fs^-1)s.  This value will be converted to an integer number of samples.
         """
         lag = self._shift(delay)
-        inhibition = s * self._weight_and_shift_exponential(self.Tin)
+        inhibition = s * self._alpha(Tin)
         return np.pad(inhibition, (lag, 0), 'constant')[:-lag]
 
-    def _simulate_cn(self, cf) -> np.ndarray:
+    def _cn(self, cf) -> np.ndarray:
         AN = self.anr
         Acn = 1.5
         Scn = 0.6
         Dcn = 1e-3
         M3 = (1.5 * 0.15e-6) / 0.0036  # idem  with scaling W1
-        inhCn = self._make_inhibition_component(Scn, Dcn)
-        Rcn1 = Acn * np.convolve(self._weight_and_shift_exponential(self.Tex), AN[:, cf])
+        Tex = 0.5e-3
+        Tin = 2e-3
+        inhCn = self._make_inhibition_component(Scn, Tin, Dcn)
+        Rcn1 = Acn * np.convolve(self._alpha(Tex), AN[:, cf])
         Rcn2 = np.convolve(inhCn, np.roll(AN[:, cf], self._shift(Dcn)))
         Rcn = (Rcn1 - Rcn2) * M3
         return Rcn
 
-    def _ic_mtf(self, rcn, aic, sic, dic):
-        inhIc = self._make_inhibition_component(sic, dic)
-        Ric1 = aic * np.convolve(self._weight_and_shift_exponential(self.Tex), rcn)
+    def _ic(self, rcn, aic, sic, dic, tin, tex):
+        inhIc = self._make_inhibition_component(sic, tin, dic)
+        Ric1 = aic * np.convolve(self._alpha(tex), rcn)
         Ric2 = np.convolve(inhIc, np.roll(rcn, self._shift(dic)))
         return (Ric1 - Ric2)
 
-    def _simulate_IC_bandpass(self, rcn):
+    def _ic_bandpass(self, rcn):
         """
         Returns the UNWEIGHTED IC modeled as a bank of band-pass filters.
         :param rcn:
@@ -220,18 +225,29 @@ class CentralAuditoryResponse:
         Aic = 1
         Sic = 1.5
         Dic = 2e-3
-        return self._ic_mtf(rcn, Aic, Sic, Dic)
+        Tex = 0.5e-3
+        Tin = 2e-3
+        return self._ic(rcn, Aic, Sic, Dic, Tin, Tex)
 
+    def _ic_lowpass(self, rcn):
+        Aic = 1
+        Sic = 1.5
+        Dic = 2e-3
+        Tex = 2e-3
+        Tin = 5e-3
+        return self._ic(rcn, Aic, Sic, Dic, Tin, Tex)
 
-    def _simulate_IC_lowpass(self, rcn):
-        pass
-
-    def _simulate_IC_band_reject(self, rcn):
-        pass
+    def _ic_band_reject(self, rcn):
+        Aic = 1
+        Sic = 1.5
+        Dic = 2e-3
+        Tex = 0.5e-3
+        Tin = 2e-3
+        return self._ic(rcn, Aic, Sic, Dic, Tin, Tex)
 
     def __simulate_IC(self, modelType: int, rcn: np.ndarray) -> np.ndarray:
         if modelType == NelsonCarney04:
-            return self._simulate_IC_bandpass(rcn) * self.M5
+            return self._ic_bandpass(rcn) * self.M5
         elif modelType == Carney2015:
             pass
         else:
@@ -250,7 +266,7 @@ class CentralAuditoryResponse:
         with progressbar.ProgressBar(max_value=cfCount) as bar:
             for i in range(cfCount):
 
-                Rcn = self._simulate_cn(i)
+                Rcn = self._cn(i)
                 Ric = self.__simulate_IC(NelsonCarney04, Rcn)
 
                 if i <= self.cutoffCf:
