@@ -1,6 +1,7 @@
 import logging
 import multiprocessing as mp
 import os
+from enum import Enum
 from os import path
 
 import numpy as np
@@ -20,7 +21,7 @@ def simulate_brainstem(anResults: [(PeripheryOutput, np.ndarray, bool)]) -> [{}]
 
 
 def _solve_one(periphery: (PeripheryOutput, np.ndarray, bool)) -> {}:
-    return CentralAuditoryResponse(periphery[0], periphery[1]).run_nc04(periphery[2])
+    return CentralAuditoryResponse(periphery[0], periphery[1]).run(periphery[2])
 
 
 class AuditoryNerveResponse:
@@ -127,8 +128,8 @@ class AuditoryNerveResponse:
                 high * degradation[2])
 
 
-NelsonCarney04 = 0
-Carney2015 = 1
+ModelType = Enum('ModelType', "NelsonCarney04, Carney2015")
+
 
 
 class CentralAuditoryResponse:
@@ -153,7 +154,7 @@ class CentralAuditoryResponse:
         self.cf = self.anfOut.output[p.CenterFrequency]
         self.cutoffCf = [index for index, value in enumerate(self.cf) if value >= self.LowFrequencyCutoff][-1]
 
-    def run_nc04(self, saveFlag: bool) -> {}:
+    def run(self, saveFlag: bool, modelType: ModelType = ModelType.NelsonCarney04) -> {}:
         """
         Simulate the brainstem and midbrain according to the single IC component system given in
         Nelson, P. C., and Carney, L. H. (2004). “A phenomenological model of peripheral and central
@@ -161,14 +162,11 @@ class CentralAuditoryResponse:
         :param saveFlag: If true, output will be saved to disk.
         """
 
-        output = self._simulate_nelson_carney_04()
+        output = self._simulate(modelType)
         if saveFlag:
             self._save(output)
         return output
 
-    def run(self, modelType: int, saveFlag: bool) -> {}:
-
-        pass
 
     def _save(self, output: {}) -> None:
         name = runtime_consts.NelsonCarneyOutputFilePrefix + "{0}dB".format(self.anfOut.stimulusLevel)
@@ -180,20 +178,24 @@ class CentralAuditoryResponse:
     def _shift(self, delay: float) -> int:
         return int(round(delay * self.Fs))
 
-    def _alpha(self, scalingFactor: float) -> np.ndarray:
+    def __alpha(self, scalingFactor: float) -> np.ndarray:
         """Make an alpha function of the form
         $\frac{1}{sF^2}*\vec{t}*e^{\frac{-\vec{t}}{sF}}$
         """
-        return np.multiply((1 / (scalingFactor ** 2)) * self.time, np.exp((-1 * self.time) / scalingFactor))
+        return np.multiply((1 / (scalingFactor ** 2)) * self.time, np.exp(((-1 * self.time) / scalingFactor)))
 
-    def _make_inhibition_component(self, s: float, Tin: float, delay: float) -> np.ndarray:
+    def _excitation_wave(self, tex: float) -> np.ndarray:
+        """A bare wrapper around the alpha generator, for readability and clarity."""
+        return self.__alpha(tex)
+
+    def _inhibition_wave(self, s: float, Tin: float, delay: float) -> np.ndarray:
         """ Make the DCN or ICN inhibition component.
         Returns $S_{cn}*\frac{1}{t_{in}^2}*\vec{t}*e^{\frac{-\vec{t}}{t_{in}}}$ time shifted by delay (an alpha function)
         :param s: some weighting factor
         :param delay: time period, in units of (Fs^-1)s.  This value will be converted to an integer number of samples.
         """
         lag = self._shift(delay)
-        inhibition = s * self._alpha(Tin)
+        inhibition = s * self.__alpha(Tin)
         return np.pad(inhibition, (lag, 0), 'constant')[:-lag]
 
     def _cn(self, cf) -> np.ndarray:
@@ -204,15 +206,15 @@ class CentralAuditoryResponse:
         M3 = (1.5 * 0.15e-6) / 0.0036  # idem  with scaling W1
         Tex = 0.5e-3
         Tin = 2e-3
-        inhCn = self._make_inhibition_component(Scn, Tin, Dcn)
-        Rcn1 = Acn * np.convolve(self._alpha(Tex), AN[:, cf])
+        inhCn = self._inhibition_wave(Scn, Tin, Dcn)
+        Rcn1 = Acn * np.convolve(self._excitation_wave(Tex), AN[:, cf])
         Rcn2 = np.convolve(inhCn, np.roll(AN[:, cf], self._shift(Dcn)))
         Rcn = (Rcn1 - Rcn2) * M3
         return Rcn
 
     def _ic(self, rcn, aic, sic, dic, tin, tex):
-        inhIc = self._make_inhibition_component(sic, tin, dic)
-        Ric1 = aic * np.convolve(self._alpha(tex), rcn)
+        inhIc = self._inhibition_wave(sic, tin, dic)
+        Ric1 = aic * np.convolve(self._excitation_wave(tex), rcn)
         Ric2 = np.convolve(inhIc, np.roll(rcn, self._shift(dic)))
         return (Ric1 - Ric2)
 
@@ -245,15 +247,17 @@ class CentralAuditoryResponse:
         Tin = 2e-3
         return self._ic(rcn, Aic, Sic, Dic, Tin, Tex)
 
-    def __simulate_IC(self, modelType: int, rcn: np.ndarray) -> np.ndarray:
-        if modelType == NelsonCarney04:
+    def __simulate_IC(self, modelType: ModelType, rcn: np.ndarray, weights=(.5, .25, .25)) -> np.ndarray:
+        if modelType == ModelType.NelsonCarney04:
             return self._ic_bandpass(rcn) * self.M5
-        elif modelType == Carney2015:
-            pass
+        elif modelType == ModelType.Carney2015:
+            return (self._ic_bandpass(weights[0] * rcn) +
+                    self._ic_band_reject(weights[1] * rcn) +
+                    self._ic_lowpass(weights[2] * rcn)) * self.M5
         else:
             raise NotImplementedError
 
-    def _simulate_nelson_carney_04(self) -> {}:
+    def _simulate(self, modelType: ModelType = ModelType.NelsonCarney04, weights=()) -> {}:
         timeLen, cfCount = self.anr.shape
         AN = self.anr
         W1 = np.zeros(timeLen)
@@ -267,7 +271,7 @@ class CentralAuditoryResponse:
             for i in range(cfCount):
 
                 Rcn = self._cn(i)
-                Ric = self.__simulate_IC(NelsonCarney04, Rcn)
+                Ric = self.__simulate_IC(modelType, Rcn)
 
                 if i <= self.cutoffCf:
                     W1 += AN[:, i]
