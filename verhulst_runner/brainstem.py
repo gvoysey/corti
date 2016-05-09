@@ -1,23 +1,20 @@
 import logging
 import multiprocessing as mp
-import os
 from enum import Enum
-from os import path
 
 import numpy as np
 import numpy.matlib
+import os
 import progressbar
+from joblib import Parallel, delayed
+from os import path
 
 from verhulst_runner.base import runtime_consts, brain_consts as b, periph_consts as p
 from .periphery_configuration import PeripheryOutput
 
 
 def simulate_brainstem(anResults: [(PeripheryOutput, np.ndarray, bool)]) -> [{}]:
-    pool = mp.Pool(mp.cpu_count(), maxtasksperchild=1)
-    retval = pool.map(_solve_one, anResults)
-    pool.close()
-    pool.join()
-    return retval
+    return Parallel(n_jobs=mp.cpu_count())(delayed(_solve_one)(x) for x in anResults)
 
 
 def _solve_one(periphery: (PeripheryOutput, np.ndarray, bool)) -> {}:
@@ -72,7 +69,6 @@ class AuditoryNerveResponse:
         :return: the AN population response
         """
         lsr_weight, msr_weight, hsr_weight = self._map_cf_dependent_distribution(self.TotalFiberPerIHC)
-
 
         return self.sum_fibers(lsr_weight, msr_weight, hsr_weight, degradation)
 
@@ -131,7 +127,6 @@ class AuditoryNerveResponse:
 ModelType = Enum('ModelType', "NelsonCarney04, Carney2015")
 
 
-
 class CentralAuditoryResponse:
     """
     This class implements the midbrain and brainstem models developed by Laurel Carney et al, and set forth in
@@ -142,7 +137,6 @@ class CentralAuditoryResponse:
     """
 
     LowFrequencyCutoff = 175.0  # in Hz.  CFs below this threshold will not be used to estimate the compound action potential
-    M5 = (2 * 0.15e-6) / 0.0033  # idem with scaling W1 & 3
 
     def __init__(self, an: PeripheryOutput, anr: np.ndarray):
         self.anr = anr
@@ -166,7 +160,6 @@ class CentralAuditoryResponse:
         if saveFlag:
             self._save(output)
         return output
-
 
     def _save(self, output: {}) -> None:
         name = runtime_consts.NelsonCarneyOutputFilePrefix + "{0}dB".format(self.anfOut.stimulusLevel)
@@ -248,16 +241,20 @@ class CentralAuditoryResponse:
         return self._ic(rcn, Aic, Sic, Dic, Tin, Tex)
 
     def __simulate_IC(self, modelType: ModelType, rcn: np.ndarray, weights=(.5, .25, .25)) -> np.ndarray:
+        M5 = (2 * 0.15e-6) / 0.0033  # idem with scaling W1 & 3
+
         if modelType == ModelType.NelsonCarney04:
-            return self._ic_bandpass(rcn) * self.M5
+            retval = self._ic_bandpass(rcn)
         elif modelType == ModelType.Carney2015:
-            return (self._ic_bandpass(weights[0] * rcn) +
-                    self._ic_band_reject(weights[1] * rcn) +
-                    self._ic_lowpass(weights[2] * rcn)) * self.M5
+            retval = (self._ic_bandpass(weights[0] * rcn) +
+                      self._ic_band_reject(weights[1] * rcn) +
+                      self._ic_lowpass(weights[2] * rcn))
         else:
             raise NotImplementedError
 
-    def _simulate(self, modelType: ModelType = ModelType.NelsonCarney04, weights=()) -> {}:
+        return retval * M5
+
+    def _simulate(self, modelType: ModelType = ModelType.NelsonCarney04, weights: [(float, float, float)] = None) -> {}:
         timeLen, cfCount = self.anr.shape
         AN = self.anr
         W1 = np.zeros(timeLen)
@@ -271,7 +268,10 @@ class CentralAuditoryResponse:
             for i in range(cfCount):
 
                 Rcn = self._cn(i)
-                Ric = self.__simulate_IC(modelType, Rcn)
+                if weights is not None:
+                    Ric = self.__simulate_IC(modelType, Rcn, weights)
+                else:
+                    Ric = self.__simulate_IC(modelType, Rcn)
 
                 if i <= self.cutoffCf:
                     W1 += AN[:, i]
@@ -283,9 +283,9 @@ class CentralAuditoryResponse:
                 RcnF[i, :] = Rcn[0:timeLen]  # chop off the duplicated convolution side
                 bar.update(i)
         return {
-            b.Wave1_AN: W1,
-            b.Wave3_CN: CN,
-            b.Wave5_IC: IC,
+            b.Wave1_AN    : W1,
+            b.Wave3_CN    : CN,
+            b.Wave5_IC    : IC,
             b.ANPopulation: RanF,
             b.CNPopulation: RcnF,
             b.ICPopulation: RicF
