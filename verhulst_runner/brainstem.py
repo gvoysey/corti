@@ -1,5 +1,4 @@
 import logging
-import multiprocessing as mp
 from enum import Enum
 
 import numpy as np
@@ -14,7 +13,7 @@ from .periphery_configuration import PeripheryOutput
 
 
 def simulate_brainstem(anResults: [(PeripheryOutput, np.ndarray, bool)]) -> [{}]:
-    return Parallel(n_jobs=mp.cpu_count())(delayed(_solve_one)(x) for x in anResults)
+    return Parallel(n_jobs=-1, max_nbytes=100e6)(delayed(_solve_one)(x) for x in anResults)
 
 
 def _solve_one(periphery: (PeripheryOutput, np.ndarray, bool)) -> {}:

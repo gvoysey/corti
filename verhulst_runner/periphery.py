@@ -1,9 +1,8 @@
 import logging
-import multiprocessing as mp
 from datetime import datetime, timedelta
-from os import path
 
 import yaml
+from os import path
 from verhulst_model_core.ANF_Sarah import *
 from verhulst_model_core.Sarah_ihc import *
 from verhulst_model_core.cochlear_model_old import *
@@ -41,10 +40,11 @@ class Periphery:
         :return: A list of output data, one for each stimulus level
         """
         s1 = datetime.now()
-        p = mp.Pool(mp.cpu_count(), maxtasksperchild=1)
-        results = p.map(self.solve_one_cochlea, self.cochlear_list)
-        p.close()
-        p.join()
+        # results = Parallel(n_jobs=-1)(delayed(self.solve_one_cochlea)(xx) for xx in self.cochlear_list)
+        results = []
+        for i in self.cochlear_list:
+            results.append(self.solve_one_cochlea(i))
+
         self.save_model_configuration()
         print("\ncochlear simulation of {} stimulus levels finished in {:0.3f}s".format(len(self.stimulus),
                                                                                         timedelta.total_seconds(
@@ -85,7 +85,7 @@ class Periphery:
             p.AuditoryNerveFiberLowSpont: anfL,
             p.AuditoryNerveFiberMediumSpont: anfM,
             p.AuditoryNerveFiberHighSpont: anfH,
-            p.Stimulus: self.conf.stimulus[ii],
+            p.Stimulus: stimulus,
             p.StimulusLevel: self.conf.stimulusLevels[ii]
         }
         out.conf = self.conf
@@ -93,6 +93,7 @@ class Periphery:
         out.outputFolder = self.output_folder
 
         self.save_model_results(ii, out.output)
+
         return out
 
     def save_model_results(self, ii: int, periph: {}) -> None:
