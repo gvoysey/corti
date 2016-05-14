@@ -3,7 +3,7 @@ from datetime import datetime
 from logging import info
 
 import matplotlib
-from os import path
+from os import path, walk
 
 matplotlib.use('PDF')
 import matplotlib.gridspec as gridspec
@@ -101,4 +101,6 @@ def plot_directory(dirPath: str):
 
 
 if __name__ == "__main__":
-    plot_directory("/Users/gvoysey/verhulst-output/13 Apr 16 - 2157")
+    basepath = path.join(path.expanduser('~'), r.DefaultModelOutputDirectoryRoot)
+    result = next(walk(basepath))
+    plot_directory(path.join(basepath, result[1][0]))
