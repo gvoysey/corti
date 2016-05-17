@@ -5,7 +5,6 @@ import numpy as np
 import numpy.matlib
 import os
 import progressbar
-from joblib import Parallel, delayed
 from os import path
 
 from verhulst_runner.base import runtime_consts, brain_consts as b, periph_consts as p
@@ -13,7 +12,11 @@ from .periphery_configuration import PeripheryOutput
 
 
 def simulate_brainstem(anResults: [(PeripheryOutput, np.ndarray, bool)]) -> [{}]:
-    return Parallel(n_jobs=-1, max_nbytes=100e6)(delayed(_solve_one)(x) for x in anResults)
+    # return Parallel(n_jobs=-1, max_nbytes=100e6)(delayed(_solve_one)(x) for x in anResults)
+    retval = []
+    for i in anResults:
+        retval.append(_solve_one(i))
+    return retval
 
 
 def _solve_one(periphery: (PeripheryOutput, np.ndarray, bool)) -> {}:
