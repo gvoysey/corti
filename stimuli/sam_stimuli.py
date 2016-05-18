@@ -13,11 +13,11 @@ import scipy.io.wavfile
 
 fs = 100000
 amp = 0.1
-fc = 2005
+fc = 2000
 fm = 93
 m = np.array([85, 25])/100
-dur = 300e-3
-dur_ramp = 5e-3
+dur = 0.3
+dur_ramp = 1/fm
 
 #Stimulus generation
 
@@ -28,7 +28,7 @@ sam_85 = amp*( ( 1 + m[0]*np.sin(2*np.pi*fm*t_vect) )/2 ) * np.sin(2*np.pi*fc*t_
 
 #Add ramps
 
-ramp_samples = dur_ramp*fs
+ramp_samples = int(dur_ramp*fs)
 stim_samples = len(t_vect)
 
 win_bkman = np.blackman(2*ramp_samples)
