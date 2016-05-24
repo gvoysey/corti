@@ -28,7 +28,7 @@ class Stimulus:
         # make the waveform one-dimensional if it isn't already
         waveform = np.hstack(waveform)
         # normalize it
-        normalized = waveform / max(waveform)
+        normalized = waveform / max(abs(waveform))
         # make the levels broadcastable
         levels = np.array(levels)[:, None]
         # compute the intensity in pascals
