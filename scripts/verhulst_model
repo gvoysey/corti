@@ -22,14 +22,14 @@ Options:
     -v --verbose                    Display detailed debug log output to STDOUT.
 """
 
-import os
-import shutil
 import sys
 from datetime import datetime
 from logging import info, basicConfig, getLogger, ERROR, INFO
-from os import path, system, name
 
+import os
+import shutil
 from docopt import docopt
+from os import path, system, name
 
 from verhulst_runner import Periphery, Stimulus
 from verhulst_runner._version import __version__
@@ -127,7 +127,7 @@ def __clean(rootDir: str, current_results: str) -> None:
 
 
 def __touch(fname, times=None):
-    """ As coreutils touch; may not work on windows.
+    """ As coreutils touch.
     """
     with open(fname, 'a+'):
         os.utime(fname, times)

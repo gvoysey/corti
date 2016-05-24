@@ -103,7 +103,7 @@ class AuditoryNerveResponse:
         112, 1025–1039. doi:10.1152/jn.00738.2013
         """
         # The SR cutoff used by Temchin et. al. for "low SR" is 18.
-        # The Verhulst model's medium and low SR fibers are both below that threshold, so we assign half weight to each.
+        # The Verhulst model's medium and low SR fibers (10 and 1 ) are both below that threshold, so we assign half weight to each.
         # scale the percentages to "fiber counts" by multiplying by how many fibers are present on a healthy IHC.
         # getting non-integer values for "number of fibers" is OK here; we're modeling population-level behavior.
         return (total_fiber_scaling_factor * np.array([self.percent_sr(c) / 2 for c in self.cf]),
@@ -138,7 +138,7 @@ class CentralAuditoryResponse:
     Formants by Midbrain Neurons Tuned to Sound Fluctuations,” eNeuro, 2, 1–12. doi:10.1523/ENEURO.0004-15.2015
     """
 
-    LowFrequencyCutoff = 175.0  # in Hz.  CFs below this threshold will not be used to estimate the compound action potential
+    LowFrequencyCutoff = 175.0  # CFs below this threshold will not be used to estimate the compound action potential
 
     def __init__(self, an: PeripheryOutput, anr: np.ndarray):
         self.anr = anr
