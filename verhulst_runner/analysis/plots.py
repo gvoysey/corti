@@ -18,6 +18,9 @@ from verhulst_runner.periphery_configuration import PeripheryOutput, PeripheryCo
 
 def plot_periphery(periph: {}, conf: PeripheryConfiguration, pdf: PdfPages) -> plt.Figure:
     figure = plt.figure(1, (8.5, 11), dpi=300)
+    figure.suptitle("Verhulst Model Output. Stimulus level {0}dB SPL".format(periph[p.StimulusLevel]),
+                    fontsize=18)
+
     gs = gridspec.GridSpec(6, 4)
 
     # plot stimulus, top left.
@@ -36,8 +39,7 @@ def plot_periphery(periph: {}, conf: PeripheryConfiguration, pdf: PdfPages) -> p
 
     #Plot
 
-    figure.suptitle("Verhulst Model Output. Stimulus level {0}dB SPL".format(periph[p.StimulusLevel]),
-                    fontsize=18)
+
     pdf.savefig(figure)
 
 

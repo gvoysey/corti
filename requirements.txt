@@ -3,5 +3,5 @@ matplotlib == 1.5.1
 blessed == 1.14.1
 numpy >= 1.10
 progressbar2 == 3.6.2
-scipy == 0.17.0
+scipy >= 0.17.0
 PyYAML == 3.11

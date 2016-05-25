@@ -18,7 +18,7 @@ runtime_consts = RuntimeConstants(ModelDirectoryLabelName=".verhulst-model-outpu
                                   DefaultModelOutputDirectoryRoot="verhulst-output",
                                   ResultDirectoryNameFormat="%d %b %y - %H%M",
                                   PeripheryOutputFilePrefix="periphery-output-",
-                                  NelsonCarneyOutputFilePrefix="nelson-carney-output-",
+                                  NelsonCarneyOutputFilePrefix="central-output-",
                                   PeripheryConfigurationName="simulation-configuration.yaml",
                                   SummaryPlotFileName="summary-plots.pdf",
                                   ResourceDirectoryName="resources",
