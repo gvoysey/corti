@@ -1,0 +1,8 @@
+Model parameters with external wav stimuli
+
+--verbose
+--bSave
+--no-cf-weighting
+--out=/Volumes/EXT_DISK/encina/2_data_for_scripts/1_modeling/2_model-verhulst-abr/verhulst-output
+--wavFile=/Users/Gerard/Dropbox/00_phd/encina/1_scripts/4_modeling/2_model-verhulst-abr/stimuli/stim_sam_85.wav
+--level=5,10,20,25,30,35,40,45,50,55,60,65,70,75,80,85,90,95,100,105,110

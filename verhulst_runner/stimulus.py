@@ -27,13 +27,23 @@ class Stimulus:
         """
         # make the waveform one-dimensional if it isn't already
         waveform = np.hstack(waveform)
-        # normalize it
-        normalized = waveform / max(abs(waveform))
+        # normalize the stimulus waveform to its rms value
+        normalized = waveform / self._rms(waveform)
         # make the levels broadcastable
         levels = np.array(levels)[:, None]
         # compute the intensity in pascals
-        scaling = 2 * math.sqrt(2) * self.P0 * 10 ** (levels / 20)
+        scaling = self._spl2a(levels)
         return normalized * scaling
+
+    def _rms(self, sig_in: np.ndarray) -> np.ndarray:
+        """ Compute the Root-Mean Squared (RMS) value of the long term input stimulus signal"""
+        sig_out = math.sqrt(np.mean(sig_in * np.conj(sig_in)))
+        return sig_out
+
+    def _spl2a(self, spl_value: float) -> float:
+        """Convert from dB SPL to RMS pascal"""
+        P_rms = self.P0 * 10 ** (spl_value / 20)
+        return P_rms
 
     def make_click(self, config: {}) -> np.ndarray:
         """ Generate a click stimulus of a given prestimulus delay, stimulus duration, poststimulus delay, and levels.
