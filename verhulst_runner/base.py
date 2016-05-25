@@ -1,7 +1,7 @@
 import os
+import warnings
 from collections import namedtuple
 from os import path
-import warnings
 
 # This is the tuple that contains operational constants
 RuntimeConstants = namedtuple("Const", " ModelDirectoryLabelName \
@@ -57,7 +57,7 @@ BrainstemConstants = namedtuple("BrainstemConstants", " Wave1_AN \
 
 brain_consts = BrainstemConstants(Wave1_AN="wave1_an",
                                   Wave3_CN="wave3_cn",
-                                  Wave5_IC="wave3_ic",
+                                  Wave5_IC="wave5_ic",
                                   ANPopulation="an_pop_resp",
                                   CNPopulation="cn_pop_resp",
                                   ICPopulation="ic_pop_resp")
