@@ -1,9 +1,9 @@
 import glob
 from datetime import datetime
 from logging import info
+from os import path, walk
 
 import matplotlib
-from os import path, walk
 
 matplotlib.use('PDF')
 import matplotlib.gridspec as gridspec
