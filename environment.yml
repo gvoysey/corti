@@ -1,9 +1,0 @@
-name: thesis-code
-dependencies:
-  - python>=3.4
-  - pip
-  - docopt >= 0.6.2
-  - matplotlib >= 1.5.1
-  - numpy >= 1.10
-  - scipy >= 0.17.0
-  - PyYAML >= 3.11
