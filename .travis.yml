@@ -21,7 +21,7 @@ install:
   #- conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION dep1 dep2 ...
   - conda env create -f environment.yml
   - source activate thesis-code
-  - pip install progressbar2 blessed
+  - pip install progressbar2 blessed progressbar
   - python setup.py install
 
 script:
