@@ -19,7 +19,7 @@ class Stimulus:
         time = float(time)
         return int(round(self.FS * time))
 
-    def _to_pascals(self, waveform: np.ndarray, levels: []) -> np.ndarray:
+    def _to_pascals(self, waveform: np.ndarray, levels: [], stim_type: str) -> np.ndarray:
         """ Rescale a waveform so that the values are in units of pascals, and returns a matrix of waveforms column-wise
         by level.
         :parameter waveform:  The waveform.
@@ -28,7 +28,10 @@ class Stimulus:
         # make the waveform one-dimensional if it isn't already
         waveform = np.hstack(waveform)
         # normalize the stimulus waveform to its rms value
-        normalized = waveform / self._rms(waveform)
+        if stim_type == sc.Click:
+            normalized = waveform / abs(max(waveform))
+        else:
+            normalized = waveform / self._rms(waveform)
         # make the levels broadcastable
         levels = np.array(levels)[:, None]
         # compute the intensity in pascals
@@ -53,7 +56,7 @@ class Stimulus:
         post = self.seconds_to_samples(config[sc.PoststimTime])
         # the template for a click is a delay, a rectangular stimulus, and a delay.
         template = [np.zeros(pre), np.ones(stim), np.zeros(post)]
-        return self._to_pascals(template, config[sc.Levels])
+        return self._to_pascals(template, config[sc.Levels], config[sc.StimulusType])
 
     def make_chirp(self, config: {}) -> np.ndarray:
         pass
@@ -78,13 +81,13 @@ class Stimulus:
             return stimulus_config
         stim_type = stimulus_config[sc.StimulusType]
 
-        stimului = {
+        stimuli = {
             sc.Click: self.make_click(stimulus_config),
             sc.Chirp: self.make_chirp(stimulus_config),
             sc.AM: self.make_am(stimulus_config),
         }
-        if stim_type in stimului:
-            stimulus_config[sc.Stimulus] = stimului[stim_type]
+        if stim_type in stimuli:
+            stimulus_config[sc.Stimulus] = stimuli[stim_type]
             return stimulus_config
         else:
             error("Cannot generate stimulus, wrong parameters given.")
@@ -99,7 +102,7 @@ class Stimulus:
             raise NotImplementedError("Wav files must be sampled at {0}".format(self.FS))
         else:
             return {
-                sc.Levels: level,
+                sc.Levels      : level,
                 sc.StimulusType: "custom",
-                sc.Stimulus: self._to_pascals(data, level)
+                sc.Stimulus    : self._to_pascals(data, level, sc.Custom)
             }
