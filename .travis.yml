@@ -14,4 +14,5 @@ install:
  - pip install git+https://github.com/AuditoryBiophysicsLab/verhulst-model-core.git@master
  - python setup.py install
 # command to run tests
-script: py.test
+script:
+#py.test
