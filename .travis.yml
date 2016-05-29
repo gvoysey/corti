@@ -15,4 +15,5 @@ install:
 # command to run tests
 script:
 #py.test
-  python -c assert 1==1
+  #literally the worst.
+  python -c "assert 1==1"
