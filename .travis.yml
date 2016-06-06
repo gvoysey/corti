@@ -11,9 +11,7 @@ install:
  - sudo apt-get install gfortran libblas-dev liblapack-dev
  - pip install -r requirements.txt
 # - pip install git+https://github.com/AuditoryBiophysicsLab/verhulst-model-core.git@master
- - python setup.py install
+ - python setup.py test
 # command to run tests
-script:
+script: python -c "assert 1"
 #py.test
-  #literally the worst.
-  python -c "assert 1==1"

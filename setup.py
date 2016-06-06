@@ -26,5 +26,10 @@ setup(
         'numpy >= 1.10',
         'progressbar2 >= 3.6',
         'PyYAML > 3.10'
-    ]
+    ],
+    tests_require=[
+        'pytest',
+        'hypothesis'
+    ],
+    test_suite="py.test"
 )

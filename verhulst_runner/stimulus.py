@@ -96,7 +96,7 @@ class Stimulus:
         """ Loads and returns the specified wav file.
         """
         if not path.isfile(wav_path):
-            raise FileNotFoundError
+            raise FileNotFoundError("Could not locate file {0}".format(wav_path))
         fs, data = wavfile.read(wav_path)
         if fs != self.FS:
             raise NotImplementedError("Wav files must be sampled at {0}".format(self.FS))
