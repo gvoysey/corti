@@ -31,7 +31,7 @@ end
 
 
 
-
+p0=20e-6;
 channels = numel(spl);
 for k = 1:channels
     

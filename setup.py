@@ -1,8 +1,6 @@
-from distutils.core import setup
-from distutils.extension import Extension
-
 import numpy as np
 from Cython.Build import cythonize
+from setuptools import setup, find_packages, Extension
 
 # makes __version__ a local variable
 exec(open('verhulst_runner/_version.py').read())
@@ -22,17 +20,18 @@ extensions = [
 setup(
     name='verhulst-runner',
     version=__version__,
-    packages=['verhulst_runner',
-              'verhulst_runner.analysis',
-              ],
-    package_dir={'verhulst_runner': 'verhulst_runner'},
+    # packages=['verhulst_runner',
+    #          'verhulst_runner.analysis',
+    #          ],
+    # package_dir={'verhulst_runner': 'verhulst_runner'},
+    packages=find_packages(),
     package_data={'verhulst_runner': ['resources/*']},
     scripts=['scripts/verhulst_model',
              'scripts/stimulus_generator'],
     url='https://github.com/gvoysey/thesis-code',
     license='',
-        ext_modules=cythonize(extensions),
-        include_dirs=[np.get_include()],
+    ext_modules=cythonize(extensions),
+    include_dirs=[np.get_include()],
     author='Graham Voysey',
     author_email='gvoysey@bu.edu',
     description='A wrapper around https://github.com/AuditoryBiophysicsLab/verhulst-model-core',

@@ -70,7 +70,6 @@ def _sanitize_level(levels: str):
     return [float(f) for f in levels.split(",") if f and levels]
 
 
-
 def make_template(outpath):
     if not path.splitext(outpath)[1].lower() == ".yaml":
         error("didn't get a yaml file")
