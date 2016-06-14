@@ -39,7 +39,7 @@ from verhulst_runner.analysis.plots import save_summary_pdf
 from verhulst_runner.base import runtime_consts
 from verhulst_runner.brainstem import simulate_brainstem, AuditoryNerveResponse
 from verhulst_runner.periphery_configuration import PeripheryConfiguration
-from verhulst_runner.zilany2014 import run_zilany2014_rate
+from verhulst_runner.zilany2014 import run_zilany2014
 
 # By default, log INFO and up.
 basicConfig(format='%(levelname)s %(asctime)s- %(message)s', datefmt='%d %b %H:%M:%S', level=INFO)
@@ -94,13 +94,13 @@ def main():
             auditoryNerveResponses = [AuditoryNerveResponse(p).cf_weighted_an_response(degradation=degradation) for p in
                                       peripheryResults]
     else:
-        print("Simulating periphery (Verhulst) ...")
-        peripheryResults = run_zilany2014_rate(sound=conf.stimulus,
-                                               fs=conf.Fs,
-                                               species="human",
-                                               anf_types="",
-                                               cf="")
-
+        print("Simulating periphery (Zilany) ...")
+        peripheryResults = [run_zilany2014(sound=x,
+                                           fs=conf.Fs,
+                                           anf_num=(13, 3, 3),
+                                           species="human",
+                                           seed=0,
+                                           cf=(125, 20e3, 1e3)) for x in conf.stimulus]
 
     brainResults = None
     if not args["--noBrainstem"]:

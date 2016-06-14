@@ -20,14 +20,13 @@ from __future__ import division, print_function, absolute_import
 
 __author__ = "Marek Rudnicki"
 
-
 import itertools
 import numpy as np
 import pandas as pd
 
 from . import _zilany2014
-from . util import calc_cfs
-from . zilany2014_rate import run_zilany2014_rate
+from .util import calc_cfs
+from .zilany2014_rate import run_zilany2014_rate
 
 
 def run_zilany2014(
@@ -110,27 +109,25 @@ def run_zilany2014(
 
     channel_args = [
         {
-            'signal': sound,
-            'cf': cf,
-            'fs': fs,
-            'cohc': cohc,
-            'cihc': cihc,
-            'anf_num': anf_num,
+            'signal'  : sound,
+            'cf'      : cf,
+            'fs'      : fs,
+            'cohc'    : cohc,
+            'cihc'    : cihc,
+            'anf_num' : anf_num,
             'powerlaw': powerlaw,
-            'seed': seed,
-            'species': species,
-            'ffGn': ffGn,
+            'seed'    : seed,
+            'species' : species,
+            'ffGn'    : ffGn,
         }
         for cf in cfs
-    ]
-
+        ]
 
     ### Run model for each channel
     nested = map(
-        _run_channel,
-        channel_args
+            _run_channel,
+            channel_args
     )
-
 
     ### Unpack the results
     trains = itertools.chain(*nested)
@@ -141,10 +138,7 @@ def run_zilany2014(
     return spike_trains
 
 
-
-
 def _run_channel(args):
-
     fs = args['fs']
     cf = args['cf']
     signal = args['signal']
@@ -156,17 +150,15 @@ def _run_channel(args):
     species = args['species']
     ffGn = args['ffGn']
 
-
     ### Run BM, IHC
     vihc = _zilany2014.run_ihc(
-        signal=signal,
-        cf=cf,
-        fs=fs,
-        species=species,
-        cohc=float(cohc),
-        cihc=float(cihc)
+            signal=signal,
+            cf=cf,
+            fs=fs,
+            species=species,
+            cohc=float(cohc),
+            cihc=float(cihc)
     )
-
 
     duration = len(vihc) / fs
     anf_types = np.repeat(['hsr', 'msr', 'lsr'], anf_num)
@@ -176,29 +168,27 @@ def _run_channel(args):
     for anf_type in anf_types:
 
         if anf_type not in synout:
-            ### Run synapse
+            # Run synapse
             synout[anf_type] = _zilany2014.run_synapse(
-                fs=fs,
-                vihc=vihc,
-                cf=cf,
-                anf_type=anf_type,
-                powerlaw=powerlaw,
-                ffGn=ffGn
+                    fs=fs,
+                    vihc=vihc,
+                    cf=cf,
+                    anf_type=anf_type,
+                    powerlaw=powerlaw,
+                    ffGn=ffGn
             )
 
-        ### Run spike generator
+        # Run spike generator
         spikes = _zilany2014.run_spike_generator(
-            synout=synout[anf_type],
-            fs=fs,
+                synout=synout[anf_type],
+                fs=fs,
         )
 
-
         trains.append({
-            'spikes': spikes,
+            'spikes'  : spikes,
             'duration': duration,
-            'cf': args['cf'],
-            'type': anf_type
+            'cf'      : args['cf'],
+            'type'    : anf_type
         })
-
 
     return trains

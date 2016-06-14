@@ -41,7 +41,9 @@ setup(
         'blessed >= 1.14',
         'numpy >= 1.10',
         'progressbar2 >= 3.6',
-        'PyYAML > 3.10'
+        'PyYAML > 3.10',
+        'pandas',
+        'cython'
     ],
     tests_require=[
         'pytest',
