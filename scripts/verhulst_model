@@ -85,14 +85,7 @@ def main():
 
         print("Simulating periphery (Verhulst) ...")
         peripheryResults = Periphery(conf).run()
-        print("Simulating auditory nerve response...")
-        degradation = None
-        if args["--no-cf-weighting"]:
-            auditoryNerveResponses = [AuditoryNerveResponse(p).unweighted_an_response(degradation=degradation) for p in
-                                      peripheryResults]
-        else:
-            auditoryNerveResponses = [AuditoryNerveResponse(p).cf_weighted_an_response(degradation=degradation) for p in
-                                      peripheryResults]
+
     else:
         print("Simulating periphery (Zilany) ...")
         peripheryResults = [run_zilany2014(sound=x,
@@ -101,6 +94,14 @@ def main():
                                            species="human",
                                            seed=0,
                                            cf=(125, 20e3, 1e3)) for x in conf.stimulus]
+    print("Simulating auditory nerve response...")
+    degradation = None
+    if args["--no-cf-weighting"]:
+        auditoryNerveResponses = [AuditoryNerveResponse(p).unweighted_an_response(degradation=degradation) for p in
+                                  peripheryResults]
+    else:
+        auditoryNerveResponses = [AuditoryNerveResponse(p).cf_weighted_an_response(degradation=degradation) for p in
+                                  peripheryResults]
 
     brainResults = None
     if not args["--noBrainstem"]:

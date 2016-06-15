@@ -18,6 +18,8 @@
 
 from __future__ import division, print_function, absolute_import
 
+import progressbar
+
 __author__ = "Marek Rudnicki"
 
 import itertools
@@ -124,10 +126,20 @@ def run_zilany2014(
         ]
 
     ### Run model for each channel
-    nested = map(
-            _run_channel,
-            channel_args
-    )
+    # nested = map(
+    #        _run_channel,
+    #        channel_args
+    # )
+    nested = []
+    with progressbar.ProgressBar(max_value=len(channel_args)) as bar:
+        i = 0
+        for arg in channel_args:
+            nested.append(_run_channel(arg))
+            i += 1
+            bar.update(i)
+
+    trains = list(itertools.chain(*nested))
+    return trains
 
     ### Unpack the results
     trains = itertools.chain(*nested)
@@ -188,7 +200,8 @@ def _run_channel(args):
             'spikes'  : spikes,
             'duration': duration,
             'cf'      : args['cf'],
-            'type'    : anf_type
+            'type'    : anf_type,
+            'anfout'  : synout,
         })
 
     return trains

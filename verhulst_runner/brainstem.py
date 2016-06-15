@@ -30,7 +30,7 @@ class AuditoryNerveResponse:
     TotalFiberPerIHC = 19  # to match the verhulst model scaling.
     M1 = 0.15e-6 / 2.7676e+07  # last value is uncompensated at 100 dB
 
-    def __init__(self, an: PeripheryOutput):
+    def __fromVerhulst(self, an: PeripheryOutput):
         self.anfOut = an
         self.Fs = an.conf.Fs
         self.cf = an.output[p.CenterFrequency]
@@ -42,6 +42,15 @@ class AuditoryNerveResponse:
         self.medSR = None
         self.highSR = None
         self.ANR = None
+
+    def __fromZilany(self, zil: [{}]):
+        pass
+
+    def __init__(self, an: PeripheryOutput):
+        if an is PeripheryOutput:
+            self.__fromVerhulst(an)
+        else:
+            self.__fromZilany
 
     def unweighted_an_response(self, ls_normal: float = 3, ms_normal: float = 3, hs_normal: float = 13,
                                degradation: () = None) -> np.ndarray:
