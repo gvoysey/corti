@@ -53,21 +53,21 @@ class AuditoryNerveResponse:
         self.cfCount = len(zil)
         self.timeLen = len(zil[0]['anfout']['hsr'])
 
-        self.cf = np.array([zil[i]['cf'] for i in range(self.cfCount)])
+        self.cf = np.array(list(reversed([zil[i]['cf'] for i in range(self.cfCount)])))
 
         anfhs = np.zeros((self.timeLen, self.cfCount))
         anfms = np.zeros_like(anfhs)
         anfls = np.zeros_like(anfhs)
         for i in range(self.cfCount):
-            anfhs[:, i] = zil[i]['anfout']['hsr']
-            anfms[:, i] = zil[i]['anfout']['msr']
-            anfls[:, i] = zil[i]['anfout']['lsr']
+            anfhs[:, i] = np.flipud(zil[i]['anfout']['hsr'])
+            anfms[:, i] = np.flipud(zil[i]['anfout']['msr'])
+            anfls[:, i] = np.flipud(zil[i]['anfout']['lsr'])
         self.anfh = anfhs
         self.anfm = anfms
         self.anfl = anfls
 
     def __init__(self, an):
-        if an is PeripheryOutput:
+        if type(an) is PeripheryOutput:
             self.__fromVerhulst(an)
         else:
             self.__fromZilany(an)
