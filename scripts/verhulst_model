@@ -24,14 +24,14 @@ Options:
     -v --verbose                    Display detailed debug log output to STDOUT.
 """
 
+import os
+import shutil
 import sys
 from datetime import datetime
 from logging import info, basicConfig, getLogger, ERROR, INFO
-
-import os
-import shutil
-from docopt import docopt
 from os import path, system, name
+
+from docopt import docopt
 
 from verhulst_runner import Periphery, Stimulus
 from verhulst_runner._version import __version__
@@ -90,7 +90,7 @@ def main():
         print("Simulating periphery (Zilany) ...")
         peripheryResults = [run_zilany2014(sound=x,
                                            fs=conf.Fs,
-                                           anf_num=(13, 3, 3),
+                                           anf_num=(1, 1, 1),
                                            species="human",
                                            seed=0,
                                            cf=(125, 20e3, 1e3)) for x in conf.stimulus]

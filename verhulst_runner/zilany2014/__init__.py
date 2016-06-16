@@ -22,9 +22,7 @@ import progressbar
 
 __author__ = "Marek Rudnicki"
 
-import itertools
 import numpy as np
-import pandas as pd
 
 from . import _zilany2014
 from .util import calc_cfs
@@ -138,16 +136,16 @@ def run_zilany2014(
             i += 1
             bar.update(i)
 
-    trains = list(itertools.chain(*nested))
-    return trains
-
-    ### Unpack the results
-    trains = itertools.chain(*nested)
-    spike_trains = pd.DataFrame(list(trains))
-
     np.fft.fftpack._fft_cache = {}
 
-    return spike_trains
+    return nested
+    # short-circuiting this entirely --gv
+    ### Unpack the results
+    # trains = itertools.chain(*nested)
+    # spike_trains = pd.DataFrame(list(trains))
+
+
+    #return spike_trains
 
 
 def _run_channel(args):
