@@ -193,13 +193,8 @@ def _run_channel(args):
                 synout=synout[anf_type],
                 fs=fs,
         )
-
-        trains.append({
-            'spikes'  : spikes,
-            'duration': duration,
-            'cf'      : args['cf'],
-            'type'    : anf_type,
-            'anfout'  : synout,
-        })
-
-    return trains
+    return {
+        'cf'    : args['cf'],
+        'fs'    : args['fs'],
+        'anfout': synout
+    }

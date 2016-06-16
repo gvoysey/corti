@@ -1,11 +1,11 @@
 import logging
-import os
 from enum import Enum
-from os import path
 
 import numpy as np
 import numpy.matlib
+import os
 import progressbar
+from os import path
 
 from verhulst_runner.base import runtime_consts, brain_consts as b, periph_consts as p
 from .periphery_configuration import PeripheryOutput
@@ -31,12 +31,11 @@ class AuditoryNerveResponse:
     M1 = 0.15e-6 / 2.7676e+07  # last value is uncompensated at 100 dB
 
     def __fromVerhulst(self, an: PeripheryOutput):
-        self.anfOut = an
         self.Fs = an.conf.Fs
         self.cf = an.output[p.CenterFrequency]
-        self.anfh = self.anfOut.output[p.AuditoryNerveFiberHighSpont]
-        self.anfm = self.anfOut.output[p.AuditoryNerveFiberMediumSpont]
-        self.anfl = self.anfOut.output[p.AuditoryNerveFiberLowSpont]
+        self.anfh = an.output[p.AuditoryNerveFiberHighSpont]
+        self.anfm = an.output[p.AuditoryNerveFiberMediumSpont]
+        self.anfl = an.output[p.AuditoryNerveFiberLowSpont]
         self.timeLen, self.cfCount = self.anfh.shape
         self.lowSR = None
         self.medSR = None
@@ -44,13 +43,34 @@ class AuditoryNerveResponse:
         self.ANR = None
 
     def __fromZilany(self, zil: {}):
-        pass
+        self.lowSR = None
+        self.medSR = None
+        self.highSR = None
+        self.ANR = None
 
-    def __init__(self, an: PeripheryOutput):
+        # zil is an _ugly_ list of lists of dicts of lists.   Sigh.
+        self.Fs = zil[0]['fs']
+        self.cfCount = len(zil)
+        self.timeLen = len(zil[0]['anfout']['hsr'])
+
+        self.cf = np.array([zil[i]['cf'] for i in range(self.cfCount)])
+
+        anfhs = np.zeros((self.timeLen, self.cfCount))
+        anfms = np.zeros_like(anfhs)
+        anfls = np.zeros_like(anfhs)
+        for i in range(self.cfCount):
+            anfhs[:, i] = zil[i]['anfout']['hsr']
+            anfms[:, i] = zil[i]['anfout']['msr']
+            anfls[:, i] = zil[i]['anfout']['lsr']
+        self.anfh = anfhs
+        self.anfm = anfms
+        self.anfl = anfls
+
+    def __init__(self, an):
         if an is PeripheryOutput:
             self.__fromVerhulst(an)
         else:
-            self.__fromZilany
+            self.__fromZilany(an)
 
     def unweighted_an_response(self, ls_normal: float = 3, ms_normal: float = 3, hs_normal: float = 13,
                                degradation: () = None) -> np.ndarray:
