@@ -20,6 +20,8 @@ from __future__ import division, print_function, absolute_import
 
 import progressbar
 
+from verhulst_runner import PeripheryOutput
+
 __author__ = "Marek Rudnicki"
 
 import numpy as np
@@ -138,7 +140,10 @@ def run_zilany2014(
 
     np.fft.fftpack._fft_cache = {}
 
-    return nested
+    retval = PeripheryOutput()
+    retval.output
+
+    # return nested
     # short-circuiting this entirely --gv
     ### Unpack the results
     # trains = itertools.chain(*nested)
