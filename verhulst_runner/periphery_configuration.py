@@ -53,12 +53,10 @@ class PeripheryOutput:
             :parameter self.output: a dict containing the output from the periphery.
             :parameter self.conf: the configuration that generated these outputs
             :type self.conf: PeripheryConfiguration
-            :parameter self.stimulusLevel: the sound level for this response, dB re 20 uPa
         :return:
     """
 
     def __init__(self):
         self.output = None
         self.conf = None
-        self.stimulusLevel = None
         self.outputFolder = None

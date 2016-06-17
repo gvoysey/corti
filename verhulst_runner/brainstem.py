@@ -1,11 +1,11 @@
 import logging
+import os
 from enum import Enum
+from os import path
 
 import numpy as np
 import numpy.matlib
-import os
 import progressbar
-from os import path
 
 from verhulst_runner.base import runtime_consts, brain_consts as b, periph_consts as p
 from .periphery_configuration import PeripheryOutput
@@ -163,7 +163,7 @@ class CentralAuditoryResponse:
         return output
 
     def _save(self, output: {}) -> None:
-        name = runtime_consts.NelsonCarneyOutputFilePrefix + "{0}dB".format(self.anfOut.stimulusLevel)
+        name = runtime_consts.NelsonCarneyOutputFilePrefix + "{0}dB".format(self.anfOut.output[p.StimulusLevel])
         outpath = self.anfOut.outputFolder
         # save the data out to a npz file whose keys are the field names of output.
         np.savez(path.join(outpath, name), **output)
