@@ -2,7 +2,7 @@ from datetime import datetime
 
 import numpy as np
 
-from verhulst_runner.base import stim_consts as sc
+from verhulst_runner.base import stim_consts as sc, ProbeType, PeripheryType
 
 
 class PeripheryConfiguration:
@@ -21,32 +21,30 @@ class PeripheryConfiguration:
     Implementation = 0  # no idea what this does (it's not used as of commit 43bf3be01)
     NumberOfSections = 1000  # possibly also "number of frequency bands", if there's a 1:1 between section and cf.
 
-    def __init__(self, dataFolder: str, storeFlag: str, stimuli: {}):
+    def __init__(self, dataFolder: str, storeFlag: str, stimuli: {}, modelType: PeripheryType):
         # model parameters from RUN_BMAN
         # these are used in making the stimulus waveform
-        if stimuli is not None:
-            self.stimulus_configuration = stimuli
-            self.stimulusLevels = stimuli[sc.Levels]
-            self.stimulus = stimuli[sc.Stimulus]
+        self.modelType = modelType
+        self.stimulus_configuration = stimuli
+        self.stimulusLevels = stimuli[sc.Levels]
+        self.stimulus = stimuli[sc.Stimulus]
+        if modelType == PeripheryType.verhulst:
             # this might be unused.  todo
             self.normalizedRMS = np.zeros(len(self.stimulusLevels))
             self.irregularities = [1] * len(self.stimulusLevels)
-
-        # these are more general
-        self.probeString = ProbeType.All  # sometimes called "Fc".
-        self.random_seed = 1
+            # these are more general
+            self.probeString = ProbeType.all  # sometimes called "Fc".
+            self.random_seed = 1
+            self.irrPct = 0.05
+            self.nonlinearType = "vel"  # todo this is defined in two places
+        if modelType == PeripheryType.zilany:
+            pass
         # operational parameters
         self.dataFolder = dataFolder
         self.storeFlag = storeFlag
         # these come from periphery.m
-        self.irrPct = 0.05
-        self.nonlinearType = "vel"  # todo this is defined in two places
+
         self.run_timestamp = datetime.now()
-
-
-class ProbeType:
-    All = "all"
-    Half = "half"
 
 
 class PeripheryOutput:

@@ -139,10 +139,8 @@ def run_zilany2014(
     # )
     nested = []
     with progressbar.ProgressBar(max_value=len(channel_args)) as bar:
-        i = 0
-        for arg in channel_args:
+        for i, arg in enumerate(channel_args):
             nested.append(_run_channel(arg))
-            i += 1
             bar.update(i)
 
     np.fft.fftpack._fft_cache = {}
@@ -180,7 +178,6 @@ def __munge(zil, sound, output):
         p.Stimulus                     : sound,
     }
     retval.outputFolder = output
-    retval.stimulusLevel = zil[0]['level']
     return retval
 
 

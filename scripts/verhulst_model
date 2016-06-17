@@ -23,19 +23,19 @@ Options:
     -v --verbose                    Display detailed debug log output to STDOUT.
 """
 
+import os
+import shutil
 import sys
 from datetime import datetime
 from logging import info, basicConfig, getLogger, ERROR, INFO
-
-import os
-import shutil
-from docopt import docopt
 from os import path, system, name
+
+from docopt import docopt
 
 from verhulst_runner import Periphery, Stimulus
 from verhulst_runner._version import __version__
 from verhulst_runner.analysis.plots import save_summary_pdf
-from verhulst_runner.base import runtime_consts
+from verhulst_runner.base import runtime_consts, PeripheryType
 from verhulst_runner.brainstem import simulate_brainstem, AuditoryNerveResponse
 from verhulst_runner.periphery_configuration import PeripheryConfiguration
 
@@ -77,14 +77,14 @@ def main():
     # actually run the simulation
     system('cls' if name == 'nt' else 'clear')
     info("output directory set to {0}".format(__set_output_dir(args["--out"])))
-
-    conf = PeripheryConfiguration(__set_output_dir(args["--out"]), args["--pSave"], stimuli_dict)
+    # periphType = next(x for x in PeripheryType if x.name.casefold()==args["--modelType"].casefold())
+    periphType = PeripheryType[args["--modelType"].casefold()]
+    conf = PeripheryConfiguration(__set_output_dir(args["--out"]), args["--pSave"], stimuli_dict, periphType)
     print("Simulating periphery ({0}) ...".format(args["--modelType"]))
 
-    peripheryResults = Periphery(conf).run(args['--modelType'])
+    peripheryResults = Periphery(conf).run()
 
-
-    print("Simulating auditory nerve response...")
+    print("Simulating auditory nerve response ...")
     degradation = None
     if args["--no-cf-weighting"]:
         auditoryNerveResponses = [AuditoryNerveResponse(p).unweighted_an_response(degradation=degradation) for p in
@@ -95,16 +95,16 @@ def main():
 
     brainResults = None
     if not args["--noBrainstem"]:
-        print("Simulating brainstem response")
+        print("Simulating brainstem response ...")
         brainResults = simulate_brainstem([(periphs, anrs, args["--bSave"])
                                            for periphs, anrs in zip(peripheryResults, auditoryNerveResponses)])
 
-    print("Generating summary figures")
+    print("Generating summary figures ...")
     save_summary_pdf(peripheryResults, auditoryNerveResponses, brainResults, conf, "summary-plots.pdf",
                      peripheryResults[0].outputFolder)
 
     if args["--clean"]:
-        print("Cleaning old model runs ... ")
+        print("Cleaning up previous model runs ... ")
         __clean(conf.dataFolder, peripheryResults[0].outputFolder)
 
     print("Simulation finished.")

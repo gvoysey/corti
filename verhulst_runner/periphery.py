@@ -1,13 +1,13 @@
 import logging
 from datetime import datetime, timedelta
+from os import path
 
 import yaml
-from os import path
 from verhulst_model_core.ANF_Sarah import *
 from verhulst_model_core.Sarah_ihc import *
 from verhulst_model_core.cochlear_model_old import *
 
-from verhulst_runner.base import runtime_consts, periph_consts as p
+from verhulst_runner.base import runtime_consts, periph_consts as p, PeripheryType
 from verhulst_runner.periphery_configuration import PeripheryConfiguration, PeripheryOutput
 from verhulst_runner.zilany2014 import run_zilany2014
 
@@ -18,37 +18,38 @@ class Periphery:
 
     def __init__(self, conf: PeripheryConfiguration):
         self.conf = conf
-        self.probes = self.conf.probeString
+        if self.conf.modelType == PeripheryType.verhulst:
+            self.probes = self.conf.probeString
+            self.irregularities = self.conf.irregularities
+            self.irr_on = self.conf.irregularities
+            self.random_seed = self.conf.random_seed
+            self.irrPct = self.conf.irrPct
+            self.nonlinearType = self.conf.nonlinearType
+            self.sheraPo = np.loadtxt(polesPath)
+            self.cochlear_list = [[CochleaModel(), self.stimulus[i], self.irr_on[i], i, (0, i + 1)] for i in
+                                  range(len(self.stimulus))]
+            self.sectionsNo = self.conf.NumberOfSections
+
         self.storeFlag = self.conf.storeFlag
         self.stimulus = self.conf.stimulus
         self.Fs = self.conf.Fs
-        self.sectionsNo = self.conf.NumberOfSections
-        self.random_seed = self.conf.random_seed
-        self.irrPct = self.conf.irrPct
-        self.nonlinearType = self.conf.nonlinearType
-        self.sheraPo = np.loadtxt(polesPath)
-        self.irregularities = self.conf.irregularities
-        self.irr_on = self.conf.irregularities
-
         self.output_folder = path.join(self.conf.dataFolder,
                                        datetime.now().strftime(runtime_consts.ResultDirectoryNameFormat))
         if not path.isdir(self.output_folder):
             os.makedirs(self.output_folder)
-        self.cochlear_list = [[CochleaModel(), self.stimulus[i], self.irr_on[i], i, (0, i + 1)] for i in
-                              range(len(self.stimulus))]
 
-    def run(self, modelType: str) -> [PeripheryOutput]:
+    def run(self) -> [PeripheryOutput]:
         """Simulate sound propagation up to the auditory nerve for many stimulus levels
         :return: A list of output data, one for each stimulus level
         """
         s1 = datetime.now()
         # results = Parallel(n_jobs=-1)(delayed(self.solve_one_cochlea)(xx) for xx in self.cochlear_list)
         results = []
-        if modelType.lower() == "verhulst":
+        if self.conf.modelType == PeripheryType.verhulst:
             for i, v in enumerate(self.cochlear_list):
                 results.append(self.solve_one_cochlea(v))
                 self.save_model_results(i, results[i].output)
-        elif modelType.lower() == "zilany":
+        elif self.conf.modelType == PeripheryType.zilany:
             for i, v in enumerate(self.conf.stimulus):
                 results.append(run_zilany2014(sound=v,
                                               fs=self.conf.Fs,
@@ -62,11 +63,11 @@ class Periphery:
                 self.save_model_results(i, results[i].output)
 
         else:
-            raise NotImplementedError("Peripheral model '{0}' was not recognized".format(modelType))
+            raise NotImplementedError("Peripheral model '{0}' was not recognized".format(self.conf.modelType))
 
         self.save_model_configuration()
-        print("\ncochlear simulation of {} stimulus levels finished in {:0.3f}s".format(len(self.stimulus),
-                                                                                        timedelta.total_seconds(
+        print("\tPeripheral simulation of {} stimulus levels finished in {:0.3f}sec".format(len(self.stimulus),
+                                                                                            timedelta.total_seconds(
                                                                                                 datetime.now() - s1)))
         return results
 

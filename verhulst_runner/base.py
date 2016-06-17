@@ -1,7 +1,11 @@
 import os
 import warnings
 from collections import namedtuple
+from enum import Enum
 from os import path
+
+ProbeType = Enum("ProbeType", "all, half")
+PeripheryType = Enum("PeripheryType", "verhulst, zilany")
 
 # This is the tuple that contains operational constants
 RuntimeConstants = namedtuple("Const", " ModelDirectoryLabelName \
