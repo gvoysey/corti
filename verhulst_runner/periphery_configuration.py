@@ -24,15 +24,17 @@ class PeripheryConfiguration:
     def __init__(self, dataFolder: str, storeFlag: str, stimuli: {}):
         # model parameters from RUN_BMAN
         # these are used in making the stimulus waveform
-        self.stimulus_configuration = stimuli
-        self.stimulusLevels = stimuli[sc.Levels]
-        self.stimulus = stimuli[sc.Stimulus]
+        if stimuli is not None:
+            self.stimulus_configuration = stimuli
+            self.stimulusLevels = stimuli[sc.Levels]
+            self.stimulus = stimuli[sc.Stimulus]
+            # this might be unused.  todo
+            self.normalizedRMS = np.zeros(len(self.stimulusLevels))
+            self.irregularities = [1] * len(self.stimulusLevels)
+
         # these are more general
         self.probeString = ProbeType.All  # sometimes called "Fc".
         self.random_seed = 1
-        # this might be unused.  todo
-        self.normalizedRMS = np.zeros(len(self.stimulusLevels))
-        self.irregularities = [1] * len(self.stimulusLevels)
         # operational parameters
         self.dataFolder = dataFolder
         self.storeFlag = storeFlag

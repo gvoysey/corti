@@ -93,7 +93,9 @@ def main():
                                            anf_num=(1, 1, 1),
                                            species="human",
                                            seed=0,
-                                           cf=(125, 20e3, 1e3)) for x in conf.stimulus]
+                                           conf=conf,
+                                           level=conf.stimulusLevels[i],
+                                           cf=(125, 20e3, 1e3)) for i, x in enumerate(conf.stimulus)]
 
     print("Simulating auditory nerve response...")
     degradation = None

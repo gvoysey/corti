@@ -20,8 +20,6 @@ from __future__ import division, print_function, absolute_import
 
 import progressbar
 
-from verhulst_runner import PeripheryOutput
-
 __author__ = "Marek Rudnicki"
 
 import numpy as np
@@ -29,6 +27,8 @@ import numpy as np
 from . import _zilany2014
 from .util import calc_cfs
 from .zilany2014_rate import run_zilany2014_rate
+from verhulst_runner.base import periph_consts as p
+from verhulst_runner.periphery import PeripheryOutput, PeripheryConfiguration
 
 
 def run_zilany2014(
@@ -38,6 +38,8 @@ def run_zilany2014(
         cf,
         species,
         seed,
+        conf,
+        level,
         cohc=1,
         cihc=1,
         powerlaw='approximate',
@@ -73,6 +75,8 @@ def run_zilany2014(
         Species.
     seed : int
         Random seed for the spike generator.
+    conf: PeripheryConfiguration
+        Runtime data.
     cohc : float <0-1>, optional
         Degredation of the outer hair cells.
     cihc : float <0-1>, optional
@@ -119,6 +123,8 @@ def run_zilany2014(
             'anf_num' : anf_num,
             'powerlaw': powerlaw,
             'seed'    : seed,
+            'conf'    : conf,
+            'level'   : level,
             'species' : species,
             'ffGn'    : ffGn,
         }
@@ -140,17 +146,41 @@ def run_zilany2014(
 
     np.fft.fftpack._fft_cache = {}
 
-    retval = PeripheryOutput()
-    retval.output
+    return __munge(nested, sound)
 
-    # return nested
     # short-circuiting this entirely --gv
     ### Unpack the results
     # trains = itertools.chain(*nested)
     # spike_trains = pd.DataFrame(list(trains))
 
 
-    #return spike_trains
+    # return spike_trains
+
+
+def __munge(zil, sound):
+    cfCount = len(zil)
+    timeLen = len(zil[0]['anfout']['hsr'])
+    anfhs = np.zeros((timeLen, cfCount))
+    anfms = np.zeros_like(anfhs)
+    anfls = np.zeros_like(anfhs)
+
+    retval = PeripheryOutput()
+    retval.conf = zil[0]['conf']
+    for i in range(cfCount):
+        anfhs[:, i] = np.flipud(zil[i]['anfout']['hsr'])
+        anfms[:, i] = np.flipud(zil[i]['anfout']['msr'])
+        anfls[:, i] = np.flipud(zil[i]['anfout']['lsr'])
+    retval.output = {
+        p.CenterFrequency              : np.array(list(reversed([zil[i]['cf'] for i in range(cfCount)]))),
+        p.AuditoryNerveFiberHighSpont  : anfhs,
+        p.AuditoryNerveFiberMediumSpont: anfms,
+        p.AuditoryNerveFiberLowSpont   : anfls,
+        p.StimulusLevel                : zil[0]['level'],
+        p.Stimulus                     : sound,
+    }
+    retval.outputFolder = retval.conf.dataFolder
+    retval.stimulusLevel = zil[0]['level']
+    return retval
 
 
 def _run_channel(args):
@@ -161,6 +191,8 @@ def _run_channel(args):
     cihc = args['cihc']
     powerlaw = args['powerlaw']
     seed = args['seed']
+    conf = args['conf']
+    level = args['level']
     anf_num = args['anf_num']
     species = args['species']
     ffGn = args['ffGn']
@@ -201,5 +233,7 @@ def _run_channel(args):
     return {
         'cf'    : args['cf'],
         'fs'    : args['fs'],
-        'anfout': synout
+        'anfout': synout,
+        'conf'  : conf,
+        'level' : level,
     }

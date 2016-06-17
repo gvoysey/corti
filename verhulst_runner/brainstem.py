@@ -30,7 +30,7 @@ class AuditoryNerveResponse:
     TotalFiberPerIHC = 19  # to match the verhulst model scaling.
     M1 = 0.15e-6 / 2.7676e+07  # last value is uncompensated at 100 dB
 
-    def __fromVerhulst(self, an: PeripheryOutput):
+    def __init__(self, an):
         self.Fs = an.conf.Fs
         self.cf = an.output[p.CenterFrequency]
         self.anfh = an.output[p.AuditoryNerveFiberHighSpont]
@@ -41,36 +41,6 @@ class AuditoryNerveResponse:
         self.medSR = None
         self.highSR = None
         self.ANR = None
-
-    def __fromZilany(self, zil: {}):
-        self.lowSR = None
-        self.medSR = None
-        self.highSR = None
-        self.ANR = None
-
-        # zil is an _ugly_ list of lists of dicts of lists.   Sigh.
-        self.Fs = zil[0]['fs']
-        self.cfCount = len(zil)
-        self.timeLen = len(zil[0]['anfout']['hsr'])
-
-        self.cf = np.array(list(reversed([zil[i]['cf'] for i in range(self.cfCount)])))
-
-        anfhs = np.zeros((self.timeLen, self.cfCount))
-        anfms = np.zeros_like(anfhs)
-        anfls = np.zeros_like(anfhs)
-        for i in range(self.cfCount):
-            anfhs[:, i] = np.flipud(zil[i]['anfout']['hsr'])
-            anfms[:, i] = np.flipud(zil[i]['anfout']['msr'])
-            anfls[:, i] = np.flipud(zil[i]['anfout']['lsr'])
-        self.anfh = anfhs
-        self.anfm = anfms
-        self.anfl = anfls
-
-    def __init__(self, an):
-        if type(an) is PeripheryOutput:
-            self.__fromVerhulst(an)
-        else:
-            self.__fromZilany(an)
 
     def unweighted_an_response(self, ls_normal: float = 3, ms_normal: float = 3, hs_normal: float = 13,
                                degradation: () = None) -> np.ndarray:
@@ -174,7 +144,7 @@ class CentralAuditoryResponse:
         self.anfOut = an
         self.Fs = an.conf.Fs
         self.cf = an.output[p.CenterFrequency]
-        dur = an.conf.stimulus.shape[1]
+        dur = anr.shape[0]
         self.time = np.linspace(0, dur / self.Fs, num=dur)
         self.cf = self.anfOut.output[p.CenterFrequency]
         self.cutoffCf = [index for index, value in enumerate(self.cf) if value >= self.LowFrequencyCutoff][-1]
