@@ -40,6 +40,7 @@ def run_zilany2014(
         seed,
         conf,
         level,
+        output,
         cohc=1,
         cihc=1,
         powerlaw='approximate',
@@ -146,7 +147,7 @@ def run_zilany2014(
 
     np.fft.fftpack._fft_cache = {}
 
-    return __munge(nested, sound)
+    return __munge(nested, sound, output)
 
     # short-circuiting this entirely --gv
     ### Unpack the results
@@ -157,7 +158,7 @@ def run_zilany2014(
     # return spike_trains
 
 
-def __munge(zil, sound):
+def __munge(zil, sound, output):
     cfCount = len(zil)
     timeLen = len(zil[0]['anfout']['hsr'])
     anfhs = np.zeros((timeLen, cfCount))
@@ -178,7 +179,7 @@ def __munge(zil, sound):
         p.StimulusLevel                : zil[0]['level'],
         p.Stimulus                     : sound,
     }
-    retval.outputFolder = retval.conf.dataFolder
+    retval.outputFolder = output
     retval.stimulusLevel = zil[0]['level']
     return retval
 

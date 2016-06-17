@@ -9,11 +9,13 @@ from verhulst_model_core.cochlear_model_old import *
 
 from verhulst_runner.base import runtime_consts, periph_consts as p
 from verhulst_runner.periphery_configuration import PeripheryConfiguration, PeripheryOutput
+from verhulst_runner.zilany2014 import run_zilany2014
 
 
 class Periphery:
     """ A front-end for running the verhulst periphery model
     """
+
     def __init__(self, conf: PeripheryConfiguration):
         self.conf = conf
         self.probes = self.conf.probeString
@@ -35,20 +37,37 @@ class Periphery:
         self.cochlear_list = [[CochleaModel(), self.stimulus[i], self.irr_on[i], i, (0, i + 1)] for i in
                               range(len(self.stimulus))]
 
-    def run(self) -> [PeripheryOutput]:
+    def run(self, modelType: str) -> [PeripheryOutput]:
         """Simulate sound propagation up to the auditory nerve for many stimulus levels
         :return: A list of output data, one for each stimulus level
         """
         s1 = datetime.now()
         # results = Parallel(n_jobs=-1)(delayed(self.solve_one_cochlea)(xx) for xx in self.cochlear_list)
         results = []
-        for i in self.cochlear_list:
-            results.append(self.solve_one_cochlea(i))
+        if modelType.lower() == "verhulst":
+            for i, v in enumerate(self.cochlear_list):
+                results.append(self.solve_one_cochlea(v))
+                self.save_model_results(i, results[i].output)
+        elif modelType.lower() == "zilany":
+            for i, v in enumerate(self.conf.stimulus):
+                results.append(run_zilany2014(sound=v,
+                                              fs=self.conf.Fs,
+                                              anf_num=(1, 1, 1),
+                                              species="human",
+                                              seed=0,
+                                              conf=self.conf,
+                                              output=self.output_folder,
+                                              level=self.conf.stimulusLevels[i],
+                                              cf=(125, 20e3, 1e3)))
+                self.save_model_results(i, results[i].output)
+
+        else:
+            raise NotImplementedError("Peripheral model '{0}' was not recognized".format(modelType))
 
         self.save_model_configuration()
         print("\ncochlear simulation of {} stimulus levels finished in {:0.3f}s".format(len(self.stimulus),
                                                                                         timedelta.total_seconds(
-            datetime.now() - s1)))
+                                                                                                datetime.now() - s1)))
         return results
 
     def solve_one_cochlea(self, model: []) -> PeripheryOutput:
@@ -77,22 +96,20 @@ class Periphery:
         # save intermediate results out to the output container (and possibly to disk)
         out = PeripheryOutput()
         out.output = {
-            p.BMVelocity: coch.Vsolution,
-            p.BMDisplacement: coch.Ysolution,
-            p.OtoacousticEmission: coch.oto_emission,
-            p.CenterFrequency: coch.cf,
-            p.InnerHairCell: rp,
-            p.AuditoryNerveFiberLowSpont: anfL,
+            p.BMVelocity                   : coch.Vsolution,
+            p.BMDisplacement               : coch.Ysolution,
+            p.OtoacousticEmission          : coch.oto_emission,
+            p.CenterFrequency              : coch.cf,
+            p.InnerHairCell                : rp,
+            p.AuditoryNerveFiberLowSpont   : anfL,
             p.AuditoryNerveFiberMediumSpont: anfM,
-            p.AuditoryNerveFiberHighSpont: anfH,
-            p.Stimulus: stimulus,
-            p.StimulusLevel: self.conf.stimulusLevels[ii]
+            p.AuditoryNerveFiberHighSpont  : anfH,
+            p.Stimulus                     : stimulus,
+            p.StimulusLevel                : self.conf.stimulusLevels[ii]
         }
         out.conf = self.conf
         out.stimulusLevel = self.conf.stimulusLevels[ii]
         out.outputFolder = self.output_folder
-
-        self.save_model_results(ii, out.output)
 
         return out
 
@@ -101,7 +118,7 @@ class Periphery:
         """
         if not self.storeFlag:
             return
-        tm = lambda x: (x, periph[x])
+        tm = lambda x: (x, periph[x] if x in periph else None)
         # saveMap makes a dict of tuples. the key is the storeFlag character,
         # [0] is the key that will be used in the npz file,
         # [1] is the value saved to that key.
@@ -120,7 +137,7 @@ class Periphery:
         }
         # {k:v for k,v in bar.items() if k in foo}
         # walk through the map and save the stuff we said we should.
-        tosave = {key: value for key, value in saveMap.items() if key in self.storeFlag}
+        tosave = {key: value for key, value in saveMap.items() if key in self.storeFlag and value[1] is not None}
         if not tosave:
             return
         outfile = runtime_consts.PeripheryOutputFilePrefix + str(self.conf.stimulusLevels[ii]) + "dB"

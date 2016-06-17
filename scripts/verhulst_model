@@ -5,13 +5,12 @@ Verhulst Model.
 Usage:
     verhulst_model -h | --help
     verhulst_model --version
-    verhulst_model [--out <outpath>] ( --verhulst | --zilany ) [-c | --clean]  [-v | --verbose] [--pSave <peripheryFlag>] [--bSave] [--noBrainstem] [(--stimulusFile <stimulusPath> | (--wavFile <wavPath> --level <spl>))] [--no-cf-weighting]
+    verhulst_model [--out <outpath>] --modelType <model> [-c | --clean]  [-v | --verbose] [--pSave <peripheryFlag>] [--bSave] [--noBrainstem] [(--stimulusFile <stimulusPath> | (--wavFile <wavPath> --level <spl>))] [--no-cf-weighting]
 
 Options:
     -h --help                       Show this screen and exit.
     --version                       Display the version and exit.
-    --zilany                        Use the humanized zilany periphery
-    --verhulst                      Use the verhulst periphery
+    --modelType=<model>             Use either the 'verhulst' or 'zilany' peripheral model.
     --out=<outpath>                 Specify the output location for saved data. [default: ~/verhulst-output]
     --pSave=<peripheryFlag>         Which components of the peripheral response to save.  [default: cavihlmesd]
     --bSave                         Brainstem output will be saved if set.
@@ -39,7 +38,6 @@ from verhulst_runner.analysis.plots import save_summary_pdf
 from verhulst_runner.base import runtime_consts
 from verhulst_runner.brainstem import simulate_brainstem, AuditoryNerveResponse
 from verhulst_runner.periphery_configuration import PeripheryConfiguration
-from verhulst_runner.zilany2014 import run_zilany2014
 
 # By default, log INFO and up.
 basicConfig(format='%(levelname)s %(asctime)s- %(message)s', datefmt='%d %b %H:%M:%S', level=INFO)
@@ -81,21 +79,10 @@ def main():
     info("output directory set to {0}".format(__set_output_dir(args["--out"])))
 
     conf = PeripheryConfiguration(__set_output_dir(args["--out"]), args["--pSave"], stimuli_dict)
-    if args["--verhulst"]:
+    print("Simulating periphery ({0}) ...".format(args["--modelType"]))
 
-        print("Simulating periphery (Verhulst) ...")
-        peripheryResults = Periphery(conf).run()
+    peripheryResults = Periphery(conf).run(args['--modelType'])
 
-    else:
-        print("Simulating periphery (Zilany) ...")
-        peripheryResults = [run_zilany2014(sound=x,
-                                           fs=conf.Fs,
-                                           anf_num=(1, 1, 1),
-                                           species="human",
-                                           seed=0,
-                                           conf=conf,
-                                           level=conf.stimulusLevels[i],
-                                           cf=(125, 20e3, 1e3)) for i, x in enumerate(conf.stimulus)]
 
     print("Simulating auditory nerve response...")
     degradation = None
