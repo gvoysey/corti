@@ -1,11 +1,11 @@
 import logging
-import os
 from enum import Enum
-from os import path
 
 import numpy as np
 import numpy.matlib
+import os
 import progressbar
+from os import path
 
 from verhulst_runner.base import runtime_consts, brain_consts as b, periph_consts as p
 from .periphery_configuration import PeripheryOutput
@@ -30,7 +30,7 @@ class AuditoryNerveResponse:
     TotalFiberPerIHC = 19  # to match the verhulst model scaling.
     M1 = 0.15e-6 / 2.7676e+07  # last value is uncompensated at 100 dB
 
-    def __init__(self, an):
+    def __init__(self, an: PeripheryOutput):
         self.Fs = an.conf.Fs
         self.cf = an.output[p.CenterFrequency]
         self.anfh = an.output[p.AuditoryNerveFiberHighSpont]
