@@ -23,14 +23,14 @@ Options:
     -v --verbose                    Display detailed debug log output to STDOUT.
 """
 
-import os
-import shutil
 import sys
 from datetime import datetime
 from logging import info, basicConfig, getLogger, ERROR, INFO
-from os import path, system, name
 
+import os
+import shutil
 from docopt import docopt
+from os import path, system, name
 
 from verhulst_runner import Periphery, Stimulus
 from verhulst_runner._version import __version__
@@ -83,18 +83,18 @@ def main():
     print("Simulating periphery ({0}) ...".format(args["--modelType"]))
 
     peripheryResults = Periphery(conf).run()
-
-    print("Simulating auditory nerve response ...")
-    degradation = None
-    if args["--no-cf-weighting"]:
-        auditoryNerveResponses = [AuditoryNerveResponse(p).unweighted_an_response(degradation=degradation) for p in
-                                  peripheryResults]
-    else:
-        auditoryNerveResponses = [AuditoryNerveResponse(p).cf_weighted_an_response(degradation=degradation) for p in
-                                  peripheryResults]
-
-    brainResults = None
+    auditoryNerveResponses = []
+    brainResults = []
     if not args["--noBrainstem"]:
+        print("Simulating auditory nerve response ...")
+        degradation = None
+        if args["--no-cf-weighting"]:
+            auditoryNerveResponses = [AuditoryNerveResponse(p).unweighted_an_response(degradation=degradation) for p in
+                                      peripheryResults]
+        else:
+            auditoryNerveResponses = [AuditoryNerveResponse(p).cf_weighted_an_response(degradation=degradation) for p in
+                                      peripheryResults]
+
         print("Simulating brainstem response ...")
         brainResults = simulate_brainstem([(periphs, anrs, args["--bSave"])
                                            for periphs, anrs in zip(peripheryResults, auditoryNerveResponses)])

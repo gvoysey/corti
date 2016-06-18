@@ -33,7 +33,7 @@ class PeripheryConfiguration:
             self.normalizedRMS = np.zeros(len(self.stimulusLevels))
             self.irregularities = [1] * len(self.stimulusLevels)
             # these are more general
-            self.probeString = ProbeType.all  # sometimes called "Fc".
+            self.probeString = ProbeType.all.name  # sometimes called "Fc".
             self.random_seed = 1
             self.irrPct = 0.05
             self.nonlinearType = "vel"  # todo this is defined in two places

@@ -1,8 +1,8 @@
 import logging
 from datetime import datetime, timedelta
-from os import path
 
 import yaml
+from os import path
 from verhulst_model_core.ANF_Sarah import *
 from verhulst_model_core.Sarah_ihc import *
 from verhulst_model_core.cochlear_model_old import *
@@ -18,6 +18,16 @@ class Periphery:
 
     def __init__(self, conf: PeripheryConfiguration):
         self.conf = conf
+
+
+        self.storeFlag = self.conf.storeFlag
+        self.stimulus = self.conf.stimulus
+        self.Fs = self.conf.Fs
+        self.output_folder = path.join(self.conf.dataFolder,
+                                       datetime.now().strftime(runtime_consts.ResultDirectoryNameFormat))
+        if not path.isdir(self.output_folder):
+            os.makedirs(self.output_folder)
+
         if self.conf.modelType == PeripheryType.verhulst:
             self.probes = self.conf.probeString
             self.irregularities = self.conf.irregularities
@@ -29,14 +39,6 @@ class Periphery:
             self.cochlear_list = [[CochleaModel(), self.stimulus[i], self.irr_on[i], i, (0, i + 1)] for i in
                                   range(len(self.stimulus))]
             self.sectionsNo = self.conf.NumberOfSections
-
-        self.storeFlag = self.conf.storeFlag
-        self.stimulus = self.conf.stimulus
-        self.Fs = self.conf.Fs
-        self.output_folder = path.join(self.conf.dataFolder,
-                                       datetime.now().strftime(runtime_consts.ResultDirectoryNameFormat))
-        if not path.isdir(self.output_folder):
-            os.makedirs(self.output_folder)
 
     def run(self) -> [PeripheryOutput]:
         """Simulate sound propagation up to the auditory nerve for many stimulus levels
