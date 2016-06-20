@@ -166,9 +166,9 @@ def __munge(zil, sound, output):
     retval = PeripheryOutput()
     retval.conf = zil[0]['conf']
     for i in range(cfCount):
-        anfhs[:, i] = np.flipud(zil[i]['anfout']['hsr'])
-        anfms[:, i] = np.flipud(zil[i]['anfout']['msr'])
-        anfls[:, i] = np.flipud(zil[i]['anfout']['lsr'])
+        anfhs[:, i] = zil[i]['anfout']['hsr']
+        anfms[:, i] = zil[i]['anfout']['msr']
+        anfls[:, i] = zil[i]['anfout']['lsr']
     retval.output = {
         p.CenterFrequency              : np.array(list(reversed([zil[i]['cf'] for i in range(cfCount)]))),
         p.AuditoryNerveFiberHighSpont  : anfhs,
