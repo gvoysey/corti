@@ -1,9 +1,9 @@
 import math
 from logging import error
+from os import path
 
 import numpy as np
 import yaml
-from os import path
 from scipy.io import wavfile
 
 from verhulst_runner.base import stimulusTemplatePath, stim_consts as sc
@@ -90,7 +90,10 @@ class Stimulus:
             stimulus_config[sc.Stimulus] = stimuli[stim_type]
             return stimulus_config
         else:
-            error("Cannot generate stimulus, wrong parameters given.")
+            try:
+                return self.load_stimulus(stim_type, stimulus_config[sc.Levels])
+            except:
+                error("Cannot generate stimulus, wrong parameters given.")
 
     def load_stimulus(self, wav_path: str, level: [float]) -> {}:
         """ Loads and returns the specified wav file.
