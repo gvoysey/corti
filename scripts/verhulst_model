@@ -26,15 +26,16 @@ Options:
     -c --clean                      Previous runs will be deleted to save disk space.
     --neuropathy=<degradation>      Specify the damage to the auditory periphery to be applied.
                                     Use 'mild', 'moderate', or 'severe' to apply uniform 10, 25, or 50% damage to each
-                                    fiber type, or specify the path to a YAML file containing a list of tuples to
-                                    specify percent degradation on a per-CF basis.
+                                    fiber type, or specify 'nonlinear-high' for HF low-SR loss.
     -v --verbose                    Display detailed debug log output to STDOUT.
 """
 
 import sys
 from datetime import datetime
 from logging import info, basicConfig, getLogger, ERROR, INFO
+from typing import Union
 
+import numpy as np
 import os
 import shutil
 from docopt import docopt
@@ -43,7 +44,7 @@ from os import path, system, name
 from verhulst_runner import Periphery, Stimulus
 from verhulst_runner._version import __version__
 from verhulst_runner.analysis.plots import save_summary_pdf
-from verhulst_runner.base import runtime_consts, PeripheryType
+from verhulst_runner.base import runtime_consts, PeripheryType, periph_consts
 from verhulst_runner.brainstem import simulate_brainstem, AuditoryNerveResponse
 from verhulst_runner.periphery_configuration import PeripheryConfiguration
 
@@ -57,6 +58,22 @@ def _sanitize_level(levels: str):
     if levels is None:
         return
     return [float(f) for f in levels.split(",") if levels and f]
+
+
+def nonlinear_high(cf: np.ndarray):
+    pass
+
+
+def parse_degradation(d: str, cf: np.ndarray) -> Union[tuple, list]:
+    return {
+        "mild"          : (0.9, 0.9, 0.9),
+        "moderate"      : (0.75, 0.75, 0.75),
+        "severe"        : (0.50, 0.50, 0.50),
+        "lf-mild"       : (1, 0.9, 0.9),
+        "lf-moderate"   : (1, 0.75, 0.75),
+        "lf-severe"     : (1, 0.5, 0.5),
+        "nonlinear-high": nonlinear_high(cf)
+    }.get(d.casefold(), None)
 
 
 def main():
@@ -88,7 +105,8 @@ def main():
     # get model type
     periphType = PeripheryType[args["--modelType"].casefold()]
     # configure the periphery to run
-    conf = PeripheryConfiguration(__set_output_dir(args["--out"]), args["--pSave"], stimuli_dict, periphType)
+    conf = PeripheryConfiguration(__set_output_dir(args["--out"]), args["--pSave"], stimuli_dict, periphType,
+                                  args["--neuropathy"])
     print("Simulating periphery ({0}) ...".format(args["--modelType"]))
     # run all the levels
     peripheryResults = Periphery(conf).run()
@@ -97,7 +115,8 @@ def main():
     brainResults = []
     if not args["--noBrainstem"]:
         print("Simulating auditory nerve response ...")
-        degradation = None
+        degradation = parse_degradation(args["--neuropathy"],
+                                        peripheryResults[0].output[periph_consts.CenterFrequency])
         if args["--no-cf-weighting"]:
             auditoryNerveResponses = [AuditoryNerveResponse(p).unweighted_an_response(degradation=degradation) for p in
                                       peripheryResults]

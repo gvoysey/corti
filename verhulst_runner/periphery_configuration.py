@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Union
 
 import numpy as np
 
@@ -21,7 +22,8 @@ class PeripheryConfiguration:
     Implementation = 0  # no idea what this does (it's not used as of commit 43bf3be01)
     NumberOfSections = 1000  # possibly also "number of frequency bands", if there's a 1:1 between section and cf.
 
-    def __init__(self, dataFolder: str, storeFlag: str, stimuli: {}, modelType: PeripheryType):
+    def __init__(self, dataFolder: str, storeFlag: str, stimuli: dict, modelType: PeripheryType,
+                 degradation: Union[tuple, list]):
         # model parameters from RUN_BMAN
         # these are used in making the stimulus waveform
         self.modelType = modelType
@@ -42,8 +44,7 @@ class PeripheryConfiguration:
         # operational parameters
         self.dataFolder = dataFolder
         self.storeFlag = storeFlag
-        # these come from periphery.m
-
+        self.degradation = degradation
         self.run_timestamp = datetime.now()
 
 
