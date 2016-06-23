@@ -6,7 +6,7 @@ Usage:
     verhulst_model -h | --help
     verhulst_model --version
     verhulst_model [--out <outpath>] [--modelType <model>] [-c | --clean]  [-v | --verbose] [--pSave <peripheryFlag>]
-                   [--bSave] [--noBrainstem] [(--stimulusFile <stimulusPath> | (--wavFile <wavPath> --level <spl>))]
+                   [--noBrainstem] [--stimulusFile <stimulusPath> | (--wavFile <wavPath> --level <spl>)]
                    [--no-cf-weighting] [--neuropathy <degradation>]
 
 Options:
@@ -15,7 +15,6 @@ Options:
     --modelType=<model>             Use either the 'verhulst' or 'zilany' peripheral model. [default: verhulst]
     --out=<outpath>                 Specify the output location for saved data. [default: ~/verhulst-output]
     --pSave=<peripheryFlag>         Which components of the peripheral response to save.  [default: cavihlmesd]
-    --bSave                         Brainstem output will be saved if set.
     --noBrainstem                   Simulate the periphery only.
     --no-cf-weighting               Don't sigmoidally weight how many low, medium, and high SR fibers innervate each CF.
     --stimulusFile=<stimulusPath>   Provide one or more stimuli templates as YAML (see stimulus_generator --help ).
@@ -30,16 +29,16 @@ Options:
     -v --verbose                    Display detailed debug log output to STDOUT.
 """
 
+import os
+import shutil
 import sys
 from datetime import datetime
 from logging import info, basicConfig, getLogger, ERROR, INFO
+from os import path, system, name
 from typing import Union
 
 import numpy as np
-import os
-import shutil
 from docopt import docopt
-from os import path, system, name
 
 from verhulst_runner import Periphery, Stimulus
 from verhulst_runner._version import __version__
@@ -65,15 +64,18 @@ def nonlinear_high(cf: np.ndarray):
 
 
 def parse_degradation(d: str, cf: np.ndarray) -> Union[tuple, list]:
-    return {
-        "mild"          : (0.9, 0.9, 0.9),
-        "moderate"      : (0.75, 0.75, 0.75),
-        "severe"        : (0.50, 0.50, 0.50),
-        "lf-mild"       : (1, 0.9, 0.9),
-        "lf-moderate"   : (1, 0.75, 0.75),
-        "lf-severe"     : (1, 0.5, 0.5),
-        "nonlinear-high": nonlinear_high(cf)
-    }.get(d.casefold(), None)
+    if d is None:
+        return
+    else:
+        return {
+            "mild": (0.9, 0.9, 0.9),
+            "moderate": (0.75, 0.75, 0.75),
+            "severe": (0.50, 0.50, 0.50),
+            "lf-mild": (1, 0.9, 0.9),
+            "lf-moderate": (1, 0.75, 0.75),
+            "lf-severe": (1, 0.5, 0.5),
+            "nonlinear-high": nonlinear_high(cf)
+        }.get(d.casefold(), None)
 
 
 def main():
@@ -125,7 +127,7 @@ def main():
                                       peripheryResults]
 
         print("Simulating brainstem response ...")
-        brainResults = simulate_brainstem([(periphs, anrs, args["--bSave"])
+        brainResults = simulate_brainstem([(periphs, anrs)
                                            for periphs, anrs in zip(peripheryResults, auditoryNerveResponses)])
 
     print("Generating summary figures ...")

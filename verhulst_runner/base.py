@@ -6,6 +6,7 @@ from os import path
 
 ProbeType = Enum("ProbeType", "all, half")
 PeripheryType = Enum("PeripheryType", "verhulst, zilany")
+BrainstemType = Enum('BrainstemType', "NelsonCarney04, Carney2015")
 
 # This is the tuple that contains operational constants
 RuntimeConstants = namedtuple("Const", " ModelDirectoryLabelName \

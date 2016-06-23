@@ -1,17 +1,16 @@
 import logging
-from enum import Enum
+import os
+from os import path
 
 import numpy as np
 import numpy.matlib
-import os
 import progressbar
-from os import path
 
-from verhulst_runner.base import runtime_consts, brain_consts as b, periph_consts as p
+from verhulst_runner.base import runtime_consts, brain_consts as b, periph_consts as p, PeripheryType, BrainstemType
 from .periphery_configuration import PeripheryOutput
 
 
-def simulate_brainstem(anResults: [(PeripheryOutput, np.ndarray, bool)]) -> [{}]:
+def simulate_brainstem(anResults: [(PeripheryOutput, np.ndarray)]) -> [{}]:
     # return Parallel(n_jobs=-1, max_nbytes=100e6)(delayed(_solve_one)(x) for x in anResults)
     retval = []
     for i in anResults:
@@ -19,8 +18,8 @@ def simulate_brainstem(anResults: [(PeripheryOutput, np.ndarray, bool)]) -> [{}]
     return retval
 
 
-def _solve_one(periphery: (PeripheryOutput, np.ndarray, bool)) -> {}:
-    return CentralAuditoryResponse(periphery[0], periphery[1]).run(periphery[2])
+def _solve_one(periphery: (PeripheryOutput, np.ndarray)) -> {}:
+    return CentralAuditoryResponse(periphery[0], periphery[1]).run()
 
 
 class AuditoryNerveResponse:
@@ -29,8 +28,10 @@ class AuditoryNerveResponse:
 
     TotalFiberPerIHC = 19  # to match the verhulst model scaling.
     M1 = 0.15e-6 / 2.7676e+07  # last value is uncompensated at 100 dB
+    Z1 = 0.15e-6 / 1
 
     def __init__(self, an: PeripheryOutput):
+        self.periph = an
         self.Fs = an.conf.Fs
         self.cf = an.output[p.CenterFrequency]
         self.anfh = an.output[p.AuditoryNerveFiberHighSpont]
@@ -87,7 +88,12 @@ class AuditoryNerveResponse:
         self.lowSR = lsr
         self.medSR = msr
         self.highSR = hsr
-        self.ANR = (lsr + msr + hsr) * self.M1
+        if self.periph.conf.modelType == PeripheryType.verhulst:
+            self.ANR = (lsr + msr + hsr) * self.M1
+        elif self.periph.conf.modelType == PeripheryType.zilany:
+            self.ANR = (lsr + msr + hsr) * self.Z1
+        else:
+            raise TypeError("periphery type {} not found".format(self.periph.conf.modelType.name))
         return self.ANR
 
     def _map_cf_dependent_distribution(self, total_fiber_scaling_factor=1) -> ():
@@ -125,7 +131,7 @@ class AuditoryNerveResponse:
                 high * degradation[2])
 
 
-ModelType = Enum('ModelType', "NelsonCarney04, Carney2015")
+
 
 
 class CentralAuditoryResponse:
@@ -149,7 +155,7 @@ class CentralAuditoryResponse:
         self.cf = self.anfOut.output[p.CenterFrequency]
         self.cutoffCf = [index for index, value in enumerate(self.cf) if value >= self.LowFrequencyCutoff][-1]
 
-    def run(self, saveFlag: bool, modelType: ModelType = ModelType.NelsonCarney04) -> {}:
+    def run(self, modelType: BrainstemType = BrainstemType.NelsonCarney04) -> {}:
         """
         Simulate the brainstem and midbrain according to the single IC component system given in
         Nelson, P. C., and Carney, L. H. (2004). “A phenomenological model of peripheral and central
@@ -158,8 +164,7 @@ class CentralAuditoryResponse:
         """
 
         output = self._simulate(modelType)
-        if saveFlag:
-            self._save(output)
+        self._save(output)
         return output
 
     def _save(self, output: {}) -> None:
@@ -241,12 +246,12 @@ class CentralAuditoryResponse:
         Tin = 2e-3
         return self._ic(rcn, Aic, Sic, Dic, Tin, Tex)
 
-    def __simulate_IC(self, modelType: ModelType, rcn: np.ndarray, weights=(.5, .25, .25)) -> np.ndarray:
+    def __simulate_IC(self, modelType: BrainstemType, rcn: np.ndarray, weights=(.5, .25, .25)) -> np.ndarray:
         M5 = (2 * 0.15e-6) / 0.0033  # idem with scaling W1 & 3
 
-        if modelType == ModelType.NelsonCarney04:
+        if modelType == BrainstemType.NelsonCarney04:
             retval = self._ic_bandpass(rcn)
-        elif modelType == ModelType.Carney2015:
+        elif modelType == BrainstemType.Carney2015:
             retval = (self._ic_bandpass(weights[0] * rcn) +
                       self._ic_band_reject(weights[1] * rcn) +
                       self._ic_lowpass(weights[2] * rcn))
@@ -255,7 +260,7 @@ class CentralAuditoryResponse:
 
         return retval * M5
 
-    def _simulate(self, modelType: ModelType = ModelType.NelsonCarney04, weights: [(float, float, float)] = None) -> {}:
+    def _simulate(self, modelType: BrainstemType = BrainstemType.NelsonCarney04, weights: [(float, float, float)] = None) -> {}:
         timeLen, cfCount = self.anr.shape
         AN = self.anr
         W1 = np.zeros(timeLen)

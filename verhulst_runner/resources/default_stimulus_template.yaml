@@ -20,8 +20,8 @@
 #  poststim_time: 50e-3,
 #  }
 
-# The default stimulus is a short click at two levels.
- {levels: [60, 80],
+# The default stimulus is a short click at one levels.
+ {levels: [80],
   stimulus_type: click,
   prestim_time: 20e-3,
   stim_time: 80e-6,
