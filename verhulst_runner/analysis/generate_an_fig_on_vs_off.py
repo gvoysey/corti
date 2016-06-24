@@ -16,19 +16,20 @@ Options:
 
 
 # Import modules
-import sys
 import os
-import numpy as np
+import sys
+
 import matplotlib as mpl
+import numpy as np
+
 mpl.use('Agg')
 
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 import seaborn as sns
-from os import sep
-from math import ceil
+import docopt
 
-# something
+
 
 
 def main():
@@ -186,9 +187,8 @@ def main():
     ax_an_sum_on.tick_params(right="off")
     ax_an_sum_off.tick_params(top="off", right="off")
 
-    fig_an_on_vs_off.savefig(os.getcwd() + sep + '2_mdl_plots' + sep +
-                             '1_pilot_simulations_an' + sep + '1_plots' + sep + 'fig_periph_an_on_vs_off_' +
-                             mod + '_' + str(periph_lvl) + 'dB.pdf', bbox_inches='tight', dpi=300)
+    filename = 'fig_periph_an_on_vs_off_' + mod + '_' + str(periph_lvl) + 'dB.pdf'
+    fig_an_on_vs_off.savefig(os.path.join(os.getcwd(), '2_mdl_plots', '1_pilot_simulations_an', '1_plots', filename, bbox_inches='tight', dpi=300))
 
 if __name__ == "__main__":
     sys.exit(main())
