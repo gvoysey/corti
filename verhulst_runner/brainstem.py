@@ -1,10 +1,10 @@
 import logging
-import os
-from os import path
 
 import numpy as np
 import numpy.matlib
+import os
 import progressbar
+from os import path
 
 from verhulst_runner.base import runtime_consts, brain_consts as b, periph_consts as p, PeripheryType, BrainstemType
 from .periphery_configuration import PeripheryOutput
@@ -42,6 +42,9 @@ class AuditoryNerveResponse:
         self.medSR = None
         self.highSR = None
         self.ANR = None
+
+    def save(self):
+        pass
 
     def unweighted_an_response(self, ls_normal: float = 3, ms_normal: float = 3, hs_normal: float = 13,
                                degradation: () = None) -> np.ndarray:
