@@ -1,7 +1,7 @@
 from verhulst_runner.brainstem import *
 
 
-# Call find_zilany inline in the verhulst model code.
+# Call find_zilany inline in the verhulst model code.  ref tag `zilany-scaling-factor`.
 
 def _total_hack(anr: np.ndarray):
     timeLen, cfCount = anr.shape
