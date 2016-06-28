@@ -1,4 +1,4 @@
-from verhulst_runner.brainstem import *
+import numpy as np
 
 
 # Call find_zilany inline in the verhulst model code.  ref tag `zilany-scaling-factor`.
