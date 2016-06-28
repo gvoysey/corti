@@ -83,12 +83,10 @@ def main():
     conf = PeripheryConfiguration(__set_output_dir(args["--out"]), args["--pSave"], stimuli_dict, periphType,
                                   args["--neuropathy"])
     print("Simulating periphery ({0}) ...".format(args["--modelType"]))
-    # run all the levels
+    # run all the levels through the periphery model
     peripheryResults = Periphery(conf).run()
-    # run the brainstem and midbrain models, if requested
-    auditoryNerveResponses = []
-    brainResults = []
 
+    # Create the auditory nerve response
     print("Simulating auditory nerve response ...")
     degradation = parse_degradation(args["--neuropathy"])
     if args["--no-cf-weighting"]:
@@ -98,15 +96,20 @@ def main():
         auditoryNerveResponses = [AuditoryNerveResponse(p).cf_weighted_an_response(degradation=degradation) for p in
                                   peripheryResults]
 
+    # run the brainstem and midbrain models, if requested
     if not args["--noBrainstem"]:
         print("Simulating brainstem response ...")
         brainResults = simulate_brainstem([(periphs, anrs)
                                            for periphs, anrs in zip(peripheryResults, auditoryNerveResponses)])
+    else:
+        brainResults = None
 
+    # Generate summary plots
     print("Generating summary figures ...")
     save_summary_pdf(peripheryResults, auditoryNerveResponses, brainResults, conf, "summary-plots.pdf",
                      peripheryResults[0].outputFolder)
 
+    # Delete old runs, if requested.
     if args["--clean"]:
         print("Cleaning up previous model runs ... ")
         __clean(conf.dataFolder, peripheryResults[0].outputFolder)
