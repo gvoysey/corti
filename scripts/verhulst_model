@@ -42,8 +42,9 @@ from os import path, system, name
 from verhulst_runner import Periphery, Stimulus
 from verhulst_runner._version import __version__
 from verhulst_runner.analysis.plots import save_summary_pdf
+from verhulst_runner.auditory_nerve_response import AuditoryNerveResponse
 from verhulst_runner.base import runtime_consts, PeripheryType
-from verhulst_runner.brainstem import simulate_brainstem, AuditoryNerveResponse
+from verhulst_runner.brainstem import simulate_brainstem
 from verhulst_runner.periphery_configuration import PeripheryConfiguration
 
 # By default, log INFO and up.
@@ -87,16 +88,18 @@ def main():
     # run the brainstem and midbrain models, if requested
     auditoryNerveResponses = []
     brainResults = []
-    if not args["--noBrainstem"]:
-        print("Simulating auditory nerve response ...")
-        degradation = parse_degradation(args["--neuropathy"])
-        if args["--no-cf-weighting"]:
-            auditoryNerveResponses = [AuditoryNerveResponse(p).unweighted_an_response(degradation=degradation) for p in
-                                      peripheryResults]
-        else:
-            auditoryNerveResponses = [AuditoryNerveResponse(p).cf_weighted_an_response(degradation=degradation) for p in
-                                      peripheryResults]
 
+    print("Simulating auditory nerve response ...")
+    degradation = parse_degradation(args["--neuropathy"])
+    if args["--no-cf-weighting"]:
+        auditoryNerveResponses = [AuditoryNerveResponse(p).unweighted_an_response(degradation=degradation) for p in
+                                  peripheryResults]
+    else:
+        auditoryNerveResponses = [AuditoryNerveResponse(p).cf_weighted_an_response(degradation=degradation) for p in
+                                  peripheryResults]
+
+
+    if not args["--noBrainstem"]:
         print("Simulating brainstem response ...")
         brainResults = simulate_brainstem([(periphs, anrs)
                                            for periphs, anrs in zip(peripheryResults, auditoryNerveResponses)])
