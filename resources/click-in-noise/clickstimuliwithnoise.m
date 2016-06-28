@@ -44,8 +44,8 @@ pinclick = sqrt(2)*20e-6*10^(stimdb/20)*stimulus; % unramped stimulus
 channels = numel(stimdb);
 
 stim=pinclick+pinnoise;
-
-
+filename = ['clicktrain-with-noise-',num2str(noiselevel),'dbSNR-',num2str(rt),'reprate.wav'];
+wavwrite(stim, Fs, 32, filename);
 %parameters for model 
 subject=1;
 irregularities=ones(1,channels);

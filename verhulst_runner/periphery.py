@@ -1,8 +1,8 @@
 import logging
 from datetime import datetime, timedelta
+from os import path
 
 import yaml
-from os import path
 from verhulst_model_core.ANF_Sarah import *
 from verhulst_model_core.Sarah_ihc import *
 from verhulst_model_core.cochlear_model_old import *
@@ -18,8 +18,6 @@ class Periphery:
 
     def __init__(self, conf: PeripheryConfiguration):
         self.conf = conf
-
-
         self.storeFlag = self.conf.storeFlag
         self.stimulus = self.conf.stimulus
         self.Fs = self.conf.Fs

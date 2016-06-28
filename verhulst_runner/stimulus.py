@@ -15,7 +15,7 @@ class Stimulus:
     def __init__(self, Fs=100e3):
         self.FS = Fs
 
-    def seconds_to_samples(self, time: str):
+    def seconds_to_samples(self, time: str) -> int:
         time = float(time)
         return int(round(self.FS * time))
 
@@ -40,15 +40,13 @@ class Stimulus:
 
     def _rms(self, sig_in: np.ndarray) -> np.ndarray:
         """ Compute the Root-Mean Squared (RMS) value of the long term input stimulus signal"""
-        sig_out = math.sqrt(np.mean(sig_in * np.conj(sig_in)))
-        return sig_out
+        return math.sqrt(np.mean(sig_in * np.conj(sig_in)))
 
     def _spl2a(self, spl_value: float) -> float:
         """Convert from dB SPL to RMS pascal"""
-        P_rms = self.P0 * 10 ** (spl_value / 20)
-        return P_rms
+        return self.P0 * 10 ** (spl_value / 20)
 
-    def make_click(self, config: {}) -> np.ndarray:
+    def make_click(self, config: dict) -> np.ndarray:
         """ Generate a click stimulus of a given prestimulus delay, stimulus duration, poststimulus delay, and levels.
         """
         pre = self.seconds_to_samples(config[sc.PrestimTime])

@@ -39,6 +39,10 @@ for k = 1:channels
      stim(k,:)=Amp*sqrt(2)*stimulus; 
 end
 
+
+filename = ['clicktrain-',num2str(rt),'reprate.wav'];
+wavwrite(stim, Fs, 32, filename);
+
 normalizeRMS=zeros(1,channels);
 subject=1;
 irregularities=ones(1,channels);
@@ -46,7 +50,7 @@ irregularities=ones(1,channels);
 sheraPo=0.0610;
 probes = 'all';
 
-save (['inputclick_train10Hz_60dB'],'Fs','channels','stim','normalizeRMS','subject','irregularities','probes','sheraPo','indcl','spl');
+%save (['inputclick_train10Hz_60dB'],'Fs','channels','stim','normalizeRMS','subject','irregularities','probes','sheraPo','indcl','spl');
 
             %StimGain=sqrt(2)*(10^((80-Lcal)/20))/(0.95); %Gain value of click
             %stimulus(2,:)=0;

@@ -8,7 +8,7 @@ from verhulst_runner.base import stim_consts as sc, ProbeType, PeripheryType
 
 class PeripheryConfiguration:
     """
-        A PODS holding all the parameters that used to be in input.mat  and fully define what's
+        A PODS holding all the parameters that used to be in input.mat and fully define what's
         needed to run the model.  Default values come from RUN_BMAN.m
         :parameter self.Fs: Model sampling frequency. (default 100 kHz)
         :parameter self.Implementation: unknown, default 0

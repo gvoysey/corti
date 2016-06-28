@@ -6,7 +6,7 @@ from os import path
 
 ProbeType = Enum("ProbeType", "all, half")
 PeripheryType = Enum("PeripheryType", "verhulst, zilany")
-BrainstemType = Enum('BrainstemType', "NelsonCarney04, Carney2015")
+BrainstemType = Enum('BrainstemType', "nelsoncarney04, carney2015")
 
 # This is the tuple that contains operational constants
 RuntimeConstants = namedtuple("Const", " ModelDirectoryLabelName \
@@ -58,14 +58,16 @@ BrainstemConstants = namedtuple("BrainstemConstants", " Wave1_AN \
                                                         Wave5_IC \
                                                         ANPopulation \
                                                         CNPopulation \
-                                                        ICPopulation")
+                                                        ICPopulation \
+                                                        BrainstemModelType")
 
 brain_consts = BrainstemConstants(Wave1_AN="wave1_an",
                                   Wave3_CN="wave3_cn",
                                   Wave5_IC="wave5_ic",
                                   ANPopulation="an_pop_resp",
                                   CNPopulation="cn_pop_resp",
-                                  ICPopulation="ic_pop_resp")
+                                  ICPopulation="ic_pop_resp",
+                                  BrainstemModelType="brainstem-model")
 
 # This is the tuple that contains the naming conventions for Stimulus specification
 StimulusConstants = namedtuple("StimulusConstants", "Click \

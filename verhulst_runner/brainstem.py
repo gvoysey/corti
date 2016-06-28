@@ -1,15 +1,15 @@
 import logging
+import os
+from os import path
 
 import numpy as np
-import os
 import progressbar
-from os import path
 
 from verhulst_runner.base import runtime_consts, brain_consts as b, periph_consts as p, BrainstemType
 from .periphery_configuration import PeripheryOutput
 
 
-def simulate_brainstem(anResults: [(PeripheryOutput, np.ndarray)]) -> [{}]:
+def simulate_brainstem(anResults: [(PeripheryOutput, np.ndarray, str)]) -> [{}]:
     # return Parallel(n_jobs=-1, max_nbytes=100e6)(delayed(_solve_one)(x) for x in anResults)
     retval = []
     for i in anResults:
@@ -17,8 +17,8 @@ def simulate_brainstem(anResults: [(PeripheryOutput, np.ndarray)]) -> [{}]:
     return retval
 
 
-def _solve_one(periphery: (PeripheryOutput, np.ndarray)) -> {}:
-    return CentralAuditoryResponse(periphery[0], periphery[1]).run()
+def _solve_one(periphery: (PeripheryOutput, np.ndarray, str)) -> {}:
+    return CentralAuditoryResponse(periphery[0], periphery[1], periphery[2]).run()
 
 
 class CentralAuditoryResponse:
@@ -32,7 +32,7 @@ class CentralAuditoryResponse:
 
     LowFrequencyCutoff = 175.0  # CFs below this threshold will not be used to estimate the compound action potential
 
-    def __init__(self, an: PeripheryOutput, anr: np.ndarray):
+    def __init__(self, an: PeripheryOutput, anr: np.ndarray, modelType: str):
         self.anr = anr
         self.anfOut = an
         self.Fs = an.conf.Fs
@@ -41,8 +41,9 @@ class CentralAuditoryResponse:
         self.time = np.linspace(0, dur / self.Fs, num=dur)
         self.cf = self.anfOut.output[p.CenterFrequency]
         self.cutoffCf = [index for index, value in enumerate(self.cf) if value >= self.LowFrequencyCutoff][-1]
+        self.brainstemType = BrainstemType[modelType.casefold()]
 
-    def run(self, modelType: BrainstemType = BrainstemType.NelsonCarney04) -> {}:
+    def run(self) -> {}:
         """
         Simulate the brainstem and midbrain according to the single IC component system given in
         Nelson, P. C., and Carney, L. H. (2004). “A phenomenological model of peripheral and central
@@ -50,7 +51,7 @@ class CentralAuditoryResponse:
         :param saveFlag: If true, output will be saved to disk.
         """
 
-        output = self._simulate(modelType)
+        output = self._simulate()
         self._save(output)
         return output
 
@@ -136,9 +137,9 @@ class CentralAuditoryResponse:
     def __simulate_IC(self, modelType: BrainstemType, rcn: np.ndarray, weights=(.5, .25, .25)) -> np.ndarray:
         M5 = (2 * 0.15e-6) / 0.0033  # idem with scaling W1 & 3
 
-        if modelType == BrainstemType.NelsonCarney04:
+        if modelType == BrainstemType.nelsoncarney04:
             retval = self._ic_bandpass(rcn)
-        elif modelType == BrainstemType.Carney2015:
+        elif modelType == BrainstemType.carney2015:
             retval = (self._ic_bandpass(weights[0] * rcn) +
                       self._ic_band_reject(weights[1] * rcn) +
                       self._ic_lowpass(weights[2] * rcn))
@@ -147,7 +148,7 @@ class CentralAuditoryResponse:
 
         return retval * M5
 
-    def _simulate(self, modelType: BrainstemType = BrainstemType.NelsonCarney04, weights: [(float, float, float)] = None) -> {}:
+    def _simulate(self, weights: [(float, float, float)] = None) -> {}:
         timeLen, cfCount = self.anr.shape
         AN = self.anr
         W1 = np.zeros(timeLen)
@@ -162,9 +163,9 @@ class CentralAuditoryResponse:
 
                 Rcn = self._cn(i)
                 if weights is not None:
-                    Ric = self.__simulate_IC(modelType, Rcn, weights)
+                    Ric = self.__simulate_IC(self.brainstemType, Rcn, weights)
                 else:
-                    Ric = self.__simulate_IC(modelType, Rcn)
+                    Ric = self.__simulate_IC(self.brainstemType, Rcn)
 
                 if i <= self.cutoffCf:
                     W1 += AN[:, i]
@@ -176,6 +177,7 @@ class CentralAuditoryResponse:
                 RcnF[i, :] = Rcn[0:timeLen]  # chop off the duplicated convolution side
                 bar.update(i)
         return {
+            b.BrainstemModelType: self.brainstemType.name,
             b.Wave1_AN    : W1,
             b.Wave3_CN    : CN,
             b.Wave5_IC    : IC,

@@ -6,7 +6,7 @@ Usage:
     verhulst_model -h | --help
     verhulst_model --version
     verhulst_model [--out <outpath>] [--modelType <model>] [-c | --clean]  [-v | --verbose] [--pSave <peripheryFlag>]
-                   [--noBrainstem] [--stimulusFile <stimulusPath> | (--wavFile <wavPath> --level <spl>)]
+                   [--noBrainstem | --brainstemType <brainstem>] [--stimulusFile <stimulusPath> | (--wavFile <wavPath> --level <spl>)]
                    [--no-cf-weighting] [--neuropathy <degradation>]
 
 Options:
@@ -16,6 +16,7 @@ Options:
     --out=<outpath>                 Specify the output location for saved data. [default: ~/verhulst-output]
     --pSave=<peripheryFlag>         Which components of the peripheral response to save.  [default: cavihlmesd]
     --noBrainstem                   Simulate the periphery only.
+    --brainstemType=<brainstem>     Which brainstem and midbrain model to use: 'nelsoncarney04' or 'carney2015' [default: nelsoncarney04]
     --no-cf-weighting               Don't sigmoidally weight how many low, medium, and high SR fibers innervate each CF.
     --stimulusFile=<stimulusPath>   Provide one or more stimuli templates as YAML (see stimulus_generator --help ).
                                     If no option is provided, a 60dB click will be used.
@@ -24,20 +25,20 @@ Options:
                                     Separate values with commas.
     -c --clean                      Previous runs will be deleted to save disk space.
     --neuropathy=<degradation>      Specify the damage to the auditory periphery to be applied.
-                                    Use 'mild', 'moderate', or 'severe' to apply uniform 10, 25, or 50% damage to each
-                                    fiber type, or specify 'nonlinear-high' for HF low-SR loss.
+                                    Use 'mild', 'moderate', or 'severe' to apply uniform 10, 25, or 50% damage to all
+                                    fiber types, or specify 'ls-mild', 'ls-moderate', or 'ls-severe' to selectively
+                                    degrade low-SR fibers only.
     -v --verbose                    Display detailed debug log output to STDOUT.
 """
 
+import os
+import shutil
 import sys
 from datetime import datetime
 from logging import info, basicConfig, getLogger, ERROR, INFO
-from typing import Union
-
-import os
-import shutil
-from docopt import docopt
 from os import path, system, name
+
+from docopt import docopt
 
 from verhulst_runner import Periphery, Stimulus
 from verhulst_runner._version import __version__
@@ -88,18 +89,18 @@ def main():
 
     # Create the auditory nerve response
     print("Simulating auditory nerve response ...")
-    degradation = parse_degradation(args["--neuropathy"])
+
     if args["--no-cf-weighting"]:
-        auditoryNerveResponses = [AuditoryNerveResponse(p).unweighted_an_response(degradation=degradation) for p in
+        auditoryNerveResponses = [AuditoryNerveResponse(p, args["--neuropathy"]).unweighted_an_response() for p in
                                   peripheryResults]
     else:
-        auditoryNerveResponses = [AuditoryNerveResponse(p).cf_weighted_an_response(degradation=degradation) for p in
+        auditoryNerveResponses = [AuditoryNerveResponse(p, args["--neuropathy"]).cf_weighted_an_response() for p in
                                   peripheryResults]
 
     # run the brainstem and midbrain models, if requested
     if not args["--noBrainstem"]:
         print("Simulating brainstem response ...")
-        brainResults = simulate_brainstem([(periphs, anrs)
+        brainResults = simulate_brainstem([(periphs, anrs, args["--brainstemType"])
                                            for periphs, anrs in zip(peripheryResults, auditoryNerveResponses)])
     else:
         brainResults = None
@@ -125,25 +126,6 @@ def _sanitize_level(levels: str):
     if levels is None:
         return
     return [float(f) for f in levels.split(",") if levels and f]
-
-
-def parse_degradation(d: str) -> Union[tuple, list]:
-    """
-    Converts valid
-    :param d:
-    :return:
-    """
-    if d is None:
-        return
-    else:
-        return {
-            "mild"       : (0.9, 0.9, 0.9),
-            "moderate"   : (0.75, 0.75, 0.75),
-            "severe"     : (0.50, 0.50, 0.50),
-            "lf-mild"    : (1, 0.9, 0.9),
-            "lf-moderate": (1, 0.75, 0.75),
-            "lf-severe"  : (1, 0.5, 0.5),
-        }.get(d.casefold(), None)
 
 
 def __clean(rootDir: str, current_results: str) -> None:
