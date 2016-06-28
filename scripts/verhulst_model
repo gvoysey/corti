@@ -39,6 +39,7 @@ import shutil
 from docopt import docopt
 from os import path, system, name
 
+from resources.misc import find_v1
 from verhulst_runner import Periphery, Stimulus
 from verhulst_runner._version import __version__
 from verhulst_runner.analysis.plots import save_summary_pdf
@@ -98,7 +99,7 @@ def main():
         auditoryNerveResponses = [AuditoryNerveResponse(p).cf_weighted_an_response(degradation=degradation) for p in
                                   peripheryResults]
 
-
+    find_v1.find_zilany_scaling_factor(auditoryNerveResponses[0], peripheryResults[0])
     if not args["--noBrainstem"]:
         print("Simulating brainstem response ...")
         brainResults = simulate_brainstem([(periphs, anrs)
