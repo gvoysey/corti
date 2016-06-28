@@ -14,7 +14,7 @@ class AuditoryNerveResponse:
 
     TotalFiberPerIHC = 19  # to match the verhulst model scaling.
     M1 = 0.15e-6 / 2.7676e+07  # last value is uncompensated at 100 dB
-    Z1 = 1  # 0.15e-6 / 1
+    Z1 = 2.05400E-15  # determined by running `find_v1.py`
 
     def __init__(self, an: PeripheryOutput):
         self.periph = an

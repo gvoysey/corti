@@ -99,7 +99,7 @@ def main():
         auditoryNerveResponses = [AuditoryNerveResponse(p).cf_weighted_an_response(degradation=degradation) for p in
                                   peripheryResults]
 
-    find_v1.find_zilany_scaling_factor(auditoryNerveResponses[0], peripheryResults[0])
+    find_v1.find_zilany_scaling_factor(auditoryNerveResponses[0])
     if not args["--noBrainstem"]:
         print("Simulating brainstem response ...")
         brainResults = simulate_brainstem([(periphs, anrs)
