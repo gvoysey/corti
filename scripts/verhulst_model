@@ -5,18 +5,19 @@ Verhulst Model.
 Usage:
     verhulst_model -h | --help
     verhulst_model --version
-    verhulst_model [--out <outpath>] [--modelType <model>] [-c | --clean]  [-v | --verbose] [--pSave <peripheryFlag>]
-                   [--noBrainstem | --brainstemType <brainstem>] [--stimulusFile <stimulusPath> | (--wavFile <wavPath> --level <spl>)]
-                   [--no-cf-weighting] [--neuropathy <degradation>]
+    verhulst_model [--out <outpath>] [--peripheryType <model>] [-c | --clean] [-v | --verbose] [--pSave <peripheryFlag>]
+                   [--stimulusFile <stimulusPath> | (--wavFile <wavPath> --level <spl>)] [--no-cf-weighting]
+                   [--neuropathy <degradation>] [--noBrainstem | --brainstemType <brainstem>]
 
 Options:
     -h --help                       Show this screen and exit.
     --version                       Display the version and exit.
-    --modelType=<model>             Use either the 'verhulst' or 'zilany' peripheral model. [default: verhulst]
+    --peripheryType=<model>         Use either the 'verhulst' or 'zilany' peripheral model. [default: verhulst]
     --out=<outpath>                 Specify the output location for saved data. [default: ~/verhulst-output]
     --pSave=<peripheryFlag>         Which components of the peripheral response to save.  [default: cavihlmesd]
     --noBrainstem                   Simulate the periphery only.
-    --brainstemType=<brainstem>     Which brainstem and midbrain model to use: 'nelsoncarney04' or 'carney2015' [default: nelsoncarney04]
+    --brainstemType=<brainstem>     Which brainstem and midbrain model to use: 'nelsoncarney04' or 'carney2015'
+                                    [default: nelsoncarney04]
     --no-cf-weighting               Don't sigmoidally weight how many low, medium, and high SR fibers innervate each CF.
     --stimulusFile=<stimulusPath>   Provide one or more stimuli templates as YAML (see stimulus_generator --help ).
                                     If no option is provided, a 60dB click will be used.
@@ -31,14 +32,14 @@ Options:
     -v --verbose                    Display detailed debug log output to STDOUT.
 """
 
-import os
-import shutil
 import sys
 from datetime import datetime
 from logging import info, basicConfig, getLogger, ERROR, INFO
-from os import path, system, name
 
+import os
+import shutil
 from docopt import docopt
+from os import path, system, name
 
 from verhulst_runner import Periphery, Stimulus
 from verhulst_runner._version import __version__
@@ -79,11 +80,11 @@ def main():
     system('cls' if name == 'nt' else 'clear')
     info("output directory set to {0}".format(__set_output_dir(args["--out"])))
     # get model type
-    periphType = PeripheryType[args["--modelType"].casefold()]
+    periphType = PeripheryType[args["--peripheryType"].casefold()]
     # configure the periphery to run
     conf = PeripheryConfiguration(__set_output_dir(args["--out"]), args["--pSave"], stimuli_dict, periphType,
                                   args["--neuropathy"])
-    print("Simulating periphery ({0}) ...".format(args["--modelType"]))
+    print("Simulating periphery ({0}) ...".format(args["--peripheryType"]))
     # run all the levels through the periphery model
     peripheryResults = Periphery(conf).run()
 
