@@ -1,9 +1,9 @@
 import glob
 from datetime import datetime
 from logging import info
+from os import path, walk
 
 import matplotlib
-from os import path, walk
 
 matplotlib.use('PDF')
 import matplotlib.gridspec as gridspec
@@ -18,28 +18,63 @@ from verhulst_runner.periphery_configuration import PeripheryOutput, PeripheryCo
 
 def plot_periphery(periph: {}, conf: PeripheryConfiguration, pdf: PdfPages) -> plt.Figure:
     figure = plt.figure(1, (8.5, 11), dpi=300)
-    figure.suptitle("Verhulst Model Output. Stimulus level {0}dB SPL".format(periph[p.StimulusLevel]),
+    figure.suptitle("{} Model Output: stimulus level {}dB SPL".format(conf.modelType.name.title(), periph[p.StimulusLevel]),
                     fontsize=18)
 
     gs = gridspec.GridSpec(6, 4)
 
-    # plot stimulus, top left.
+    # Plot the stimulus
     stimulus = periph[p.Stimulus]
     pointCount = len(stimulus)
     time = np.linspace(0, pointCount / conf.Fs, num=pointCount)
-    stimt = plt.subplot(gs[0, :-3])
+    stimt = plt.subplot(gs[1, :-2])
+    # plt.xticks(rotation=-70)
     stimt.plot(time, stimulus, lw=2)
-    stimt.set_xlabel("Time, s")
-    stimt.set_ylabel("Amplitude ")
-    stimt.set_title("Stimulus")
+    stimt.set_xlabel("Time (s)")
+    stimt.set_ylabel("Pressure (Pa)")
+    stimt.set_title("Stimulus\n")
 
-    # plot FFT of stimulus, top right
-    # stimf = plt.subplot(gs[1, 3:-1])
+    # Plot Stimulus spectrogram
+    stim_spec = plt.subplot(gs[1, 2:])
+    pxx, f, t, cax = stim_spec.specgram(stimulus, NFFT=1024, Fs=conf.Fs, noverlap=900,
+                                        cmap=plt.cm.plasma)
+    figure.colorbar(cax).set_label('Energy')
+    stim_spec.set_xlabel("Time (s)")
+    stim_spec.set_ylabel("Frequency, Hz")
+    stim_spec.set_title("Stimulus spectrogram (fft window 1024)\n")
 
+    extents = [0, pointCount, periph[p.CenterFrequency].min(), periph[p.CenterFrequency].max()]
+    # Plot raw  high SR
+    highs = plt.subplot(gs[2:-2, :-2])
+    axh = highs.imshow(periph[p.AuditoryNerveFiberHighSpont].T, extent=extents, cmap=plt.cm.plasma)
+    plt.colorbar(axh).set_label('IFR')
+    highs.set_yscale('log')
+    highs.invert_yaxis()
+    highs.set_xlabel("Time (s)")
+    highs.set_ylabel("Frequency, Hz")
+    highs.set_title("High SR fibers")
 
-    #Plot
+    meds = plt.subplot(gs[2:-2, 2:])
+    axm = meds.imshow(periph[p.AuditoryNerveFiberMediumSpont].T, extent=extents, cmap=plt.cm.plasma)
+    plt.colorbar(axm).set_label('IFR')
+    meds.set_yscale('log')
+    meds.invert_yaxis()
+    meds.set_xlabel("Time (s)")
+    meds.set_ylabel("Frequency, Hz")
+    meds.set_title("Medium SR fibers")
 
+    lows = plt.subplot(gs[5:-1, :-2])
+    axl = lows.imshow(periph[p.AuditoryNerveFiberLowSpont].T, extent=extents, cmap=plt.cm.plasma)
+    plt.colorbar(axl).set_label('IFR')
+    lows.set_yscale('log')
+    lows.invert_yaxis()
+    lows.set_xlabel("Time (s)")
+    lows.set_ylabel("Frequency, Hz")
+    lows.set_title("Low SR fibers")
+    # highs.set_xticklabels(time)
+    #highs.set_yticklabels(periph[p.CenterFrequency])
 
+    figure.tight_layout()
     pdf.savefig(figure)
 
 
