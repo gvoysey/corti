@@ -1,9 +1,9 @@
 import glob
 from datetime import datetime
 from logging import info
-from os import path, walk
 
 import matplotlib
+from os import path, walk
 
 matplotlib.use('PDF')
 import matplotlib.gridspec as gridspec
@@ -34,7 +34,7 @@ def plot_periphery(periph: {}, conf: PeripheryConfiguration, pdf: PdfPages) -> p
     stimt.set_title("Stimulus")
 
     # plot FFT of stimulus, top right
-    stimf = plt.subplot(gs[1, 3:-1])
+    # stimf = plt.subplot(gs[1, 3:-1])
 
 
     #Plot
