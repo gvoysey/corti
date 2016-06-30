@@ -2,16 +2,15 @@
 [![Build Status](https://travis-ci.com/gvoysey/thesis-code.svg?token=rzJKKRvpi64LT1mzWQJb&branch=master)](https://travis-ci.com/gvoysey/thesis-code)
 
 This repository contains a runtime environment for models of the auditory periphery, brainstem, and midbrain. 
-The model(s) are adapted from Nelson and Carney (2004), Carney (2015), and Zilany and Bruce (2014).   
+The model(s) are adapted from Verhulst et. al (2012,15), Nelson and Carney (2004), Carney (2015), and Zilany and Bruce (2014).   
 
 It is implemented in Python >=3.3, and currently supports OSX, Linux, and 64-bit windows. 
 
 The goal of this work is to explore the effects of Auditory Neuropathy on representations of complex sounds throughout
 the early stages of the auditory system. 
 
-The auditory periphery is simulated using the model developed by Verhulst et. al., hosted [here](https://github.com/AuditoryBiophysicsLab/verhulst-model-core).
-This code **will not run** without that module installed. 
-
+One model of the auditory periphery is simulated using the model developed by Verhulst et. al., hosted [here](https://github.com/AuditoryBiophysicsLab/verhulst-model-core).
+This model **will not be available** without that module installed; contact @gvoysey for access. 
 
 
 # Installation 
@@ -27,7 +26,7 @@ If you have cloned this repository locally and are running it in a virtual envir
 you can also install it from the cloned repo for development purposes.  
 
 ## Contributions
-If you plan on developing this model further, please fork this repo and send me a pull request when you want me to integrate the changes upstream.  
+If you plan on developing this model further, please fork this repo and send me (@gvoysey) a pull request when you want me to integrate the changes upstream.  
 
 The easy way to install this repo locally is with the command 
 `env/bin/pip install git+file:///path/to/your/git/repo@mybranch` or `@mytag`. 
