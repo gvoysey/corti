@@ -13,7 +13,7 @@ import numpy as np
 import yaml
 from matplotlib.backends.backend_pdf import PdfPages
 
-from verhulst_runner.base import runtime_consts as r, periph_consts as p
+from verhulst_runner.base import runtime_consts as r, periph_consts as p, brain_consts as b
 from verhulst_runner.periphery_configuration import PeripheryOutput, PeripheryConfiguration
 
 
@@ -75,7 +75,7 @@ def plot_periphery(periph: {}, anr: {}, conf: PeripheryConfiguration, pdf: PdfPa
 
     lows = plt.subplot(gs[5:-1, :-2])
     axl = lows.imshow(periph[p.AuditoryNerveFiberLowSpont].T, extent=extents, cmap=plt.cm.plasma, vmin=_low, vmax=_high)
-                      #norm=colors.SymLogNorm(linthresh=0.01,vmin=_low, vmax=_high))
+    # norm=colors.SymLogNorm(linthresh=0.01,vmin=_low, vmax=_high))
     plt.colorbar(axl).set_label('IFR')
     lows.set_yscale('log')
     lows.invert_yaxis()
@@ -103,8 +103,25 @@ def plot_periphery(periph: {}, anr: {}, conf: PeripheryConfiguration, pdf: PdfPa
     pdf.savefig(figure)
 
 
-def plot_brainstem(brainstem_output: {}, conf: PeripheryConfiguration, pdf: PdfPages) -> plt.Figure:
-    pass
+def plot_brainstem(brain: {}, conf: PeripheryConfiguration, pdf: PdfPages) -> plt.Figure:
+    figure = plt.figure(2, (8.5, 11), dpi=300)
+    figure.suptitle("{} Model Output: stimulus level {}dB SPL\n".format(conf.modelType.name.title(),
+                                                                        str(brain[b.BrainstemModelType]).title()))
+    gs = gridspec.GridSpec(6, 4)
+
+    # Plot the ABR
+    abr = brain[b.Wave1_AN] + brain[b.Wave3_CN] + brain[b.Wave5_IC]
+    pointCount = len(abr)
+    time = np.linspace(0, pointCount / conf.Fs, num=pointCount)
+    abr_ax = plt.subplot(gs[0, :])
+    # plt.xticks(rotation=-70)
+    abr_ax.plot(time, abr, lw=2)
+    abr_ax.set_xlabel("Time (s)")
+    abr_ax.set_ylabel("Amplitude (uV)")
+    abr_ax.set_title("ABR\n")
+
+    figure.tight_layout()
+    pdf.savefig(figure)
 
 
 def plot_anr(anr, conf, pdf):
