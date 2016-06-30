@@ -1,11 +1,14 @@
 import logging
 from datetime import datetime, timedelta
+
+import numpy as np
+import os
+import yaml
 from os import path
 
-import yaml
-from verhulst_model_core.ANF_Sarah import *
-from verhulst_model_core.Sarah_ihc import *
-from verhulst_model_core.cochlear_model_old import *
+# from verhulst_model_core.ANF_Sarah import *
+# from verhulst_model_core.Sarah_ihc import *
+# from verhulst_model_core.cochlear_model_old import *
 
 from verhulst_runner.base import runtime_consts, periph_consts as p, PeripheryType
 from verhulst_runner.periphery_configuration import PeripheryConfiguration, PeripheryOutput
@@ -27,23 +30,26 @@ class Periphery:
             os.makedirs(self.output_folder)
 
         if self.conf.modelType == PeripheryType.verhulst:
-            self.probes = self.conf.probeString
-            self.irregularities = self.conf.irregularities
-            self.irr_on = self.conf.irregularities
-            self.random_seed = self.conf.random_seed
-            self.irrPct = self.conf.irrPct
-            self.nonlinearType = self.conf.nonlinearType
-            self.sheraPo = np.loadtxt(polesPath)
-            self.cochlear_list = [[CochleaModel(), self.stimulus[i], self.irr_on[i], i, (0, i + 1)] for i in
-                                  range(len(self.stimulus))]
-            self.sectionsNo = self.conf.NumberOfSections
+            try:
+                from verhulst_model_core import polesPath, CochleaModel
+                self.probes = self.conf.probeString
+                self.irregularities = self.conf.irregularities
+                self.irr_on = self.conf.irregularities
+                self.random_seed = self.conf.random_seed
+                self.irrPct = self.conf.irrPct
+                self.nonlinearType = self.conf.nonlinearType
+                self.sheraPo = np.loadtxt(polesPath)
+                self.cochlear_list = [[CochleaModel(), self.stimulus[i], self.irr_on[i], i, (0, i + 1)] for i in
+                                      range(len(self.stimulus))]
+                self.sectionsNo = self.conf.NumberOfSections
+            except ImportError:
+                logging.error("verhulst-model-core is not installed.  Please install it or use the zilany model.")
 
     def run(self) -> [PeripheryOutput]:
         """Simulate sound propagation up to the auditory nerve for many stimulus levels
         :return: A list of output data, one for each stimulus level
         """
         s1 = datetime.now()
-        # results = Parallel(n_jobs=-1)(delayed(self.solve_one_cochlea)(xx) for xx in self.cochlear_list)
         results = []
         if self.conf.modelType == PeripheryType.verhulst:
             for i, v in enumerate(self.cochlear_list):
@@ -90,6 +96,7 @@ class Periphery:
         # This right here is the rate limiting step.
         coch.solve(location=model[4])
         fs = self.Fs
+        from verhulst_model_core import ihc, anf_model
         rp = ihc(coch.Vsolution, fs)
         anfH = anf_model(rp, coch.cf, fs, 'high')
         anfM = anf_model(rp, coch.cf, fs, 'medium')

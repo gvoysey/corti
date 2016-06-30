@@ -34,7 +34,8 @@ setup(
     include_dirs=[np.get_include()],
     author='Graham Voysey',
     author_email='gvoysey@bu.edu',
-    description='A wrapper around https://github.com/AuditoryBiophysicsLab/verhulst-model-core',
+        description='An auditory modeling environment for the Zilany 2014 periphery, Verhulst 2015 periphery, '
+                    'Nelson Carney 2004 brainstem and Carney 2015 brainstem models.',
     install_requires=[
         'docopt >= 0.6',
         'matplotlib >= 1.5',
