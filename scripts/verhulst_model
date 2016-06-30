@@ -84,7 +84,7 @@ def main():
     # configure the periphery to run
     conf = PeripheryConfiguration(__set_output_dir(args["--out"]), args["--pSave"], stimuli_dict, periphType,
                                   args["--neuropathy"])
-    print("Simulating periphery ({0}) ...".format(args["--peripheryType"]))
+    print("Simulating periphery ({0}) response ...".format(args["--peripheryType"]))
     # run all the levels through the periphery model
     peripheryResults = Periphery(conf).run()
 
@@ -110,6 +110,7 @@ def main():
     print("Generating summary figures ...")
     save_summary_pdf(peripheryResults, auditoryNerveResponses, brainResults, conf, "summary-plots.pdf",
                      peripheryResults[0].outputFolder)
+    print("\tfinished generating figures.")
 
     # Delete old runs, if requested.
     if args["--clean"]:

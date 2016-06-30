@@ -1,6 +1,6 @@
 import glob
 from datetime import datetime
-from logging import info
+from logging import info, error
 
 import matplotlib
 from os import path, walk
@@ -8,6 +8,7 @@ from os import path, walk
 matplotlib.use('PDF')
 import matplotlib.gridspec as gridspec
 import matplotlib.pyplot as plt
+import matplotlib.colors as colors
 import numpy as np
 import yaml
 from matplotlib.backends.backend_pdf import PdfPages
@@ -16,7 +17,7 @@ from verhulst_runner.base import runtime_consts as r, periph_consts as p
 from verhulst_runner.periphery_configuration import PeripheryOutput, PeripheryConfiguration
 
 
-def plot_periphery(periph: {}, conf: PeripheryConfiguration, pdf: PdfPages) -> plt.Figure:
+def plot_periphery(periph: {}, anr: {}, conf: PeripheryConfiguration, pdf: PdfPages) -> plt.Figure:
     figure = plt.figure(1, (8.5, 11), dpi=300)
     figure.suptitle(
             "{} Model Output: stimulus level {}dB SPL\n".format(conf.modelType.name.title(), periph[p.StimulusLevel]),
@@ -53,6 +54,7 @@ def plot_periphery(periph: {}, conf: PeripheryConfiguration, pdf: PdfPages) -> p
     highs = plt.subplot(gs[2:-2, :-2])
     axh = highs.imshow(periph[p.AuditoryNerveFiberHighSpont].T, extent=extents, cmap=plt.cm.plasma, vmin=_low,
                        vmax=_high)
+    # norm=colors.SymLogNorm(linthresh=0.01,vmin=_low, vmax=_high))
     plt.colorbar(axh).set_label('IFR')
     highs.set_yscale('log')
     highs.invert_yaxis()
@@ -63,6 +65,7 @@ def plot_periphery(periph: {}, conf: PeripheryConfiguration, pdf: PdfPages) -> p
     meds = plt.subplot(gs[2:-2, 2:])
     axm = meds.imshow(periph[p.AuditoryNerveFiberMediumSpont].T, extent=extents, cmap=plt.cm.plasma, vmin=_low,
                       vmax=_high)
+    # norm=colors.SymLogNorm(linthresh=0.01,vmin=_low, vmax=_high))
     plt.colorbar(axm).set_label('IFR')
     meds.set_yscale('log')
     meds.invert_yaxis()
@@ -72,6 +75,7 @@ def plot_periphery(periph: {}, conf: PeripheryConfiguration, pdf: PdfPages) -> p
 
     lows = plt.subplot(gs[5:-1, :-2])
     axl = lows.imshow(periph[p.AuditoryNerveFiberLowSpont].T, extent=extents, cmap=plt.cm.plasma, vmin=_low, vmax=_high)
+                      #norm=colors.SymLogNorm(linthresh=0.01,vmin=_low, vmax=_high))
     plt.colorbar(axl).set_label('IFR')
     lows.set_yscale('log')
     lows.invert_yaxis()
@@ -81,6 +85,17 @@ def plot_periphery(periph: {}, conf: PeripheryConfiguration, pdf: PdfPages) -> p
     # highs.set_xticklabels(time)
     # highs.set_yticklabels(periph[p.CenterFrequency])
 
+    anrs = plt.subplot(gs[5:-1, 2:])
+    summed = periph[p.AuditoryNerveFiberLowSpont] + periph[p.AuditoryNerveFiberMediumSpont] + periph[
+        p.AuditoryNerveFiberHighSpont]
+    axa = anrs.imshow(summed.T, extent=extents, cmap=plt.cm.plasma,
+                      norm=colors.SymLogNorm(linthresh=0.01, vmin=_low, vmax=_high))
+    plt.colorbar(axa)
+    anrs.set_yscale('log')
+    anrs.invert_yaxis()
+    anrs.set_xlabel("Time (s)")
+    anrs.set_ylabel("Frequency, Hz")
+    anrs.set_title("Summed and Normalized ANR\n")
     # Make an axis for the colorbar on the right side
     # ax = figure.add_axes([0.9, 0.1, 0.03, 0.8])
     # plt.colorbar(ax).set_label("IFR, s/sec")
@@ -111,10 +126,7 @@ def save_summary_pdf(periphery: [], brain: [], anr: [], conf: PeripheryConfigura
     # population response of AN, CN, IC ...
     with PdfPages(path.join(outputPath, fileName)) as pdf:
         for i in range(len(periph)):
-            plot_periphery(periph[i], conf, pdf)
-        if anr is not None:
-            for i in range(len(anr)):
-                plot_anr(anr[i], conf, pdf)
+            plot_periphery(periph[i], anr[i], conf, pdf)
         if brain is not None:
             for i in range(len(brain)):
                 plot_brainstem(brain[i], conf, pdf)
@@ -149,4 +161,7 @@ def plot_directory(dirPath: str):
 if __name__ == "__main__":
     basepath = path.join(path.expanduser('~'), r.DefaultModelOutputDirectoryRoot)
     result = next(walk(basepath))
-    plot_directory(path.join(basepath, result[1][0]))
+    try:
+        plot_directory(path.join(basepath, result[1][0]))
+    except IndexError:
+        error("No simulations found to plot.")
