@@ -1,9 +1,9 @@
 import glob
 from datetime import datetime
 from logging import info
-from os import path, walk
 
 import matplotlib
+from os import path, walk
 
 matplotlib.use('PDF')
 import matplotlib.gridspec as gridspec
@@ -18,8 +18,9 @@ from verhulst_runner.periphery_configuration import PeripheryOutput, PeripheryCo
 
 def plot_periphery(periph: {}, conf: PeripheryConfiguration, pdf: PdfPages) -> plt.Figure:
     figure = plt.figure(1, (8.5, 11), dpi=300)
-    figure.suptitle("{} Model Output: stimulus level {}dB SPL".format(conf.modelType.name.title(), periph[p.StimulusLevel]),
-                    fontsize=18)
+    figure.suptitle(
+            "{} Model Output: stimulus level {}dB SPL\n".format(conf.modelType.name.title(), periph[p.StimulusLevel]),
+            fontsize=18)
 
     gs = gridspec.GridSpec(6, 4)
 
@@ -44,36 +45,45 @@ def plot_periphery(periph: {}, conf: PeripheryConfiguration, pdf: PdfPages) -> p
     stim_spec.set_title("Stimulus spectrogram (fft window 1024)\n")
 
     extents = [0, pointCount, periph[p.CenterFrequency].min(), periph[p.CenterFrequency].max()]
+    combined_data = [periph[p.AuditoryNerveFiberHighSpont], periph[p.AuditoryNerveFiberMediumSpont],
+                     periph[p.AuditoryNerveFiberLowSpont]]
+    _high, _low = np.amax(combined_data), np.amin(combined_data)
+
     # Plot raw  high SR
     highs = plt.subplot(gs[2:-2, :-2])
-    axh = highs.imshow(periph[p.AuditoryNerveFiberHighSpont].T, extent=extents, cmap=plt.cm.plasma)
+    axh = highs.imshow(periph[p.AuditoryNerveFiberHighSpont].T, extent=extents, cmap=plt.cm.plasma, vmin=_low,
+                       vmax=_high)
     plt.colorbar(axh).set_label('IFR')
     highs.set_yscale('log')
     highs.invert_yaxis()
     highs.set_xlabel("Time (s)")
     highs.set_ylabel("Frequency, Hz")
-    highs.set_title("High SR fibers")
+    highs.set_title("High SR fibers\n")
 
     meds = plt.subplot(gs[2:-2, 2:])
-    axm = meds.imshow(periph[p.AuditoryNerveFiberMediumSpont].T, extent=extents, cmap=plt.cm.plasma)
+    axm = meds.imshow(periph[p.AuditoryNerveFiberMediumSpont].T, extent=extents, cmap=plt.cm.plasma, vmin=_low,
+                      vmax=_high)
     plt.colorbar(axm).set_label('IFR')
     meds.set_yscale('log')
     meds.invert_yaxis()
     meds.set_xlabel("Time (s)")
     meds.set_ylabel("Frequency, Hz")
-    meds.set_title("Medium SR fibers")
+    meds.set_title("Medium SR fibers\n")
 
     lows = plt.subplot(gs[5:-1, :-2])
-    axl = lows.imshow(periph[p.AuditoryNerveFiberLowSpont].T, extent=extents, cmap=plt.cm.plasma)
+    axl = lows.imshow(periph[p.AuditoryNerveFiberLowSpont].T, extent=extents, cmap=plt.cm.plasma, vmin=_low, vmax=_high)
     plt.colorbar(axl).set_label('IFR')
     lows.set_yscale('log')
     lows.invert_yaxis()
     lows.set_xlabel("Time (s)")
     lows.set_ylabel("Frequency, Hz")
-    lows.set_title("Low SR fibers")
+    lows.set_title("Low SR fibers\n")
     # highs.set_xticklabels(time)
-    #highs.set_yticklabels(periph[p.CenterFrequency])
+    # highs.set_yticklabels(periph[p.CenterFrequency])
 
+    # Make an axis for the colorbar on the right side
+    # ax = figure.add_axes([0.9, 0.1, 0.03, 0.8])
+    # plt.colorbar(ax).set_label("IFR, s/sec")
     figure.tight_layout()
     pdf.savefig(figure)
 
@@ -102,11 +112,9 @@ def save_summary_pdf(periphery: [], brain: [], anr: [], conf: PeripheryConfigura
     with PdfPages(path.join(outputPath, fileName)) as pdf:
         for i in range(len(periph)):
             plot_periphery(periph[i], conf, pdf)
-
         if anr is not None:
             for i in range(len(anr)):
                 plot_anr(anr[i], conf, pdf)
-
         if brain is not None:
             for i in range(len(brain)):
                 plot_brainstem(brain[i], conf, pdf)
@@ -122,19 +130,20 @@ def save_summary_pdf(periphery: [], brain: [], anr: [], conf: PeripheryConfigura
 def plot_directory(dirPath: str):
     """Generate summary plots for a stored model simulation"""
     peripheryFiles = glob.glob(path.join(dirPath, r.PeripheryOutputFilePrefix + "*"))
-    brainstemFiles = glob.glob(path.join(dirPath, r.NelsonCarneyOutputFilePrefix + "*"))
+    brainstemFiles = glob.glob(path.join(dirPath, r.BrainstemOutputFilePrefix + "*"))
+    anrFiles = glob.glob(path.join(dirPath, r.AuditoryNerveOutputFilePrefix + "*"))
     configFile = glob.glob(path.join(dirPath, r.PeripheryConfigurationName))[0]
 
     if not configFile:
         info("No configuration file was found in the directory to be plotted.  Returning.")
         return
 
-    if len(peripheryFiles) != len(brainstemFiles):
-        info("Files in the model output directory {0} appear to be missing".format(dirPath))
-        return
-
-    save_summary_pdf([np.load(x) for x in peripheryFiles], [np.load(x) for x in brainstemFiles],
-                     None, yaml.load(open(configFile)), "summary-plots.pdf", dirPath)
+    save_summary_pdf(periphery=[np.load(x) for x in peripheryFiles],
+                     brain=[np.load(x) for x in brainstemFiles],
+                     anr=[np.load(x) for x in anrFiles],
+                     conf=yaml.load(open(configFile)),
+                     fileName="summary-plots.pdf",
+                     outputPath=dirPath)
 
 
 if __name__ == "__main__":

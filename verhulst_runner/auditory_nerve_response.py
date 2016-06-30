@@ -1,12 +1,12 @@
 import logging
-import os
-from os import path
 from typing import Union
 
 import numpy as np
 import numpy.matlib
+import os
+from os import path
 
-from verhulst_runner import PeripheryOutput, periph_consts as p, PeripheryType
+from verhulst_runner import PeripheryOutput, PeripheryType, periph_consts as p, runtime_consts as r, an_consts as a
 
 
 class AuditoryNerveResponse:
@@ -19,6 +19,13 @@ class AuditoryNerveResponse:
     Z1 = 0.15e-6 / 7.30282e+07
 
     def __init__(self, an: PeripheryOutput, degradation: str):
+        """
+
+        :param an:
+        :param degradation: a tuple representing how much each fiber type should be degraded.
+                            Values should be either scalar or ndarrays of the same shape as each fiber
+                            type component, and contain values between zero and one.
+        """
         self.periph = an
         self.Fs = an.conf.Fs
         self.cf = an.output[p.CenterFrequency]
@@ -34,14 +41,14 @@ class AuditoryNerveResponse:
 
     def save(self):
         # todo: make this follow the naming conventions in base.py.
-        name = "auditory-nerve-response-" + "{0}dB".format(self.periph.output[p.StimulusLevel])
+        name = r.AuditoryNerveOutputFilePrefix + "{0}dB".format(self.periph.output[p.StimulusLevel])
         outpath = self.periph.outputFolder
         # save the data out to a npz file whose keys are the field names of output.
         np.savez(path.join(outpath, name), **{
-            "low-sr" : self.lowSR,
-            "med-sr" : self.medSR,
-            "high-sr": self.highSR,
-            "sum-anr": self.ANR
+            a.LowSR : self.lowSR,
+            a.MedSR : self.medSR,
+            a.HighSR: self.highSR,
+            a.SumANR: self.ANR
         })
         logging.info("wrote {0:<10} to {1}".format(name, path.relpath(outpath, os.getcwd())))
 
@@ -52,9 +59,7 @@ class AuditoryNerveResponse:
         :param ls_normal: The number of low spont rate fibers per IHC
         :param ms_normal: The number of medium spont rate fibers per IHC
         :param hs_normal: The number of high spont rate fibers per IHC
-        :param degradation: a tuple representing how much each fiber type should be degraded.
-                            Values should be either scalar or ndarrays of the same shape as each fiber
-                            type component, and contain values between zero and one.
+
         :return: the AN population response.
         """
         if (ls_normal + ms_normal + hs_normal) - self.TotalFiberPerIHC > 0.0001:
@@ -65,10 +70,7 @@ class AuditoryNerveResponse:
     def cf_weighted_an_response(self) -> np.ndarray:
         """Create an auditory nerve population response with a logistic distribution of fiber types per hair cell.
         Contains the contributions of low, medium, and high spontaneous rate fibers individually weighted by fiber count.
-        An optional parameter for modeling hair cell loss is available.
-        :param degradation: a tuple representing how much each fiber type should be degraded.
-                            Values should be either scalar or ndarrays of the same shape as each fiber
-                            type component, and contain values between zero and one.
+
         :return: the AN population response
         """
         lsr_weight, msr_weight, hsr_weight = self._map_cf_dependent_distribution(self.TotalFiberPerIHC)

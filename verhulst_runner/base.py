@@ -1,7 +1,8 @@
+from enum import Enum
+
 import os
 import warnings
 from collections import namedtuple
-from enum import Enum
 from os import path
 
 ProbeType = Enum("ProbeType", "all, half")
@@ -13,7 +14,8 @@ RuntimeConstants = namedtuple("Const", " ModelDirectoryLabelName \
                                   DefaultModelOutputDirectoryRoot \
                                   ResultDirectoryNameFormat \
                                   PeripheryOutputFilePrefix \
-                                  NelsonCarneyOutputFilePrefix \
+                                  BrainstemOutputFilePrefix \
+                                  AuditoryNerveOutputFilePrefix \
                                   SummaryPlotFileName \
                                   PeripheryConfigurationName \
                                   ResourceDirectoryName \
@@ -23,7 +25,8 @@ runtime_consts = RuntimeConstants(ModelDirectoryLabelName=".verhulst-model-outpu
                                   DefaultModelOutputDirectoryRoot="verhulst-output",
                                   ResultDirectoryNameFormat="%d %b %y - %H%M",
                                   PeripheryOutputFilePrefix="periphery-output-",
-                                  NelsonCarneyOutputFilePrefix="central-output-",
+                                  BrainstemOutputFilePrefix="central-output-",
+                                  AuditoryNerveOutputFilePrefix="auditory-nerve-response-",
                                   PeripheryConfigurationName="simulation-configuration.yaml",
                                   SummaryPlotFileName="summary-plots.pdf",
                                   ResourceDirectoryName="resources",
@@ -68,6 +71,16 @@ brain_consts = BrainstemConstants(Wave1_AN="wave1_an",
                                   CNPopulation="cn_pop_resp",
                                   ICPopulation="ic_pop_resp",
                                   BrainstemModelType="brainstem-model")
+
+AuditoryNerveConstants = namedtuple("AuditoryNerveConstants", "LowSR \
+                                                               MedSR \
+                                                               HighSR \
+                                                               SumANR")
+
+an_consts = AuditoryNerveConstants(LowSR="low-sr",
+                                   MedSR="med-sr",
+                                   HighSR="high-sr",
+                                   SumANR="sum-anr")
 
 # This is the tuple that contains the naming conventions for Stimulus specification
 StimulusConstants = namedtuple("StimulusConstants", "Click \
