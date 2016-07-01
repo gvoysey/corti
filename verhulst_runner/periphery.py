@@ -1,10 +1,10 @@
 import logging
+import os
 from datetime import datetime, timedelta
+from os import path
 
 import numpy as np
-import os
 import yaml
-from os import path
 
 # from verhulst_model_core.ANF_Sarah import *
 # from verhulst_model_core.Sarah_ihc import *
@@ -43,7 +43,7 @@ class Periphery:
                                       range(len(self.stimulus))]
                 self.sectionsNo = self.conf.NumberOfSections
             except ImportError:
-                logging.error("verhulst-model-core is not installed.  Please install it or use the zilany model.")
+                logging.error("The package `verhulst-model-core` is not installed.  Please install it or use the zilany model.")
 
     def run(self) -> [PeripheryOutput]:
         """Simulate sound propagation up to the auditory nerve for many stimulus levels

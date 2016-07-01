@@ -44,7 +44,8 @@ setup(
         'progressbar2 >= 3.6',
         'PyYAML > 3.10',
         'pandas',
-        'cython'
+        'cython',
+        'pypet'
     ],
     tests_require=[
         'pytest',

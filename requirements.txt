@@ -7,3 +7,5 @@ progressbar2 == 3.6.2
 scipy >= 0.17.0
 PyYAML == 3.11
 Cython
+pypet
+
