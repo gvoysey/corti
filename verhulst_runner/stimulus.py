@@ -1,9 +1,9 @@
 import math
 from logging import error
-from os import path
 
 import numpy as np
 import yaml
+from os import path
 from scipy.io import wavfile
 
 from verhulst_runner.base import stimulusTemplatePath, stim_consts as sc
@@ -62,12 +62,12 @@ class Stimulus:
     def make_am(self, config: {}) -> np.ndarray:
         pass
 
-    def custom_stimulus_template(self, templatePath: str) -> {}:
+    def custom_stimulus_template(self, templatePath: str) -> dict:
         """ Loads a user-created stimulus configuration from disk
         """
         return yaml.load(open(templatePath, "r"))
 
-    def default_stimulus_template(self):
+    def default_stimulus_template(self) -> dict:
         """ Returns the default stimulus configuration from the template
         """
         return yaml.load(open(stimulusTemplatePath, "r"))

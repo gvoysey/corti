@@ -20,7 +20,7 @@ Options:
                                     [default: nelsoncarney04]
     --no-cf-weighting               Don't sigmoidally weight how many low, medium, and high SR fibers innervate each CF.
     --stimulusFile=<stimulusPath>   Provide one or more stimuli templates as YAML (see stimulus_generator --help ).
-                                    If no option is provided, a 60dB click will be used.
+                                    If no option is provided, an 80dB click will be used.
     --wavFile=<wavPath>             Provide a custom stimulus from a pre-recorded WAV file.
     --level=<spl>                   Specify the peak sound level(s) of the WAV specified with --wavFile.
                                     Separate values with commas.
