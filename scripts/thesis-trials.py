@@ -2,18 +2,19 @@
 # Then directory path doesn't matter.
 import glob
 
+from importlib.machinery import SourceFileLoader
 from os import path
 from pypet import Environment
 from pypet.utils.explore import cartesian_product
 
 from verhulst_runner import base
 
+verhulst_model = SourceFileLoader('verhulst_model', './verhulst_model').load_module()
+
 
 def tone_in_noise(traj: Environment.trajectory):
     commandstr = periphery_type + traj.periphery_type + brainstem_type + traj.brainstem_type + \
                  cf_weighting if cf_weighting is not None else "" + wavfile + traj.wavefile + level + traj.level
-    import imp
-    verhulst_model = imp.load_source("verhulst_model", "./verhulst_model")  # ew.
     result = verhulst_model.main(commandstr)
 
 
