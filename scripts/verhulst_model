@@ -32,14 +32,14 @@ Options:
     -v --verbose                    Display detailed debug log output to STDOUT.
 """
 
-import os
-import shutil
 import sys
 from datetime import datetime
 from logging import info, basicConfig, getLogger, ERROR, INFO
-from os import path, system, name
 
+import os
+import shutil
 from docopt import docopt
+from os import path, system, name
 
 from verhulst_runner import Periphery, Stimulus
 from verhulst_runner._version import __version__
@@ -108,8 +108,12 @@ def main():
 
     # Generate summary plots
     print("Generating summary figures ...")
-    save_summary_pdf(peripheryResults, auditoryNerveResponses, brainResults, conf, "summary-plots.pdf",
-                     peripheryResults[0].outputFolder)
+    save_summary_pdf(periphery=peripheryResults,
+                     brain=brainResults,
+                     anr=auditoryNerveResponses,
+                     conf=conf,
+                     fileName="summary-plots.pdf",
+                     outputPath=peripheryResults[0].outputFolder)
     print("\tfinished generating figures.")
 
     # Delete old runs, if requested.
@@ -118,8 +122,10 @@ def main():
         __clean(conf.dataFolder, peripheryResults[0].outputFolder)
 
     print("Simulation finished.")
-
-    sys.exit(0)
+    if __name__ == "__main__":
+        return 0
+    else:
+        return {"foo": "bar"}
 
 
 def _sanitize_level(levels: str):

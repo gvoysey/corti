@@ -105,8 +105,8 @@ def plot_periphery(periph: {}, anr: {}, conf: PeripheryConfiguration, pdf: PdfPa
 
 def plot_brainstem(brain: {}, conf: PeripheryConfiguration, pdf: PdfPages) -> plt.Figure:
     figure = plt.figure(2, (8.5, 11), dpi=300)
-    figure.suptitle("{} Model Output: stimulus level {}dB SPL\n".format(conf.modelType.name.title(),
-                                                                        str(brain[b.BrainstemModelType]).title()))
+    # figure.suptitle("{} Model Output: stimulus level {}dB SPL\n".format(conf.modelType.name.title(),
+    #    str(brain[b.BrainstemModelType]).title()))
     gs = gridspec.GridSpec(6, 4)
 
     # Plot the ABR
