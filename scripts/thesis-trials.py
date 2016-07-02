@@ -13,9 +13,10 @@ verhulst_model = SourceFileLoader('verhulst_model', './verhulst_model').load_mod
 
 
 def tone_in_noise(traj: Environment.trajectory):
-    commandstr = periphery_type + traj.periphery_type + brainstem_type + traj.brainstem_type + \
-                 cf_weighting if cf_weighting is not None else "" + wavfile + traj.wavefile + level + traj.level
+    commandstr = " ".join([periphery_type, traj.periphery, brainstem_type, traj.brainstem,
+                           traj.weighting, wavfile, traj.wavfile, level, str(traj.level)])
     result = verhulst_model.main(commandstr)
+    print("got result!")
 
 
 wavpath = path.join(base.rootPath, "resources", "click-with-noise-stimuli")
@@ -38,18 +39,18 @@ brainstem_type = '--brainstemType'
 cf_weighting = '--no-cf-weighting'
 wavfile = "--wavFile"
 level = "--level"
-traj.f_add_parameter(periphery_type, 'verhulst', comment="which periphery was used")
-traj.f_add_parameter(brainstem_type, 'nelsoncarney04', comment="which brainstem model was used")
-traj.f_add_parameter(cf_weighting, "--no-cf-weighting ", comment="weighted CFs")
-traj.f_add_parameter(wavfile, '', comment="Which wav file to run")
-traj.f_add_parameter(level, 80, comment="stimulus level, spl")
+traj.f_add_parameter('periphery', 'verhulst', comment="which periphery was used")
+traj.f_add_parameter('brainstem', 'nelsoncarney04', comment="which brainstem model was used")
+traj.f_add_parameter('weighting', "--no-cf-weighting ", comment="weighted CFs")
+traj.f_add_parameter('wavfile', '', comment="Which wav file to run")
+traj.f_add_parameter('level', 80, comment="stimulus level, spl")
 
 parameter_dict = {
-    periphery_type: ['verhulst', 'zilany'],
-    brainstem_type: ['nelsoncarney04', 'carney2015'],
-    cf_weighting  : [cf_weighting, ""],
-    wavfile       : stimuli,
-    level         : [60, 80, 90]
+    "periphery": ['verhulst', 'zilany'],
+    "brainstem": ['nelsoncarney04', 'carney2015'],
+    "weighting": [cf_weighting, ""],
+    "wavfile"  : stimuli,
+    "level"    : [60, 80, 90]
 }
 
 traj.f_explore(cartesian_product(parameter_dict))
