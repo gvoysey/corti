@@ -1,4 +1,5 @@
 from enum import Enum
+from logging import basicConfig, INFO
 
 import os
 import warnings
@@ -114,3 +115,5 @@ stimulusTemplatePath = path.join(rootPath, runtime_consts.ResourceDirectoryName
 
 # PyYAML and blessed have some warnings we'll suppress
 warnings.simplefilter(action="ignore", category=(FutureWarning, UserWarning))
+# By default, log INFO and up.
+basicConfig(format='%(levelname)s %(asctime)s- %(message)s', datefmt='%d %b %H:%M:%S', level=INFO)

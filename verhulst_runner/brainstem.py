@@ -56,6 +56,8 @@ class CentralAuditoryResponse:
         return output
 
     def _save(self, output: {}) -> None:
+        if self.anfOut.conf.pypet:
+            return
         name = runtime_consts.BrainstemOutputFilePrefix + "{0}dB".format(self.anfOut.output[p.StimulusLevel])
         outpath = self.anfOut.outputFolder
         # save the data out to a npz file whose keys are the field names of output.

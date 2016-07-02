@@ -23,7 +23,7 @@ class PeripheryConfiguration:
     NumberOfSections = 1000  # possibly also "number of frequency bands", if there's a 1:1 between section and cf.
 
     def __init__(self, dataFolder: str, storeFlag: str, stimuli: dict, modelType: PeripheryType,
-                 degradation: Union[tuple, list]):
+                 degradation: Union[tuple, list], pypet: str):
         # model parameters from RUN_BMAN
         # these are used in making the stimulus waveform
         self.modelType = modelType
@@ -46,6 +46,7 @@ class PeripheryConfiguration:
         self.storeFlag = storeFlag
         self.degradation = degradation
         self.run_timestamp = datetime.now()
+        self.pypet = pypet
 
 
 class PeripheryOutput:

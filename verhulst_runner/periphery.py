@@ -1,10 +1,11 @@
 import logging
-import os
-from datetime import datetime, timedelta
-from os import path
+from datetime import datetime
 
 import numpy as np
+import os
+import progressbar
 import yaml
+from os import path
 
 # from verhulst_model_core.ANF_Sarah import *
 # from verhulst_model_core.Sarah_ihc import *
@@ -24,10 +25,11 @@ class Periphery:
         self.storeFlag = self.conf.storeFlag
         self.stimulus = self.conf.stimulus
         self.Fs = self.conf.Fs
-        self.output_folder = path.join(self.conf.dataFolder,
-                                       datetime.now().strftime(runtime_consts.ResultDirectoryNameFormat))
-        if not path.isdir(self.output_folder):
-            os.makedirs(self.output_folder)
+        if not conf.pypet:
+            self.output_folder = path.join(self.conf.dataFolder,
+                                           datetime.now().strftime(runtime_consts.ResultDirectoryNameFormat))
+            if not path.isdir(self.output_folder):
+                os.makedirs(self.output_folder)
 
         if self.conf.modelType == PeripheryType.verhulst:
             try:
@@ -49,7 +51,6 @@ class Periphery:
         """Simulate sound propagation up to the auditory nerve for many stimulus levels
         :return: A list of output data, one for each stimulus level
         """
-        s1 = datetime.now()
         results = []
         if self.conf.modelType == PeripheryType.verhulst:
             for i, v in enumerate(self.cochlear_list):
@@ -72,9 +73,6 @@ class Periphery:
             raise NotImplementedError("Peripheral model '{0}' was not recognized".format(self.conf.modelType))
 
         self.save_model_configuration()
-        print("\tPeripheral simulation of {} stimulus levels finished in {:0.3f}sec".format(len(self.stimulus),
-                                                                                            timedelta.total_seconds(
-                                                                                                datetime.now() - s1)))
         return results
 
     def solve_one_cochlea(self, model: []) -> PeripheryOutput:
@@ -93,14 +91,25 @@ class Periphery:
                         subject=self.random_seed,
                         IrrPct=self.irrPct,
                         non_linearity_type=self.nonlinearType)
-        # This right here is the rate limiting step.
+        # These right here are the rate limiting steps.
+        logging.info("Computing transmission line")
         coch.solve(location=model[4])
         fs = self.Fs
+
         from verhulst_model_core import ihc, anf_model
-        rp = ihc(coch.Vsolution, fs)
-        anfH = anf_model(rp, coch.cf, fs, 'high')
-        anfM = anf_model(rp, coch.cf, fs, 'medium')
-        anfL = anf_model(rp, coch.cf, fs, 'low')
+        with progressbar.ProgressBar(max_value=4) as bar:
+            logging.info("Calculating IHC potentials")
+            rp = ihc(coch.Vsolution, fs)
+            bar.update(1)
+            logging.info("Calculating IFRs (high)")
+            anfH = anf_model(rp, coch.cf, fs, 'high')
+            bar.update(2)
+            logging.info("Calculating IFRs (medium)")
+            anfM = anf_model(rp, coch.cf, fs, 'medium')
+            bar.update(3)
+            logging.info("Calculating IFRs (low)")
+            anfL = anf_model(rp, coch.cf, fs, 'low')
+            bar.update(4)
         # save intermediate results out to the output container (and possibly to disk)
         out = PeripheryOutput()
         out.output = {
@@ -117,14 +126,15 @@ class Periphery:
         }
         out.conf = self.conf
         out.stimulusLevel = self.conf.stimulusLevels[ii]
-        out.outputFolder = self.output_folder
+        if not self.conf.pypet:
+            out.outputFolder = self.output_folder
 
         return out
 
     def save_model_results(self, ii: int, periph: {}) -> None:
         """ store the parts of the periphery output specified in storeflag.
         """
-        if not self.storeFlag:
+        if self.conf.pypet or not self.storeFlag:
             return
         tm = lambda x: (x, periph[x] if x in periph else None)
         # saveMap makes a dict of tuples. the key is the storeFlag character,
@@ -153,6 +163,8 @@ class Periphery:
         logging.info("wrote {0} to {1}".format(outfile, path.relpath(self.output_folder, os.getcwd())))
 
     def save_model_configuration(self) -> None:
+        if self.conf.pypet:
+            return
         # and store the configuration parameters so we know what we did.
         with open(path.join(self.output_folder, runtime_consts.PeripheryConfigurationName), "w") as _:
             yaml.dump(self.conf, _)

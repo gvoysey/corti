@@ -40,6 +40,8 @@ class AuditoryNerveResponse:
         self.ANR = None
 
     def save(self):
+        if self.periph.conf.pypet:
+            return
         # todo: make this follow the naming conventions in base.py.
         name = r.AuditoryNerveOutputFilePrefix + "{0}dB".format(self.periph.output[p.StimulusLevel])
         outpath = self.periph.outputFolder

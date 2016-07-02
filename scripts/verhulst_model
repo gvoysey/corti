@@ -7,7 +7,7 @@ Usage:
     verhulst_model --version
     verhulst_model [--out <outpath>] [--peripheryType <model>] [-c | --clean] [-v | --verbose] [--pSave <peripheryFlag>]
                    [--stimulusFile <stimulusPath> | (--wavFile <wavPath> --level <spl>)] [--no-cf-weighting]
-                   [--neuropathy <degradation>] [--noBrainstem | --brainstemType <brainstem>]
+                   [--neuropathy <degradation>] [--noBrainstem | --brainstemType <brainstem>] [--pypet]
 
 Options:
     -h --help                       Show this screen and exit.
@@ -29,12 +29,14 @@ Options:
                                     Use 'mild', 'moderate', or 'severe' to apply uniform 10, 25, or 50% damage to all
                                     fiber types, or specify 'ls-mild', 'ls-moderate', or 'ls-severe' to selectively
                                     degrade low-SR fibers only.
+    --pypet                         Set this option when calling this script from pypet.  Data saving will be managed by
+                                    PyPet, and no summary figures will be generated.
     -v --verbose                    Display detailed debug log output to STDOUT.
 """
 
 import sys
 from datetime import datetime
-from logging import info, basicConfig, getLogger, ERROR, INFO
+from logging import info, getLogger, ERROR
 
 import os
 import shutil
@@ -49,14 +51,10 @@ from verhulst_runner.base import runtime_consts, PeripheryType
 from verhulst_runner.brainstem import simulate_brainstem
 from verhulst_runner.periphery_configuration import PeripheryConfiguration
 
-# By default, log INFO and up.
-basicConfig(format='%(levelname)s %(asctime)s- %(message)s', datefmt='%d %b %H:%M:%S', level=INFO)
-
 
 def main(inputargs):
-    # get the command line args
     args = docopt(__doc__, version=__version__, argv=inputargs)
-
+    pypet = args["--pypet"]
     # configure the log level appropriately
     if not args["--verbose"]:
         getLogger().setLevel(ERROR)
@@ -78,12 +76,15 @@ def main(inputargs):
     stimuli_dict = s.generate_stimulus(stimuli_dict)
     # actually run the simulation
     system('cls' if name == 'nt' else 'clear')
-    info("output directory set to {0}".format(__set_output_dir(args["--out"])))
     # get model type
     periphType = PeripheryType[args["--peripheryType"].casefold()]
     # configure the periphery to run
-    conf = PeripheryConfiguration(__set_output_dir(args["--out"]), args["--pSave"], stimuli_dict, periphType,
-                                  args["--neuropathy"])
+    conf = PeripheryConfiguration(dataFolder=__set_output_dir(args["--out"]),
+                                  storeFlag=args["--pSave"],
+                                  stimuli=stimuli_dict,
+                                  modelType=periphType,
+                                  degradation=args["--neuropathy"],
+                                  pypet=pypet)
     print("Simulating periphery ({0}) response ...".format(args["--peripheryType"]))
     # run all the levels through the periphery model
     peripheryResults = Periphery(conf).run()
@@ -107,14 +108,15 @@ def main(inputargs):
         brainResults = None
 
     # Generate summary plots
-    print("Generating summary figures ...")
-    save_summary_pdf(periphery=peripheryResults,
-                     brain=brainResults,
-                     anr=auditoryNerveResponses,
-                     conf=conf,
-                     fileName="summary-plots.pdf",
-                     outputPath=peripheryResults[0].outputFolder)
-    print("\tfinished generating figures.")
+    if not args["--pypet"]:
+        print("Generating summary figures ...")
+        save_summary_pdf(periphery=peripheryResults,
+                         brain=brainResults,
+                         anr=auditoryNerveResponses,
+                         conf=conf,
+                         fileName="summary-plots.pdf",
+                         outputPath=peripheryResults[0].outputFolder)
+        print("\tfinished generating figures.")
 
     # Delete old runs, if requested.
     if args["--clean"]:
@@ -122,11 +124,14 @@ def main(inputargs):
         __clean(conf.dataFolder, peripheryResults[0].outputFolder)
 
     print("Simulation finished.")
-    if __name__ == "__main__":
-        return 0
+    if pypet:
+        return {
+            "periphery"     : peripheryResults,
+            "auditory_nerve": auditoryNerveResponses,
+            "brainstem"     : brainResults
+        }
     else:
-        return {"foo": "bar"}
-
+        return 0
 
 def _sanitize_level(levels: str):
     """ Takes a string list of level parameters and converts them to a list of floats.
@@ -193,7 +198,4 @@ def __set_output_dir(temp: str) -> str:
 
 
 if __name__ == "__main__":
-    if len(sys.argv) > 1:
-        sys.exit(main(sys.argv[1:]))
-    else:
-        sys.exit(main(""))
+    sys.exit(main(sys.argv[1:] if len(sys.argv) > 1 else ""))
