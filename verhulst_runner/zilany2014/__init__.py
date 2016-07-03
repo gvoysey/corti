@@ -40,7 +40,7 @@ def run_zilany2014(
         seed,
         conf,
         level,
-        output,
+        output=None,
         cohc=1,
         cihc=1,
         powerlaw='approximate',
@@ -177,7 +177,8 @@ def __munge(zil, sound, output):
         p.StimulusLevel                : zil[0]['level'],
         p.Stimulus                     : sound,
     }
-    retval.outputFolder = output
+    if output is not None:
+        retval.outputFolder = output
     return retval
 
 
@@ -196,6 +197,7 @@ def _run_channel(args):
     ffGn = args['ffGn']
 
     ### Run BM, IHC
+    # noinspection PyTypeChecker
     vihc = _zilany2014.run_ihc(
             signal=signal,
             cf=cf,

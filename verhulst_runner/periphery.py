@@ -58,13 +58,17 @@ class Periphery:
                 self.save_model_results(i, results[i].output)
         elif self.conf.modelType == PeripheryType.zilany:
             for i, v in enumerate(self.conf.stimulus):
+                try:
+                    output = self.output_folder
+                except AttributeError:
+                    output = None
                 results.append(run_zilany2014(sound=v,
                                               fs=self.conf.Fs,
                                               anf_num=(1, 1, 1),
                                               species="human",
                                               seed=0,
                                               conf=self.conf,
-                                              output=self.output_folder,
+                                              output=output,
                                               level=self.conf.stimulusLevels[i],
                                               cf=(125, 20e3, 1e3)))
                 self.save_model_results(i, results[i].output)
