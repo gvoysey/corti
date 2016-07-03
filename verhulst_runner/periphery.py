@@ -3,7 +3,6 @@ from datetime import datetime
 
 import numpy as np
 import os
-import progressbar
 import yaml
 from os import path
 
@@ -45,6 +44,7 @@ class Periphery:
                                       range(len(self.stimulus))]
                 self.sectionsNo = self.conf.NumberOfSections
             except ImportError:
+                polesPath, CochleaModel = None
                 logging.error("The package `verhulst-model-core` is not installed.  Please install it or use the zilany model.")
 
     def run(self) -> [PeripheryOutput]:
@@ -97,19 +97,14 @@ class Periphery:
         fs = self.Fs
 
         from verhulst_model_core import ihc, anf_model
-        with progressbar.ProgressBar(max_value=4) as bar:
-            logging.info("Calculating IHC potentials")
-            rp = ihc(coch.Vsolution, fs)
-            bar.update(1)
-            logging.info("Calculating IFRs (high)")
-            anfH = anf_model(rp, coch.cf, fs, 'high')
-            bar.update(2)
-            logging.info("Calculating IFRs (medium)")
-            anfM = anf_model(rp, coch.cf, fs, 'medium')
-            bar.update(3)
-            logging.info("Calculating IFRs (low)")
-            anfL = anf_model(rp, coch.cf, fs, 'low')
-            bar.update(4)
+        logging.info("Calculating IHC potentials")
+        rp = ihc(coch.Vsolution, fs)
+        logging.info("Calculating IFRs (high)")
+        anfH = anf_model(rp, coch.cf, fs, 'high')
+        logging.info("Calculating IFRs (medium)")
+        anfM = anf_model(rp, coch.cf, fs, 'medium')
+        logging.info("Calculating IFRs (low)")
+        anfL = anf_model(rp, coch.cf, fs, 'low')
         # save intermediate results out to the output container (and possibly to disk)
         out = PeripheryOutput()
         out.output = {
@@ -160,7 +155,7 @@ class Periphery:
             return
         outfile = runtime_consts.PeripheryOutputFilePrefix + str(self.conf.stimulusLevels[ii]) + "dB"
         np.savez(path.join(self.output_folder, outfile), **{name: data for name, data in tosave.values()})
-        logging.info("wrote {0} to {1}".format(outfile, path.relpath(self.output_folder, os.getcwd())))
+        logging.info("wrote {0} to {1}".format(outfile, path.abspath(self.output_folder)))
 
     def save_model_configuration(self) -> None:
         if self.conf.pypet:
@@ -169,4 +164,4 @@ class Periphery:
         with open(path.join(self.output_folder, runtime_consts.PeripheryConfigurationName), "w") as _:
             yaml.dump(self.conf, _)
             logging.info("wrote {} to {}".format(runtime_consts.PeripheryConfigurationName,
-                                                 path.relpath(self.output_folder, os.getcwd())))
+                                                 path.abspath(self.output_folder)))

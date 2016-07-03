@@ -3,7 +3,6 @@ from typing import Union
 
 import numpy as np
 import numpy.matlib
-import os
 from os import path
 
 from verhulst_runner import PeripheryOutput, PeripheryType, periph_consts as p, runtime_consts as r, an_consts as a
@@ -52,7 +51,7 @@ class AuditoryNerveResponse:
             a.HighSR: self.highSR,
             a.SumANR: self.ANR
         })
-        logging.info("wrote {0:<10} to {1}".format(name, path.relpath(outpath, os.getcwd())))
+        logging.info("wrote {0:<10} to {1}".format(name, path.abspath(outpath)))
 
     def unweighted_an_response(self, ls_normal: float = 3, ms_normal: float = 3, hs_normal: float = 13) -> np.ndarray:
         """Create an auditory nerve population response with a fixed distribution of fiber types per hair cell.

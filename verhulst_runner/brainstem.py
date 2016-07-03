@@ -1,7 +1,6 @@
 import logging
 
 import numpy as np
-import os
 import progressbar
 from os import path
 
@@ -48,7 +47,6 @@ class CentralAuditoryResponse:
         Simulate the brainstem and midbrain according to the single IC component system given in
         Nelson, P. C., and Carney, L. H. (2004). “A phenomenological model of peripheral and central
         neural responses to amplitude-modulated tones,” J. Acoust. Soc. Am., 116, 2173. doi:10.1121/1.1784442
-        :param saveFlag: If true, output will be saved to disk.
         """
 
         output = self._simulate()
@@ -62,7 +60,7 @@ class CentralAuditoryResponse:
         outpath = self.anfOut.outputFolder
         # save the data out to a npz file whose keys are the field names of output.
         np.savez(path.join(outpath, name), **output)
-        logging.log(logging.INFO, "wrote {0:<10} to {1}".format(name, path.relpath(outpath, os.getcwd())))
+        logging.log(logging.INFO, "wrote {0:<10} to {1}".format(name, path.abspath(outpath)))
 
     def _shift(self, delay: float) -> int:
         return int(round(delay * self.Fs))
@@ -71,6 +69,7 @@ class CentralAuditoryResponse:
         """Make an alpha function of the form
         $\frac{1}{sF^2}*\vec{t}*e^{\frac{-\vec{t}}{sF}}$
         """
+        # noinspection PyTypeChecker
         return np.multiply((1 / (scalingFactor ** 2)) * self.time, np.exp(((-1 * self.time) / scalingFactor)))
 
     def _excitation_wave(self, tex: float) -> np.ndarray:
