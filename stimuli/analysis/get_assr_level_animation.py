@@ -1,6 +1,7 @@
 # Import modules
-import os
 import matplotlib as mpl
+import os
+
 mpl.use('Agg')
 import numpy as np
 import matplotlib.pyplot as plt
@@ -82,11 +83,11 @@ periph_an_hs_anim = periph_an_high[low_smpl_lim:upper_smpl_lim, :]
 periph_an_ms_anim = periph_an_med[low_smpl_lim:upper_smpl_lim, :]
 periph_an_ls_anim = periph_an_low[low_smpl_lim:upper_smpl_lim, :]
 
-stim_abs_max_val = ceil( np.max([np.max(periph_an_stim_anim), 
-	np.abs(np.min(periph_an_stim_anim))]) * 100 ) / 100
+stim_abs_max_val = ceil(np.max([np.max(periph_an_stim_anim),
+                                np.abs(np.min(periph_an_stim_anim))]) * 100) / 100
 
-bm_abs_max_val = ceil( np.max([np.max(periph_an_bm_anim), 
-	np.abs(np.min(periph_an_bm_anim))]) * 100000 ) / 100000
+bm_abs_max_val = ceil(np.max([np.max(periph_an_bm_anim),
+                              np.abs(np.min(periph_an_bm_anim))]) * 100000) / 100000
 
 an_sr_abs_max_val = int(ceil(np.max([np.max(periph_an_high[
     low_smpl_lim:upper_smpl_lim, :]), np.max(periph_an_med[
@@ -99,11 +100,11 @@ an_sum_max_val = int(ceil(np.max(periph_an_sum[low_smpl_lim:upper_smpl_lim, :]))
 fig_an_anim = plt.figure(figsize=(12,8))
 
 with sns.axes_style("ticks"):
-	gs_an_anim_stim = gridspec.GridSpec(nrows=1, ncols=3)
-	gs_an_anim_stim.update(left=0.05, right=0.95, top=0.92, bottom=0.80)
-	ax_an_anim_stim = fig_an_anim.add_subplot(gs_an_anim_stim[0,:])
-	ax_an_anim_stim.get_yaxis().set_visible(False)
-	sns.despine(left=True)
+    gs_an_anim_stim = gridspec.GridSpec(nrows=1, ncols=3)
+    gs_an_anim_stim.update(left=0.05, right=0.95, top=0.92, bottom=0.80)
+    ax_an_anim_stim = fig_an_anim.add_subplot(gs_an_anim_stim[0, :])
+    ax_an_anim_stim.get_yaxis().set_visible(False)
+    sns.despine(left=True)
 
 gs_an_anim_bm_sum = gridspec.GridSpec(nrows=1, ncols=2)
 gs_an_anim_bm_sum.update(left=0.08, right=0.95, top=0.72, bottom=0.44)

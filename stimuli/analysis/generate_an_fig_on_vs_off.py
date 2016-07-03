@@ -16,11 +16,11 @@ Options:
 
 
 # Import modules
-import os
 import sys
 
 import matplotlib as mpl
 import numpy as np
+import os
 
 mpl.use('Agg')
 

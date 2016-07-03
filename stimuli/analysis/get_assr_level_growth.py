@@ -7,15 +7,12 @@ Created on Wed Apr 27 10:16:27 2016
 
 # Import modules
 import numpy as np
-import matplotlib.pyplot as plt
 #from matplotlib import cm
 # import seaborn as sns
 from tkinter import filedialog, Tk
 from os import listdir, sep
 from os.path import isfile, join
 #from mpl_toolkits.axes_grid1 import make_axes_locatable
-from math import ceil
-from scipy import signal
 
 # Get files to load from model path directory
 tk_win = Tk()

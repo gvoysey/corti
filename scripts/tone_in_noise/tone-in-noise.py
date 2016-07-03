@@ -7,8 +7,6 @@ from os import path
 from pypet import Environment
 from pypet.utils.explore import cartesian_product
 
-from verhulst_runner import base
-
 verhulst_model = SourceFileLoader('verhulst_model', './verhulst_model').load_module()
 
 periphery_type = '--peripheryType'
@@ -30,7 +28,7 @@ def tone_in_noise(traj: Environment.trajectory):
 
 
 def main():
-    wavpath = path.join(base.rootPath, "resources", "click-with-noise-stimuli")
+    wavpath = path.join(path.dirname(path.abspath(__file__)), "wavs")
     stimuli = [path.join(wavpath, i) for i in glob.glob(path.join(wavpath, "*.wav"))]
     outfile = path.join(path.expanduser("~"), "pypet-thesis-output", "thesis-output.hdf5")
     env = Environment(trajectory='tone-in-noise',
