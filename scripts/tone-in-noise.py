@@ -20,10 +20,13 @@ level = "--level"
 
 def tone_in_noise(traj: Environment.trajectory):
     commandstr = " ".join([periphery_type, traj.periphery, brainstem_type, traj.brainstem,
-                           traj.weighting, wavfile, traj.wavfile, level, str(traj.level), "--pypet"])
+                           traj.weighting, "--pypet -v"])
+    #                       traj.weighting, wavfile, traj.wavfile, level, str(traj.level), "--pypet"])
     print("Running next iteration: " + commandstr)
     result = verhulst_model.main(commandstr)
-    traj.add_result('resultDict', verhulst_model.main(commandstr), "a dict of results")
+    # do that natural naming thing here and then lots of add_results
+    traj.f_add_result('resultDict', result, "a dict of results")
+    # free up some cache.
 
 
 def main():
@@ -49,8 +52,8 @@ def main():
         "periphery": ['zilany'],
         "brainstem": ['carney2015'],
         "weighting": [""],
-        "wavfile"  : [stimuli[0]],
-        "level"    : [60]
+        # "wavfile"  : [stimuli[0]],
+        # "level"    : [60]
     }
 
     # parameter_dict = {

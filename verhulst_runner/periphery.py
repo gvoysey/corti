@@ -6,10 +6,6 @@ import os
 import yaml
 from os import path
 
-# from verhulst_model_core.ANF_Sarah import *
-# from verhulst_model_core.Sarah_ihc import *
-# from verhulst_model_core.cochlear_model_old import *
-
 from verhulst_runner.base import runtime_consts, periph_consts as p, PeripheryType
 from verhulst_runner.periphery_configuration import PeripheryConfiguration, PeripheryOutput
 from verhulst_runner.zilany2014 import run_zilany2014
@@ -32,6 +28,7 @@ class Periphery:
 
         if self.conf.modelType == PeripheryType.verhulst:
             try:
+                # noinspection PyUnresolvedReferences
                 from verhulst_model_core import polesPath, CochleaModel
                 self.probes = self.conf.probeString
                 self.irregularities = self.conf.irregularities
@@ -44,8 +41,8 @@ class Periphery:
                                       range(len(self.stimulus))]
                 self.sectionsNo = self.conf.NumberOfSections
             except ImportError:
-                polesPath, CochleaModel = None
-                logging.error("The package `verhulst-model-core` is not installed.  Please install it or use the zilany model.")
+                logging.error(
+                        "The package `verhulst-model-core` is not installed.  Please install it or use the zilany model.")
 
     def run(self) -> [PeripheryOutput]:
         """Simulate sound propagation up to the auditory nerve for many stimulus levels

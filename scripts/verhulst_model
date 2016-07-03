@@ -47,7 +47,7 @@ from verhulst_runner import Periphery, Stimulus
 from verhulst_runner._version import __version__
 from verhulst_runner.analysis.plots import save_summary_pdf
 from verhulst_runner.auditory_nerve_response import AuditoryNerveResponse
-from verhulst_runner.base import runtime_consts, PeripheryType
+from verhulst_runner.base import runtime_consts, PeripheryType, an_consts as a
 from verhulst_runner.brainstem import simulate_brainstem
 from verhulst_runner.periphery_configuration import PeripheryConfiguration
 
@@ -110,7 +110,7 @@ def main(inputargs):
     if pypet:
         return {
             "periphery"     : peripheryResults,
-            "auditory_nerve": auditoryNerveResponses,
+            "auditory_nerve": [{a.SumANR: x} for x in auditoryNerveResponses],
             "brainstem"     : brainResults
         }
     else:
