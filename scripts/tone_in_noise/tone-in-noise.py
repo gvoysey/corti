@@ -2,9 +2,9 @@
 import glob
 import sys
 from datetime import datetime
+
 from importlib.machinery import SourceFileLoader
 from os import path
-
 from pypet import Environment
 from pypet.utils.explore import cartesian_product
 
@@ -87,7 +87,7 @@ def main():
         "periphery" : ['verhulst', 'zilany'],
         "brainstem" : ['nelsoncarney04', 'carney2015'],
         "weighting" : [cf_weighting, ""],
-        "wavfile"   : [stimuli[1]],
+        "wavfile"   : stimuli,
         "level"     : [60, 80, 90],
         "neuropathy": ["none", "mild", "moderate", "severe", "ls-mild", "ls-moderate", "ls-severe"]
     }
