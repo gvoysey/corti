@@ -28,7 +28,7 @@ Options:
     --neuropathy=<degradation>      Specify the damage to the auditory periphery to be applied.
                                     Use 'mild', 'moderate', or 'severe' to apply uniform 10, 25, or 50% damage to all
                                     fiber types, or specify 'ls-mild', 'ls-moderate', or 'ls-severe' to selectively
-                                    degrade low-SR fibers only.
+                                    degrade low-SR fibers only. [default: none]
     --pypet                         Set this option when calling this script from pypet.  Data saving will be managed by
                                     PyPet, and no summary figures will be generated.
     -v --verbose                    Display detailed debug log output to STDOUT.

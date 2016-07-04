@@ -142,13 +142,14 @@ class AuditoryNerveResponse:
         :return:
         """
         if d is None:
-            return
+            return 1, 1, 1
         else:
             return {
-                "mild": (0.9, 0.9, 0.9),
-                "moderate": (0.75, 0.75, 0.75),
-                "severe": (0.50, 0.50, 0.50),
-                "ls-mild": (1, 0.9, 0.9),
+                "none"       : (1, 1, 1),
+                "mild"       : (0.9, 0.9, 0.9),
+                "moderate"   : (0.75, 0.75, 0.75),
+                "severe"     : (0.50, 0.50, 0.50),
+                "ls-mild"    : (1, 0.9, 0.9),
                 "ls-moderate": (1, 0.75, 0.75),
-                "ls-severe": (1, 0.5, 0.5),
-            }.get(d.casefold(), None)
+                "ls-severe"  : (1, 0.5, 0.5),
+            }.get(d.casefold(), (1, 1, 1))
