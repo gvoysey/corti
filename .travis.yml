@@ -5,16 +5,14 @@ sudo: required
 python:
   - "3.5"
 
-# pre install
-# command to install dependencies
 install:
  - sudo apt-get install gfortran libblas-dev liblapack-dev libhdf5-serial-dev netcdf-bin libnetcdf-dev
- #- ln -s /usr/include/hdf5/serial /usr/include/hdf5/include
- #- export HDF5_DIR=/usr/include/hdf5
  - pip install py-cpuinfo
  - pip install -r requirements.txt
+ - python setup.py build_ext --inplace
  # - pip install git+https://github.com/AuditoryBiophysicsLab/verhulst-model-core.git@master
- - python setup.py test
 # command to run tests
+
+ - python setup.py test
 script: python -c "assert 1"
 #py.test
