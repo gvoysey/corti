@@ -8,7 +8,9 @@ python:
 # pre install
 # command to install dependencies
 install:
- - sudo apt-get install gfortran libblas-dev liblapack-dev
+ - sudo apt-get install gfortran libblas-dev liblapack-dev libhdf5-serial-dev netcdf-bin libnetcdf-dev
+ - ln -s /usr/include/hdf5/serial /usr/include/hdf5/include
+ - export HDF5_DIR=/usr/include/hdf5
  - pip install py-cpuinfo
  - pip install -r requirements.txt
  # - pip install git+https://github.com/AuditoryBiophysicsLab/verhulst-model-core.git@master
