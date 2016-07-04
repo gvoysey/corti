@@ -1,15 +1,15 @@
 #!/usr/bin/env python
 import glob
 import sys
-
 from importlib.machinery import SourceFileLoader
 from os import path
+
 from pypet import Environment
 from pypet.utils.explore import cartesian_product
 
 from verhulst_runner.base import brain_consts, an_consts, periph_consts
 
-verhulst_model = SourceFileLoader('verhulst_model', './verhulst_model').load_module()
+verhulst_model = SourceFileLoader('verhulst_model', '../verhulst_model').load_module()
 
 periphery_type = '--peripheryType'
 brainstem_type = '--brainstemType'
@@ -21,7 +21,7 @@ level = "--level"
 def tone_in_noise(traj: Environment.trajectory):
     commandstr = " ".join([periphery_type, traj.periphery, brainstem_type, traj.brainstem,
                            traj.weighting, "--pypet -v"])
-    #                       traj.weighting, wavfile, traj.wavfile, level, str(traj.level), "--pypet"])
+    #                       traj.weighting, wavfile, traj.wavfile, level, str(traj.level), "--pypet -v"])
     print("Running next iteration: " + commandstr)
     periphery, anr, brain = verhulst_model.main(commandstr)
     periphery = periphery[0]
@@ -30,9 +30,10 @@ def tone_in_noise(traj: Environment.trajectory):
     # do that natural naming thing here and then lots of add_results
 
     # Periphery results
-    traj.f_add_result('periphery.timestamp', periphery.conf.run_timestamp.strftime("%d %b %y  - %H:%M:%s"))
+    traj.f_add_result('periphery.timestamp', periphery.conf.run_timestamp.strftime("%d %b %y - %H:%M:%S"))
     traj.f_add_result('periphery.conf.modelType', periphery.conf.modelType.name)
-    traj.f_add_result('periphery.conf.degradation', periphery.conf.degradation)
+    deg = periphery.conf.degradation if periphery.conf.degradation is not None else (0, 0, 0)
+    traj.f_add_result('periphery.conf.degradation', deg)
     # god this is ugly and brittle.
     try:
         snr = float(path.basename(traj.wavfile).split('-')[3][0:2])
@@ -82,7 +83,7 @@ def main():
 
     parameter_dict = {
         "periphery": ['zilany'],
-        "brainstem": ['carney2015'],
+        "brainstem": ['nelsoncarney04'],
         "weighting": [""],
         # "wavfile"  : [stimuli[0]],
         # "level"    : [60]
