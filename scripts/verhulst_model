@@ -93,7 +93,7 @@ def main(inputargs):
         brainResults = None
 
     # Generate summary plots
-    if not args["--pypet"]:
+    if not pypet:
         info("Generating summary figures ...")
         save_summary_pdf(periphery=peripheryResults,
                          brain=brainResults,
@@ -108,11 +108,11 @@ def main(inputargs):
 
     info("Simulation finished.")
     if pypet:
-        return {
-            "periphery"     : peripheryResults,
-            "auditory_nerve": [{a.SumANR: x} for x in auditoryNerveResponses],
-            "brainstem"     : brainResults
-        }
+        return (
+            peripheryResults,
+            [{a.SumANR: x} for x in auditoryNerveResponses],
+            brainResults
+        )
     else:
         return 0
 
@@ -198,4 +198,4 @@ def _make_stimuli(args: dict) -> dict:
 
 
 if __name__ == "__main__":
-    sys.exit(main(sys.argv[1:] if len(sys.argv) > 1 else ""))
+    sys.exit(main(sys.argv[1:] if len(sys.argv) > 1 else ""))  # guaranteed to pass the right number of arguments.
