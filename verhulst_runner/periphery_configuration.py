@@ -45,7 +45,7 @@ class PeripheryConfiguration:
         self.dataFolder = dataFolder
         self.storeFlag = storeFlag
         self.degradation = degradation
-        self.run_timestamp = datetime.now()
+        self.run_timestamp = datetime.now().strftime("%d %b %y  - %H:%M:%s")
         self.pypet = pypet
 
 
