@@ -30,8 +30,7 @@ def tone_in_noise(traj: Environment.trajectory):
     # do that natural naming thing here and then lots of add_results
 
     # Periphery results
-    conf_dict = {key: value for key, value in periphery.conf.__dict__.items() if value is not None}
-    conf_dict['modelType'] = conf_dict['modelType'].name
+    traj.f_add_result('periphery.timestamp', periphery.conf.run_timestamp.strftime("%d %b %y  - %H:%M:%s"))
     traj.f_add_result('periphery.conf.modelType', periphery.conf.modelType.name)
     traj.f_add_result('periphery.conf.degradation', periphery.conf.degradation)
     # god this is ugly and brittle.
