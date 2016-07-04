@@ -9,8 +9,9 @@ python:
 # command to install dependencies
 install:
  - sudo apt-get install gfortran libblas-dev liblapack-dev
+ - pip install cpuinfo
  - pip install -r requirements.txt
-# - pip install git+https://github.com/AuditoryBiophysicsLab/verhulst-model-core.git@master
+ # - pip install git+https://github.com/AuditoryBiophysicsLab/verhulst-model-core.git@master
  - python setup.py test
 # command to run tests
 script: python -c "assert 1"
