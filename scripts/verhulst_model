@@ -5,9 +5,16 @@ Verhulst Model.
 Usage:
     verhulst_model -h | --help
     verhulst_model --version
-    verhulst_model [--out <outpath>] [--peripheryType <model>] [-c | --clean] [-v | --verbose] [--pSave <peripheryFlag>]
-                   [--stimulusFile <stimulusPath> | (--wavFile <wavPath> --level <spl>)] [--no-cf-weighting]
-                   [--neuropathy <degradation>] [--noBrainstem | --brainstemType <brainstem>] [--pypet]
+    verhulst_model [--out <outpath>]
+                   [--peripheryType <model>]
+                   [-c | --clean]
+                   [-v | --verbose]
+                   [--pSave <peripheryFlag>]
+                   [--stimulusFile <stimulusPath> | (--wavFile <wavPath> --level <spl>)]
+                   [--no-cf-weighting]
+                   [--neuropathy <degradation>]
+                   [--noBrainstem | --brainstemType <brainstem>]
+                   [--pypet]
 
 Options:
     -h --help                       Show this screen and exit.

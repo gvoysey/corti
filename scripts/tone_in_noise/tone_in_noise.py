@@ -1,8 +1,23 @@
 #!/usr/bin/env python
+"""
+Tone in noise.  Runs many configurations of the tone in noise experiment used by Mehraei et. al. (2016) using a variety of models.
+
+Usage:
+    tone_in_noise.py -h | --help
+    tone_in_noise.py --version
+    tone_in_noise.py [--out <outpath>]
+
+Options:
+    -h --help           Show this screen and exit.
+    --version           Display the version and exit.
+    --out=<outpath>     Specify where pypet's output HDF5 database file should be saved.
+                        [default: ~/pypet-output/tone-in-noise.hdf5]
+"""
 import glob
 import sys
 from datetime import datetime
 
+from docopt import docopt
 from importlib.machinery import SourceFileLoader
 from os import path
 from pypet import Environment
@@ -63,10 +78,11 @@ def tone_in_noise(traj: Environment.trajectory):
 
 
 def main():
+    args = docopt(__doc__)
     tic = datetime.now()
     wavpath = path.join(path.dirname(path.abspath(__file__)), "wavs")
     stimuli = [path.join(wavpath, i) for i in glob.glob(path.join(wavpath, "*.wav"))]
-    outfile = path.join(path.expanduser("~"), "pypet-thesis-output", "thesis-output.hdf5")
+    outfile = path.realpath(path.expanduser(args["--out"]))
     env = Environment(trajectory='tone-in-noise',
                       filename=outfile,
                       overwrite_file=True,
