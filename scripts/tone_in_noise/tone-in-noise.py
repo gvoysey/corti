@@ -2,9 +2,9 @@
 import glob
 import sys
 from datetime import datetime
-
 from importlib.machinery import SourceFileLoader
 from os import path
+
 from pypet import Environment
 from pypet.utils.explore import cartesian_product
 
@@ -31,7 +31,7 @@ def tone_in_noise(traj: Environment.trajectory):
     # do that natural naming thing here and then lots of add_results
 
     # Periphery results
-    traj.f_add_result('periphery.timestamp', periphery.conf.run_timestamp.strftime("%d %b %y  - %H:%M:%s"))
+    traj.f_add_result('periphery.timestamp', periphery.conf.run_timestamp.strftime("%d %b %y - %H:%M:%S"))
     traj.f_add_result('periphery.conf.modelType', periphery.conf.modelType.name)
     traj.f_add_result('periphery.conf.neuropathy', periphery.conf.degradation)
     traj.f_add_result('periphery.conf.cf_weighting', True if traj.weighting else False)
