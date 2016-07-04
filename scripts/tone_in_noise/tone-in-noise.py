@@ -29,26 +29,26 @@ def tone_in_noise(traj: Environment.trajectory):
     brain = brain[0]
     # do that natural naming thing here and then lots of add_results
     # Periphery results
-    traj.f_add_result('periphery.conf', periphery.conf.__dict__)
+    traj.f_add_result('periphery.conf', periphery.conf.__dict__, "")
     # god this is ugly and brittle.
     try:
         snr = float(path.basename(traj.wavfile).split('-')[3][0:2])
     except IndexError:
         snr = float('Inf')
-    traj.f_add_result('periphery.snr', snr)
-    traj.f_add_result('periphery.stimulus', periphery.output[periph_consts.Stimulus])
-    traj.f_add_result('periphery.high_spont', periphery.output[periph_consts.AuditoryNerveFiberHighSpont])
-    traj.f_add_result('periphery.medium_spont', periphery.output[periph_consts.AuditoryNerveFiberMediumSpont])
-    traj.f_add_result('periphery.low_spont', periphery.output[periph_consts.AuditoryNerveFiberLowSpont])
+    traj.f_add_result('periphery.snr', snr, "")
+    traj.f_add_result('periphery.stimulus', periphery.output[periph_consts.Stimulus], "")
+    traj.f_add_result('periphery.high_spont', periphery.output[periph_consts.AuditoryNerveFiberHighSpont], "")
+    traj.f_add_result('periphery.medium_spont', periphery.output[periph_consts.AuditoryNerveFiberMediumSpont], "")
+    traj.f_add_result('periphery.low_spont', periphery.output[periph_consts.AuditoryNerveFiberLowSpont], "")
     # ANR result.
     traj.f_add_result('auditory_nerve.summed_response', anr[an_consts.SumANR], "Summed and weighted")
     # Brainstem results
-    traj.f_add_result('brainstem.wave1', brain[brain_consts.Wave1_AN])
-    traj.f_add_result('brainstem.wave3', brain[brain_consts.Wave3_CN])
-    traj.f_add_result('brainstem.wave5', brain[brain_consts.Wave5_IC])
+    traj.f_add_result('brainstem.wave1', brain[brain_consts.Wave1_AN], "")
+    traj.f_add_result('brainstem.wave3', brain[brain_consts.Wave3_CN], "")
+    traj.f_add_result('brainstem.wave5', brain[brain_consts.Wave5_IC], "")
 
-    traj.f_add_result('brainstem.cn', brain[brain_consts.CNPopulation])
-    traj.f_add_result('brainstem.ic', brain[brain_consts.ICPopulation])
+    traj.f_add_result('brainstem.cn', brain[brain_consts.CNPopulation], "")
+    traj.f_add_result('brainstem.ic', brain[brain_consts.ICPopulation], "")
 
 
     # free up some cache.
