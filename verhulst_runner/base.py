@@ -106,11 +106,11 @@ stim_consts = StimulusConstants(Click="click",
                                 StimTime="stim_time",
                                 PoststimTime="poststim_time")
 # This is the path of __this file__, which we can then base location on
-rootPath = os.path.dirname(os.path.abspath(__file__))
+modulePath = os.path.dirname(os.path.abspath(__file__))
 
 # other paths relative to root
 
-stimulusTemplatePath = path.join(rootPath, runtime_consts.ResourceDirectoryName
+stimulusTemplatePath = path.join(modulePath, runtime_consts.ResourceDirectoryName
                                  , runtime_consts.StimulusTemplateName)
 
 # PyYAML and blessed have some warnings we'll suppress
