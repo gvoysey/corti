@@ -56,6 +56,7 @@ periph_consts = PeripheryConstants(BMVelocity="bm_velocity",
                                    InnerHairCell="ihc",
                                    Stimulus="stimulus",
                                    StimulusLevel="stimulus_level")
+
 # This is the tuple that contains the naming conventions for Brainstem output
 BrainstemConstants = namedtuple("BrainstemConstants", " Wave1_AN \
                                                         Wave3_CN \
@@ -73,6 +74,7 @@ brain_consts = BrainstemConstants(Wave1_AN="wave1_an",
                                   ICPopulation="ic_pop_resp",
                                   BrainstemModelType="brainstem-model")
 
+# This is the tuple that contains the naming conventions for the Auditory Nerve output
 AuditoryNerveConstants = namedtuple("AuditoryNerveConstants", "LowSR \
                                                                MedSR \
                                                                HighSR \
@@ -105,11 +107,11 @@ stim_consts = StimulusConstants(Click="click",
                                 PrestimTime="prestim_time",
                                 StimTime="stim_time",
                                 PoststimTime="poststim_time")
+
 # This is the path of __this file__, which we can then base location on
 modulePath = os.path.dirname(os.path.abspath(__file__))
 
 # other paths relative to root
-
 stimulusTemplatePath = path.join(modulePath, runtime_consts.ResourceDirectoryName
                                  , runtime_consts.StimulusTemplateName)
 

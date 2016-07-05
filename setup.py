@@ -8,51 +8,45 @@ exec(open('verhulst_runner/_version.py').read())
 extensions = [
     Extension("verhulst_runner.zilany2014._zilany2014",
               [
-                "verhulst_runner/zilany2014/_zilany2014.pyx",
-                "verhulst_runner/zilany2014/model_IHC.c",
-                "verhulst_runner/zilany2014/model_Synapse.c",
-                "verhulst_runner/zilany2014/complex.c"
-            ]
+                  "verhulst_runner/zilany2014/_zilany2014.pyx",
+                  "verhulst_runner/zilany2014/model_IHC.c",
+                  "verhulst_runner/zilany2014/model_Synapse.c",
+                  "verhulst_runner/zilany2014/complex.c"
+              ]
               )
 ]
 
-setup(
-    name='verhulst-runner',
-    version=__version__,
-    # packages=['verhulst_runner',
-    #          'verhulst_runner.analysis',
-    #          ],
-    # package_dir={'verhulst_runner': 'verhulst_runner'},
-    packages=find_packages(),
-        package_data={
-            'verhulst_runner': ['resources/*',
-                                'resources/tone_in_noise/*']
-            },
-    scripts=['scripts/verhulst_model',
-             'scripts/stimulus_generator',
-             'scripts/tone_in_noise.py'],
-    url='https://github.com/gvoysey/thesis-code',
-        license='GPL',
-    ext_modules=cythonize(extensions),
-    include_dirs=[np.get_include()],
-    author='Graham Voysey',
-    author_email='gvoysey@bu.edu',
-        description='An auditory modeling environment for the Zilany 2014 periphery, Verhulst 2015 periphery, '
-                    'Nelson Carney 2004 brainstem and Carney 2015 brainstem models.',
-    install_requires=[
-        'docopt >= 0.6',
-        'matplotlib >= 1.5',
-        'blessed >= 1.14',
-        'numpy >= 1.10',
-        'progressbar2 >= 3.6',
-        'PyYAML > 3.10',
-        'pandas',
-        'cython',
-        'pypet'
-    ],
-    tests_require=[
-        'pytest',
-        'hypothesis'
-    ],
-    test_suite="py.test"
-)
+setup(name='verhulst-runner',
+      version=__version__,
+      packages=find_packages(),
+      package_data={
+          'verhulst_runner': ['resources/*',
+                              'resources/tone_in_noise/*']
+      },
+      scripts=['scripts/verhulst_model',
+               'scripts/stimulus_generator',
+               'scripts/tone_in_noise.py'],
+      url='https://github.com/gvoysey/thesis-code',
+      license='GPL',
+      ext_modules=cythonize(extensions),
+      include_dirs=[np.get_include()],
+      author='Graham Voysey',
+      author_email='gvoysey@bu.edu',
+      description='An auditory modeling environment for the Zilany 2014 periphery, Verhulst 2015 periphery, '
+                  'Nelson Carney 2004 brainstem and Carney 2015 brainstem models.',
+      install_requires=[
+          'docopt >= 0.6',
+          'matplotlib >= 1.5',
+          'blessed >= 1.14',
+          'numpy >= 1.10',
+          'progressbar2 >= 3.6',
+          'PyYAML > 3.10',
+          'pandas',
+          'cython',
+          'pypet'
+      ],
+      tests_require=[
+          'pytest',
+          'hypothesis'
+      ],
+      test_suite="py.test")

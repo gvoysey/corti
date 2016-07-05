@@ -78,6 +78,7 @@ def main(inputargs):
                                   degradation=args["--neuropathy"],
                                   pypet=pypet)
     info("Simulating periphery ({0}) response ...".format(args["--peripheryType"]))
+
     # run all the levels through the periphery model
     peripheryResults = Periphery(conf).run()
 
@@ -108,6 +109,7 @@ def main(inputargs):
                          conf=conf,
                          fileName="summary-plots.pdf",
                          outputPath=peripheryResults[0].outputFolder)
+
     # Delete old runs, if requested.
     if args["--clean"]:
         info("Cleaning up previous model runs ... ")
