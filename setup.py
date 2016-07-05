@@ -3,15 +3,15 @@ from Cython.Build import cythonize
 from setuptools import setup, find_packages, Extension
 
 # makes __version__ a local variable
-exec(open('verhulst_runner/_version.py').read())
+exec(open('core/_version.py').read())
 # http://python-packaging.readthedocs.org/en/latest/command-line-scripts.html
 extensions = [
-    Extension("verhulst_runner.zilany2014._zilany2014",
+    Extension("core.zilany2014._zilany2014",
               [
-                  "verhulst_runner/zilany2014/_zilany2014.pyx",
-                  "verhulst_runner/zilany2014/model_IHC.c",
-                  "verhulst_runner/zilany2014/model_Synapse.c",
-                  "verhulst_runner/zilany2014/complex.c"
+                  "core/zilany2014/_zilany2014.pyx",
+                  "core/zilany2014/model_IHC.c",
+                  "core/zilany2014/model_Synapse.c",
+                  "core/zilany2014/complex.c"
               ]
               )
 ]
@@ -20,10 +20,10 @@ setup(name='verhulst-runner',
       version=__version__,
       packages=find_packages(),
       package_data={
-          'verhulst_runner': ['resources/*',
+          'core': ['resources/*',
                               'resources/tone_in_noise/*']
       },
-      scripts=['scripts/verhulst_model',
+      scripts=['scripts/corti',
                'scripts/stimulus_generator',
                'scripts/tone_in_noise.py'],
       url='https://github.com/gvoysey/thesis-code',

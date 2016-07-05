@@ -3,9 +3,9 @@
 Verhulst Model.
 
 Usage:
-    verhulst_model -h | --help
-    verhulst_model --version
-    verhulst_model [--out <outpath>]
+    corti -h | --help
+    corti --version
+    corti [--out <outpath>]
                    [--peripheryType <model>]
                    [-c | --clean]
                    [-v | --verbose]
@@ -50,13 +50,13 @@ import shutil
 from docopt import docopt
 from os import path, system, name
 
-from verhulst_runner import Periphery, Stimulus
-from verhulst_runner._version import __version__
-from verhulst_runner.analysis.plots import save_summary_pdf
-from verhulst_runner.auditory_nerve_response import AuditoryNerveResponse
-from verhulst_runner.base import runtime_consts, PeripheryType, an_consts as a
-from verhulst_runner.brainstem import simulate_brainstem
-from verhulst_runner.periphery_configuration import PeripheryConfiguration
+from core import Periphery, Stimulus
+from core._version import __version__
+from core.analysis.plots import save_summary_pdf
+from core.auditory_nerve_response import AuditoryNerveResponse
+from core.base import runtime_consts, PeripheryType, an_consts as a
+from core.brainstem import simulate_brainstem
+from core.periphery_configuration import PeripheryConfiguration
 
 
 def main(inputargs):

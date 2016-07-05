@@ -5,7 +5,7 @@ import numpy as np
 import numpy.matlib
 from os import path
 
-from verhulst_runner import PeripheryOutput, PeripheryType, periph_consts as p, runtime_consts as r, an_consts as a
+from core import PeripheryOutput, PeripheryType, periph_consts as p, runtime_consts as r, an_consts as a
 
 
 class AuditoryNerveResponse:

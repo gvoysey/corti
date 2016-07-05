@@ -1,4 +1,4 @@
-# Models of the Auditory Periphery, Brainstem, and Midbrain. 
+# Corti: A python modeling environment for the Auditory Periphery, Brainstem, and Midbrain. 
 [![Build Status](https://travis-ci.org/gvoysey/thesis-code.svg?branch=master)](https://travis-ci.org/gvoysey/thesis-code)
 
 This repository contains a runtime environment for models of the auditory periphery, brainstem, and midbrain. 
@@ -33,7 +33,7 @@ The easy way to install this repo locally is with the command
 
 # Usage
  - `stimulus_generator --help` configure stimuli from WAV files or generate stimuli configuration templates.
- - `verhulst_model --help` load stimuli, configure model parameters, run model, plot output.
+ - `corti --help` load stimuli, configure model parameters, run model, plot output.
   
 # Documentation 
  - Real Soon Now.

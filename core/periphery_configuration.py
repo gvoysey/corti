@@ -3,7 +3,7 @@ from typing import Union
 
 import numpy as np
 
-from verhulst_runner.base import stim_consts as sc, ProbeType, PeripheryType
+from core.base import stim_consts as sc, ProbeType, PeripheryType
 
 
 class PeripheryConfiguration:

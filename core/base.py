@@ -22,8 +22,8 @@ RuntimeConstants = namedtuple("Const", " ModelDirectoryLabelName \
                                   ResourceDirectoryName \
                                   StimulusTemplateName")
 
-runtime_consts = RuntimeConstants(ModelDirectoryLabelName=".verhulst-model-output-root",
-                                  DefaultModelOutputDirectoryRoot="verhulst-output",
+runtime_consts = RuntimeConstants(ModelDirectoryLabelName=".corti-output-root",
+                                  DefaultModelOutputDirectoryRoot="corti-output",
                                   ResultDirectoryNameFormat="%d %b %y - %H%M",
                                   PeripheryOutputFilePrefix="periphery-output-",
                                   BrainstemOutputFilePrefix="central-output-",

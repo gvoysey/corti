@@ -24,10 +24,10 @@ from os import path
 from pypet import Environment
 from pypet.utils.explore import cartesian_product
 
-from verhulst_runner.base import brain_consts, an_consts, periph_consts, modulePath
+from core.base import brain_consts, an_consts, periph_consts, modulePath
 
-verhulst_path = path.join(path.dirname(path.abspath(__file__)), "verhulst_model")
-verhulst_model = SourceFileLoader('verhulst_model', verhulst_path).load_module()
+corti_path = path.join(path.dirname(path.abspath(__file__)), "corti")
+corti = SourceFileLoader('corti', corti_path).load_module()
 
 periphery_type = '--peripheryType'
 brainstem_type = '--brainstemType'
@@ -41,7 +41,7 @@ def tone_in_noise(traj: Environment.trajectory):
     commandstr = " ".join([periphery_type, traj.periphery, brainstem_type, traj.brainstem, neuropathy, traj.neuropathy,
                            traj.weighting, wavfile, traj.wavfile, level, str(traj.level), "--pypet"])
     print("Command String: " + commandstr)
-    periphery, anr, brain = verhulst_model.main(commandstr)
+    periphery, anr, brain = corti.main(commandstr)
     periphery = periphery[0]
     anr = anr[0]
     brain = brain[0]

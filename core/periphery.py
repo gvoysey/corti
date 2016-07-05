@@ -6,9 +6,9 @@ import os
 import yaml
 from os import path
 
-from verhulst_runner.base import runtime_consts, periph_consts as p, PeripheryType
-from verhulst_runner.periphery_configuration import PeripheryConfiguration, PeripheryOutput
-from verhulst_runner.zilany2014 import run_zilany2014
+from core.base import runtime_consts, periph_consts as p, PeripheryType
+from core.periphery_configuration import PeripheryConfiguration, PeripheryOutput
+from core.zilany2014 import run_zilany2014
 
 
 class Periphery:

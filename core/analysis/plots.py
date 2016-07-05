@@ -13,10 +13,11 @@ import numpy as np
 import yaml
 from matplotlib.backends.backend_pdf import PdfPages
 
-from verhulst_runner.base import runtime_consts as r, periph_consts as p, brain_consts as b
-from verhulst_runner.periphery_configuration import PeripheryOutput, PeripheryConfiguration
+from core.base import runtime_consts as r, periph_consts as p, brain_consts as b
+from core.periphery_configuration import PeripheryOutput, PeripheryConfiguration
 
 
+# noinspection PyUnresolvedReferences
 def plot_periphery(periph: {}, conf: PeripheryConfiguration, pdf: PdfPages) -> plt.Figure:
     figure = plt.figure(1, (8.5, 11), dpi=300)
     figure.suptitle(

@@ -19,19 +19,19 @@ Options:
     --make-template=<templatepath>     Generate a copy of the YAML template at the specified location.
 """
 
-import os
-import shutil
 import sys
 from datetime import datetime
 from logging import basicConfig, info, error, INFO, ERROR, getLogger
-from os import path
 
 import numpy as np
+import os
+import shutil
 from docopt import docopt
+from os import path
 
-from verhulst_runner._version import __version__
-from verhulst_runner.base import stimulusTemplatePath, stim_consts as sc
-from verhulst_runner.stimulus import Stimulus
+from core._version import __version__
+from core.base import stimulusTemplatePath, stim_consts as sc
+from core.stimulus import Stimulus
 
 # By default, log INFO and up.
 basicConfig(format='%(levelname)s %(asctime)s- %(message)s', datefmt='%d %b %H:%M:%S', level=INFO)
@@ -61,8 +61,8 @@ def main():
         _save_stimulus(stimulus, level, _set_output_dir(out))
     else:
         _return_stimulus(stimulus, level)
+    return 0
 
-    sys.exit(0)
 
 def _sanitize_level(levels: str):
     """ Takes a string list of level parameters and converts them to a list of floats.
@@ -88,10 +88,10 @@ def _return_stimulus(stimulus: np.ndarray, level: [float]):
     """ Prints the generated stimulus and its sound level to STDOUT
     """
     np.savetxt(sys.stdout.buffer, {
-        sc.Stimulus: stimulus,
-        sc.Levels: level,
+        sc.Stimulus    : stimulus,
+        sc.Levels      : level,
         sc.StimulusType: sc.Custom
-        })
+    })
 
 
 def _set_output_dir(temp: str) -> str:
@@ -116,10 +116,10 @@ def _set_output_dir(temp: str) -> str:
 def _save_stimulus(stimulus: np.ndarray, level: [float], outPath: str):
     outName = "wav_converted_{0}".format(datetime.now().strftime("%d%M%y_%H%M%S")) + str(level) + "dB"
     np.savez(path.join(_set_output_dir(outPath), outName), {
-        sc.Stimulus: stimulus,
-        sc.Levels: level,
+        sc.Stimulus    : stimulus,
+        sc.Levels      : level,
         sc.StimulusType: sc.Custom
-        })
+    })
 
 
 if __name__ == "__main__":

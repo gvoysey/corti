@@ -27,8 +27,8 @@ import numpy as np
 from . import _zilany2014
 from .util import calc_cfs
 from .zilany2014_rate import run_zilany2014_rate
-from verhulst_runner.base import periph_consts as p
-from verhulst_runner.periphery import PeripheryOutput, PeripheryConfiguration
+from core.base import periph_consts as p
+from core.periphery import PeripheryOutput, PeripheryConfiguration
 
 
 def run_zilany2014(

@@ -6,7 +6,7 @@ import yaml
 from os import path
 from scipy.io import wavfile
 
-from verhulst_runner.base import stimulusTemplatePath, stim_consts as sc
+from core.base import stimulusTemplatePath, stim_consts as sc
 
 
 class Stimulus:
@@ -23,7 +23,7 @@ class Stimulus:
         """ Rescale a waveform so that the values are in units of pascals, and returns a matrix of waveforms column-wise
         by level.
         :parameter waveform:  The waveform.
-        :parameter level:     The desired resulting intensities, in dB re 20 uPa.
+        :parameter levels:     The desired resulting intensities, in dB re 20 uPa.
         """
         # make the waveform one-dimensional if it isn't already
         waveform = np.hstack(waveform)
