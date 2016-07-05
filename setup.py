@@ -24,7 +24,10 @@ setup(
     #          ],
     # package_dir={'verhulst_runner': 'verhulst_runner'},
     packages=find_packages(),
-    package_data={'verhulst_runner': ['resources/*']},
+        package_data={
+            'verhulst_runner': ['resources/*',
+                                'resources/tone_in_noise/*']
+            },
     scripts=['scripts/verhulst_model',
              'scripts/stimulus_generator',
              'scripts/tone_in_noise.py'],
