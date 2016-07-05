@@ -23,10 +23,9 @@ from os import path
 from pypet import Environment
 from pypet.utils.explore import cartesian_product
 
-from scripts.base import scriptPath
 from verhulst_runner.base import brain_consts, an_consts, periph_consts, modulePath
 
-verhulst_path = path.join(scriptPath, "verhulst_model")
+verhulst_path = path.join(path.dirname(path.abspath(__file__)), "verhulst_model")
 verhulst_model = SourceFileLoader('verhulst_model', verhulst_path).load_module()
 
 periphery_type = '--peripheryType'
