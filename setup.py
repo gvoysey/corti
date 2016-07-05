@@ -6,15 +6,14 @@ from setuptools import setup, find_packages, Extension
 exec(open('verhulst_runner/_version.py').read())
 # http://python-packaging.readthedocs.org/en/latest/command-line-scripts.html
 extensions = [
-    Extension(
-            "verhulst_runner.zilany2014._zilany2014",
-            [
+    Extension("verhulst_runner.zilany2014._zilany2014",
+              [
                 "verhulst_runner/zilany2014/_zilany2014.pyx",
                 "verhulst_runner/zilany2014/model_IHC.c",
                 "verhulst_runner/zilany2014/model_Synapse.c",
                 "verhulst_runner/zilany2014/complex.c"
             ]
-    )
+              )
 ]
 
 setup(
@@ -30,7 +29,7 @@ setup(
              'scripts/stimulus_generator',
              'scripts/tone_in_noise/tone_in_noise.py'],
     url='https://github.com/gvoysey/thesis-code',
-    license='',
+        license='GPL',
     ext_modules=cythonize(extensions),
     include_dirs=[np.get_include()],
     author='Graham Voysey',

@@ -23,9 +23,11 @@ from os import path
 from pypet import Environment
 from pypet.utils.explore import cartesian_product
 
-from verhulst_runner.base import brain_consts, an_consts, periph_consts
+from scripts.base import scriptPath
+from verhulst_runner.base import brain_consts, an_consts, periph_consts, rootPath
 
-verhulst_model = SourceFileLoader('verhulst_model', 'verhulst_model').load_module()
+verhulst_path = path.join(scriptPath, "verhulst_model")
+verhulst_model = SourceFileLoader('verhulst_model', verhulst_path).load_module()
 
 periphery_type = '--peripheryType'
 brainstem_type = '--brainstemType'
@@ -80,7 +82,7 @@ def tone_in_noise(traj: Environment.trajectory):
 def main():
     args = docopt(__doc__)
     tic = datetime.now()
-    wavpath = path.join(path.dirname(path.abspath(__file__)), "wavs")
+    wavpath = path.join(rootPath, "resources", "tone_in_noise")
     stimuli = [path.join(wavpath, i) for i in glob.glob(path.join(wavpath, "*.wav"))]
     outfile = path.realpath(path.expanduser(args["--out"]))
     env = Environment(trajectory='tone-in-noise',

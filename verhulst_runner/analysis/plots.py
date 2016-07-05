@@ -17,7 +17,7 @@ from verhulst_runner.base import runtime_consts as r, periph_consts as p, brain_
 from verhulst_runner.periphery_configuration import PeripheryOutput, PeripheryConfiguration
 
 
-def plot_periphery(periph: {}, anr: {}, conf: PeripheryConfiguration, pdf: PdfPages) -> plt.Figure:
+def plot_periphery(periph: {}, conf: PeripheryConfiguration, pdf: PdfPages) -> plt.Figure:
     figure = plt.figure(1, (8.5, 11), dpi=300)
     figure.suptitle(
             "{} Model Output: stimulus level {}dB SPL\n".format(conf.modelType.name.title(), periph[p.StimulusLevel]),
@@ -143,7 +143,7 @@ def save_summary_pdf(periphery: [], brain: [], anr: [], conf: PeripheryConfigura
     # population response of AN, CN, IC ...
     with PdfPages(path.join(outputPath, fileName)) as pdf:
         for i in range(len(periph)):
-            plot_periphery(periph[i], anr[i], conf, pdf)
+            plot_periphery(periph[i], conf, pdf)
         if brain is not None:
             for i in range(len(brain)):
                 plot_brainstem(brain[i], conf, pdf)
