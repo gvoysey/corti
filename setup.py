@@ -27,7 +27,7 @@ setup(
     package_data={'verhulst_runner': ['resources/*']},
     scripts=['scripts/verhulst_model',
              'scripts/stimulus_generator',
-             'scripts/tone_in_noise/tone_in_noise.py'],
+             'scripts/tone_in_noise.py'],
     url='https://github.com/gvoysey/thesis-code',
         license='GPL',
     ext_modules=cythonize(extensions),
