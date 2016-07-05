@@ -71,7 +71,7 @@ def main(inputargs):
     # actually run the simulation
     system('cls' if name == 'nt' else 'clear')
     # configure the periphery to run
-    conf = PeripheryConfiguration(dataFolder=__set_output_dir(args["--out"]),
+    conf = PeripheryConfiguration(dataFolder=__set_output_dir(args["--out"], pypet),
                                   storeFlag=args["--pSave"],
                                   stimuli=stimuli_dict,
                                   modelType=PeripheryType[args["--peripheryType"].casefold()],
@@ -157,10 +157,12 @@ def __touch(fname, times=None):
         os.utime(fname, times)
 
 
-def __set_output_dir(temp: str) -> str:
+def __set_output_dir(temp: str, pypet: bool) -> str:
     """ Returns a fully qualified path to the model output root directory.
     The directory is created if it does not exist.
     """
+    if pypet:
+        return
     # just in case we're on windows.
     temp.replace("\\", "\\\\")
 

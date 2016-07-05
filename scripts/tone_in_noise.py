@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 """
-Tone in noise.  Runs many configurations of the tone in noise experiment used by Mehraei et. al. (2016) using a variety of models.
+Tone in noise.  Runs many configurations of the tone in noise experiment used by Mehraei et. al. (2016) using a variety
+of models.
 
 Usage:
     tone_in_noise.py -h | --help
