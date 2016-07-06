@@ -16,7 +16,7 @@ extensions = [
               )
 ]
 
-setup(name='verhulst-runner',
+setup(name='corti',
       version=__version__,
       packages=find_packages(),
       package_data={
@@ -26,7 +26,7 @@ setup(name='verhulst-runner',
       scripts=['scripts/corti',
                'scripts/stimulus_generator',
                'scripts/tone_in_noise.py'],
-      url='https://github.com/gvoysey/thesis-code',
+      url='https://github.com/gvoysey/corti',
       license='GPL',
       ext_modules=cythonize(extensions),
       include_dirs=[np.get_include()],
