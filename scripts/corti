@@ -20,7 +20,7 @@ Options:
     -h --help                       Show this screen and exit.
     --version                       Display the version and exit.
     --peripheryType=<model>         Use either the 'verhulst' or 'zilany' peripheral model. [default: verhulst]
-    --out=<outpath>                 Specify the output location for saved data. [default: ~/verhulst-output]
+    --out=<outpath>                 Specify the output location for saved data. [default: ~/corti-output]
     --pSave=<peripheryFlag>         Which components of the peripheral response to save.  [default: cavihlmesd]
     --noBrainstem                   Simulate the periphery only.
     --brainstemType=<brainstem>     Which brainstem and midbrain model to use: 'nelsoncarney04' or 'carney2015'
