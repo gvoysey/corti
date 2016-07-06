@@ -21,7 +21,7 @@ setup(name='corti',
       packages=find_packages(),
       package_data={
           'core': ['resources/*',
-                              'resources/tone_in_noise/*']
+                   'resources/tone_in_noise/*']
       },
       scripts=['scripts/corti',
                'scripts/stimulus_generator',
