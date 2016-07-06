@@ -12,6 +12,13 @@ the early stages of the auditory system.
 One model of the auditory periphery is simulated using the model developed by Verhulst et. al., hosted [here](https://github.com/AuditoryBiophysicsLab/verhulst-model-core).
 This model **will not be available** without that module installed; contact @gvoysey for access. 
 
+## Citing this software
+[![DOI](https://zenodo.org/badge/23057/gvoysey/corti.svg)](https://zenodo.org/badge/latestdoi/23057/gvoysey/corti)
+
+This code may be cited as: 
+Graham Voysey et al.. (2016). Corti: version 0.9. Zenodo. 10.5281/zenodo.57111
+
+
 
 # Installation 
 this repository may be installed "from source" with `pip`, the python package manager: 
