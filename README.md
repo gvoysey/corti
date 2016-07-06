@@ -34,7 +34,8 @@ The easy way to install this repo locally is with the command
 # Usage
  - `stimulus_generator --help` configure stimuli from WAV files or generate stimuli configuration templates.
  - `corti --help` load stimuli, configure model parameters, run model, plot output.
-  
+ 
+ 
 # Documentation 
  - Real Soon Now.
  - The scientific basis of this code is discussed at length in my [thesis](https://github.com/gvoysey/thesis).  
