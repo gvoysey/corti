@@ -1,3 +1,12 @@
+"""
+This script iteratively computes the scaling factor such that the summed auditory nerve response of the Zilany (2014)
+model results in a wave 1 peak amplitude near 15 uV for an 80dB SPL click stimulus.
+
+This criterion allows it to match the magnitudes of the Verhulst (2012/15) model, which was similarly calibrated.
+
+See the `zilany-scaling-factor` commit (SHA ea73385343d4508244ab192c59212008205acf77 or
+https://github.com/gvoysey/corti/releases/tag/zilany-scaling-factor ) for how it was used to determine the value of Z1.
+"""
 import numpy as np
 
 
