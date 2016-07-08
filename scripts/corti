@@ -21,7 +21,18 @@ Options:
     --version                       Display the version and exit.
     --peripheryType=<model>         Use either the 'verhulst' or 'zilany' peripheral model. [default: verhulst]
     --out=<outpath>                 Specify the output location for saved data. [default: ~/corti-output]
-    --pSave=<peripheryFlag>         Which components of the peripheral response to save.  [default: cavihlmesd]
+    --pSave=<peripheryFlag>         Which components of the peripheral response to save:
+                                    'c' : Center Frequencies
+                                    'a' : Basilar Membrane Acceleration (not supported)
+                                    'v' : Basilar Membrane Velocity (Verhulst model only)
+                                    'i' : Inner Hair Cell Potentials (Verhulst model only)
+                                    'h' : High Spontaneous Rate Fiber IFRs
+                                    'l' : Low Spontaneous Rate Fiber IFRs
+                                    'm' : Medium Spontaneous Rate Fiber IFRs
+                                    'e' : Otoacoustic Emissions (Verhulst model only)
+                                    's' : The stimulus waveform
+                                    'd' : The stimulus level
+                                    [default: cavihlmesd]
     --noBrainstem                   Simulate the periphery only.
     --brainstemType=<brainstem>     Which brainstem and midbrain model to use: 'nelsoncarney04' or 'carney2015'
                                     [default: nelsoncarney04]
