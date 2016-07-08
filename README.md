@@ -1,5 +1,5 @@
 # Corti: A python modeling environment for the Auditory Periphery, Brainstem, and Midbrain. 
-[![Build Status](https://travis-ci.org/gvoysey/thesis-code.svg?branch=master)](https://travis-ci.org/gvoysey/thesis-code)
+[![Build Status](https://travis-ci.org/gvoysey/corti.svg?branch=master)](https://travis-ci.org/gvoysey/corti)
 
 This repository contains a runtime environment for models of the auditory periphery, brainstem, and midbrain. 
 The model(s) are adapted from Verhulst et. al (2012,15), Nelson and Carney (2004), Carney (2015), and Zilany and Bruce (2014).   
