@@ -113,27 +113,27 @@ class CentralAuditoryResponse:
         :param rcn:
         :return:
         """
-        Aic = 1
-        Sic = 1.5
-        Dic = 2e-3
         Tex = 0.5e-3
         Tin = 2e-3
+        Dic = 2e-3
+        Aic = 1
+        Sic = 1.5
         return self._ic(rcn, Aic, Sic, Dic, Tin, Tex)
 
     def _ic_lowpass(self, rcn):
-        Aic = 1
-        Sic = 1.5
-        Dic = 2e-3
         Tex = 2e-3
         Tin = 5e-3
+        Dic = 2e-3
+        Aic = 1
+        Sic = 1.5
         return self._ic(rcn, Aic, Sic, Dic, Tin, Tex)
 
     def _ic_band_reject(self, rcn):
-        Aic = 1
-        Sic = 1.5
-        Dic = 2e-3
         Tex = 0.5e-3
         Tin = 2e-3
+        Dic = 2e-3
+        Aic = 1
+        Sic = 1.5
         return self._ic(rcn, Aic, Sic, Dic, Tin, Tex)
 
     def __simulate_IC(self, modelType: BrainstemType, rcn: np.ndarray, weights=(.5, .25, .25)) -> np.ndarray:
