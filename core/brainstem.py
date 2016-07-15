@@ -109,31 +109,39 @@ class CentralAuditoryResponse:
 
     def _ic_bandpass(self, rcn):
         """
-        Returns the UNWEIGHTED IC modeled as a bank of band-pass filters.
-        :param rcn:
-        :return:
+        Gives a high-frequency BMF per Carney 2015 Fig 3B.
         """
-        Tex = 0.5e-3
-        Tin = 2e-3
-        Dic = 2e-3
+        Tex = 0.7e-3
+        Tin = 5e-3
+        Dic = 0.7e-3
         Aic = 1
-        Sic = 1.5
+        Sic = 2
         return self._ic(rcn, Aic, Sic, Dic, Tin, Tex)
 
     def _ic_lowpass(self, rcn):
-        Tex = 2e-3
+        """
+        Gives a low-pass BMF per Carney 2015 Fig 3B.
+        :param rcn:
+        :return:
+        """
+        Tex = 0.7e-3
         Tin = 5e-3
-        Dic = 2e-3
+        Dic = 0.7e-3
         Aic = 1
-        Sic = 1.5
+        Sic = 2
         return self._ic(rcn, Aic, Sic, Dic, Tin, Tex)
 
     def _ic_band_reject(self, rcn):
-        Tex = 0.5e-3
-        Tin = 2e-3
-        Dic = 2e-3
-        Aic = 1
-        Sic = 1.5
+        """
+        Gives a band-reject BMF per Carney 2015 Fig 3A.
+        :param rcn:
+        :return:
+        """
+        Tex = 2e-3
+        Tin = 5e-3
+        Dic = 0.7e-3
+        Aic = 0.6
+        Sic = 2
         return self._ic(rcn, Aic, Sic, Dic, Tin, Tex)
 
     def __simulate_IC(self, modelType: BrainstemType, rcn: np.ndarray, weights=(.5, .25, .25)) -> np.ndarray:
