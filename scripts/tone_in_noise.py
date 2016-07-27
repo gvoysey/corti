@@ -93,8 +93,9 @@ def main():
                       large_overview_tables="False",
                       freeze_input=True,
                       multiproc=True,
-                      use_scoop=True,
-                      wrap_mode=pypetconstants.WRAP_MODE_LOCAL,
+                      ncores=20,
+                      graceful_exit=True,
+                      wrap_mode=pypetconstants.WRAP_MODE_QUEUE,
                       )
 
     traj = env.trajectory
