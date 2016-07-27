@@ -1,19 +1,21 @@
 from logging import error
 
+import matplotlib
 import pandas as pd
 from os import path, walk
 from pypet import Trajectory
 
-
-# import matplotlib.pyplot as plt
+matplotlib.use('PDF')
 
 
 def plot_w5_vs_neuropathy(traj):
     d = []
-    for run in traj.res.runs:
+    runs_42_snr = [run for run in traj.res.runs if run.periphery.snr.snr == 42.0]
+    for run in runs_42_snr:
         d.append({
-            'neuropathy': run.periphery.config.neuropathy,
-            'peakwave5' : max(run.brainstem.wave5.wave5),
+            'neuropathy' : run.periphery.config.neuropathy,
+            'peakwave5'  : max(run.brainstem.wave5.wave5),
+            'peaklatency': run.brainstem.wave5.wave5.argmax()
         })
     df = pd.DataFrame(d)
     df.plot()

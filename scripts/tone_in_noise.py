@@ -21,7 +21,7 @@ from datetime import datetime
 from docopt import docopt
 from importlib.machinery import SourceFileLoader
 from os import path
-from pypet import Environment
+from pypet import Environment, pypetconstants
 from pypet.utils.explore import cartesian_product
 
 from core.base import brain_consts, an_consts, periph_consts, modulePath
@@ -90,7 +90,11 @@ def main():
                       overwrite_file=True,
                       file_title="Tone in noise at different SNR",
                       comment="some comment",
-                      large_overview_tables="True",
+                      large_overview_tables="False",
+                      freeze_input=True,
+                      multiproc=True,
+                      use_scoop=True,
+                      wrap_mode=pypetconstants.WRAP_MODE_LOCAL,
                       )
 
     traj = env.trajectory
@@ -106,7 +110,7 @@ def main():
         "brainstem" : ['nelsoncarney04', 'carney2015'],
         "weighting" : [cf_weighting, ""],
         "wavfile"   : stimuli,
-        "level"     : [60, 80, 90],
+        "level"     : [80],
         "neuropathy": ["none", "mild", "moderate", "severe", "ls-mild", "ls-moderate", "ls-severe"]
     }
 
@@ -114,6 +118,13 @@ def main():
     env.run(tone_in_noise)
     toc = datetime.now()
     print("Completed pypet simulation in {}".format(toc - tic))
+    try:
+        from slacker import Slacker
+        keypath = path.join(path.dirname(outfile), 'key.txt')
+        slack = Slacker(open(keypath, 'r').read().replace('\n', ''))
+        slack.chat.post_message('@grym', 'simulation complete in ', str(toc - tic))
+    except:
+        pass
     return 0
 
 
