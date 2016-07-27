@@ -122,7 +122,7 @@ def main():
         from slacker import Slacker
         keypath = path.join(path.dirname(outfile), 'key.txt')
         slack = Slacker(open(keypath, 'r').read().replace('\n', ''))
-        slack.chat.post_message('@grym', 'simulation complete in ', str(toc - tic))
+        slack.chat.post_message('@grym', 'simulation complete in {0}'.format(str(toc - tic)))
     except:
         pass
     return 0
