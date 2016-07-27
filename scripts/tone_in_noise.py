@@ -16,7 +16,6 @@ Options:
 """
 import glob
 import sys
-from datetime import datetime
 
 from docopt import docopt
 from importlib.machinery import SourceFileLoader
@@ -79,9 +78,8 @@ def tone_in_noise(traj: Environment.trajectory):
     # free up some cache.
 
 
-def main():
-    args = docopt(__doc__)
-    tic = datetime.now()
+def main(inputargs):
+    args = docopt(__doc__, argv=inputargs)
     wavpath = path.join(modulePath, "resources", "tone_in_noise")
     stimuli = [path.join(wavpath, i) for i in glob.glob(path.join(wavpath, "*.wav"))]
     outfile = path.realpath(path.expanduser(args["--out"]))
@@ -92,6 +90,7 @@ def main():
                       comment="some comment",
                       large_overview_tables="False",
                       freeze_input=True,
+                      use_pool=True,
                       multiproc=True,
                       ncores=20,
                       graceful_exit=True,
@@ -117,17 +116,8 @@ def main():
 
     traj.f_explore(cartesian_product(parameter_dict))
     env.run(tone_in_noise)
-    toc = datetime.now()
-    print("Completed pypet simulation in {}".format(toc - tic))
-    try:
-        from slacker import Slacker
-        keypath = path.join(path.dirname(outfile), 'key.txt')
-        slack = Slacker(open(keypath, 'r').read().replace('\n', ''))
-        slack.chat.post_message('@grym', 'simulation complete in {0}'.format(str(toc - tic)))
-    except:
-        pass
     return 0
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    sys.exit(main(sys.argv[1:] if len(sys.argv) > 1 else ""))  # guaranteed to pass the right number of arguments.
