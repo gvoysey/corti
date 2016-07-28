@@ -92,7 +92,7 @@ def main(inputargs):
                       freeze_input=True,
                       use_pool=True,
                       multiproc=True,
-                      ncores=20,
+                      ncores=19,
                       graceful_exit=True,
                       wrap_mode=pypetconstants.WRAP_MODE_QUEUE,
                       )

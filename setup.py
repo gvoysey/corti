@@ -44,7 +44,6 @@ setup(name='corti',
           'pandas',
           'cython',
           'pypet',
-          'scoop',
       ],
       tests_require=[
           'pytest',

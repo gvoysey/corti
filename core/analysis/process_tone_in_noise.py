@@ -20,6 +20,13 @@ def plot_w5_vs_neuropathy(traj):
     df = pd.DataFrame(d)
     df.plot()
 
+def plot_w5peaklatency_vs_snr(traj):
+    verhulst_healthy_no_weight_nc04 = [run for run in traj.res.runs if run.periphery.modelType.casefold() == "verhulst" and
+                                                                       not run.periphery.cf_weighting and
+                                                                       run.brainstem.modeltype.modeltype.casefold() == "nelsoncarney04"]
+
+
+
 
 def make_plots(resultsPath):
     traj = Trajectory('tone-in-noise', add_time=False)
