@@ -14,22 +14,6 @@ from pypet import Trajectory
 import matplotlib.pyplot as plt
 
 
-
-
-def plot_w5_vs_neuropathy(traj):
-    d = []
-    runs_42_snr = [run for run in traj.res.runs if run.periphery.snr.snr == 42.0]
-    for run in runs_42_snr:
-        d.append({
-            'neuropathy' : run.periphery.config.neuropathy,
-            'peakwave5'  : max(run.brainstem.wave5.wave5),
-            'peaklatency': run.brainstem.wave5.wave5.argmax()
-        })
-    df = pd.DataFrame(d)
-
-    df.plot()
-
-
 def plot_w5peaklatency_vs_snr(traj, pdf, pagenum):
     fig = plt.figure(num=pagenum, figsize=(11, 8.5), dpi=400)
     # containing many SNRs and many neuropathies
@@ -39,13 +23,15 @@ def plot_w5peaklatency_vs_snr(traj, pdf, pagenum):
 
     d = []
     for run in verhulst_no_weight_nc04:
-        d.append({'neuropathy': run.periphery.config.neuropathy,
-                  'snr': run.periphery.snr.snr,
-                  'peaklatency': (run.brainstem.wave5.wave5.argmax() / 100e3) * 1e3})
+        d.append({
+                     'neuropathy' : run.periphery.config.neuropathy,
+                     'snr'        : run.periphery.snr.snr,
+                     'peaklatency': (run.brainstem.wave5.wave5.argmax() / 100e3) * 1e3
+                     })
     df = pd.DataFrame(d)
-    ax = df.peaklatency.plot(xticks=df.index)
-    ax.set_xticklabels(df.neuropathy)
-    ax.set_xlabel("neuropathy type")
+    ax = df.peaklatency.plot()
+    #ax.set_xticklabels(df.snr)
+    ax.set_xlabel("snr")
     ax.set_ylabel("peak latency (ms)")
     ax.set_title("foo")
     ax.yaxis.set_major_formatter(FormatStrFormatter('%2.2f'))
@@ -56,9 +42,6 @@ def plot_w5peaklatency_vs_snr(traj, pdf, pagenum):
     d['Keywords'] = 'ABR auditory model periphery'
     d['CreationDate'] = datetime.today()
     d['ModDate'] = datetime.today()
-
-
-
 
 
 def make_plots(resultsPath):
