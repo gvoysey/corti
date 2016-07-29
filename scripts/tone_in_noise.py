@@ -20,7 +20,7 @@ import sys
 from docopt import docopt
 from importlib.machinery import SourceFileLoader
 from os import path
-from pypet import Environment, pypetconstants
+from pypet import Environment
 from pypet.utils.explore import cartesian_product
 
 from core.base import brain_consts, an_consts, periph_consts, modulePath
@@ -89,12 +89,12 @@ def main(inputargs):
                       file_title="Tone in noise at different SNR",
                       comment="some comment",
                       large_overview_tables="False",
-                      freeze_input=True,
-                      use_pool=True,
-                      multiproc=True,
+                      # freeze_input=True,
+                      # use_pool=True,
+                      # multiproc=True,
                       ncores=19,
                       graceful_exit=True,
-                      wrap_mode=pypetconstants.WRAP_MODE_QUEUE,
+                      #wrap_mode=pypetconstants.WRAP_MODE_QUEUE,
                       )
 
     traj = env.trajectory
@@ -111,7 +111,7 @@ def main(inputargs):
         "weighting" : [cf_weighting, ""],
         "wavfile"   : stimuli,
         "level"     : [80],
-        "neuropathy": ["none", "mild", "moderate", "severe", "ls-mild", "ls-moderate", "ls-severe"]
+        "neuropathy": ["none", "moderate", "severe", "ls-moderate", "ls-severe"]
     }
 
     traj.f_explore(cartesian_product(parameter_dict))

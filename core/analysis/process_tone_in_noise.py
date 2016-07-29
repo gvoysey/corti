@@ -13,25 +13,29 @@ from matplotlib.ticker import FormatStrFormatter
 from pypet import Trajectory
 import matplotlib.pyplot as plt
 
+plt.style.use("ggplot")
 
-def plot_w5peaklatency_vs_snr(traj, pdf, pagenum):
+
+def plot_w5peaklatency_vs_snr(traj: Trajectory, pdf, pagenum: int):
     fig = plt.figure(num=pagenum, figsize=(11, 8.5), dpi=400)
     # containing many SNRs and many neuropathies
     verhulst_no_weight_nc04 = [run for run in traj.res.runs if run.periphery.modelType.casefold() == "verhulst" and
                                not run.periphery.cf_weighting and
+                               run.periphery.config.neuropathy.casefold() == "none" and
                                run.brainstem.modeltype.modeltype.casefold() == "nelsoncarney04"]
 
     d = []
     for run in verhulst_no_weight_nc04:
         d.append({
-                     'neuropathy' : run.periphery.config.neuropathy,
-                     'snr'        : run.periphery.snr.snr,
-                     'peaklatency': (run.brainstem.wave5.wave5.argmax() / 100e3) * 1e3
-                     })
+            'neuropathy' : run.periphery.config.neuropathy,
+            'snr'        : run.periphery.snr.snr,
+            'peaklatency': (run.brainstem.wave5.wave5.argmax() / 100e3) * 1e3
+        })
     df = pd.DataFrame(d)
-    ax = df.peaklatency.plot()
-    #ax.set_xticklabels(df.snr)
-    ax.set_xlabel("snr")
+
+    ax = df.peaklatency.plot(xticks=df.index)
+    ax.set_xticklabels(df.neuropathy)
+    ax.set_xlabel("neuropathy type")
     ax.set_ylabel("peak latency (ms)")
     ax.set_title("foo")
     ax.yaxis.set_major_formatter(FormatStrFormatter('%2.2f'))
