@@ -9,6 +9,7 @@ from datetime import datetime
 import glob
 
 from matplotlib.backends.backend_pdf import PdfPages
+
 from matplotlib.ticker import FormatStrFormatter
 from pypet import Trajectory
 import matplotlib.pyplot as plt
@@ -16,12 +17,30 @@ import matplotlib.pyplot as plt
 plt.style.use("ggplot")
 
 
+def print_relevant_properties(runs):
+    for r in runs:
+        ptype = r.periphery.modelType.casefold()
+        btype = r.brainstem.modeltype.modeltype.casefold()
+        weighting = "constant" if not r.periphery.cf_weighting else "logistic"
+        neuropathy = r.periphery.config.neuropathy
+        snr = r.periphery.snr.snr
+        print("{0} has periphery: {1}; brainstem {2}; with {3} weighting and neuropathy: {4}.  Stimulus snr was {5}".format(r.v_name, ptype, btype, weighting, neuropathy, snr))
+
+
+def set_up_plot(runs):
+    healthy = [r for r in runs if r.periphery.config.neuropathy == "none"]
+    moderate = [r for r in runs if r.periphery.config.neuropathy == "moderate"]
+    severe = [r for r in runs if r.periphery.config.neuropathy == "severe"]
+    ls_moderate = [r for r in runs if r.periphery.config.neuropathy == "ls-moderate"]
+    ls_severe = [r for r in runs if r.periphery.config.neuropathy == "ls-severe"]
+
+
+
 def plot_w5peaklatency_vs_snr(traj: Trajectory, pdf, pagenum: int):
     fig = plt.figure(num=pagenum, figsize=(11, 8.5), dpi=400)
     # containing many SNRs and many neuropathies
     verhulst_no_weight_nc04 = [run for run in traj.res.runs if run.periphery.modelType.casefold() == "verhulst" and
                                not run.periphery.cf_weighting and
-                               run.periphery.config.neuropathy.casefold() == "none" and
                                run.brainstem.modeltype.modeltype.casefold() == "nelsoncarney04"]
 
     d = []
@@ -33,10 +52,10 @@ def plot_w5peaklatency_vs_snr(traj: Trajectory, pdf, pagenum: int):
         })
     df = pd.DataFrame(d)
 
-    ax = df.peaklatency.plot(xticks=df.index)
+    ax = df.snr.plot(xticks=df.index)
     ax.set_xticklabels(df.neuropathy)
     ax.set_xlabel("neuropathy type")
-    ax.set_ylabel("peak latency (ms)")
+    ax.set_ylabel("SNR")
     ax.set_title("foo")
     ax.yaxis.set_major_formatter(FormatStrFormatter('%2.2f'))
     pdf.savefig(fig)
