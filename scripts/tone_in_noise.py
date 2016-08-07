@@ -16,10 +16,10 @@ Options:
 """
 import glob
 import sys
-
-from docopt import docopt
 from importlib.machinery import SourceFileLoader
 from os import path
+
+from docopt import docopt
 from pypet import Environment
 from pypet.utils.explore import cartesian_product
 
@@ -91,8 +91,8 @@ def main(inputargs):
                       large_overview_tables="False",
                       # freeze_input=True,
                       # use_pool=True,
-                      # multiproc=True,
-                      ncores=19,
+                      multiproc=True,
+                      ncores=3,
                       graceful_exit=True,
                       #wrap_mode=pypetconstants.WRAP_MODE_QUEUE,
                       )
@@ -108,10 +108,10 @@ def main(inputargs):
     parameter_dict = {
         "periphery" : ['verhulst', 'zilany'],
         "brainstem" : ['nelsoncarney04', 'carney2015'],
-        "weighting" : [cf_weighting, ""],
+        "weighting": [cf_weighting],
         "wavfile"   : stimuli,
         "level"     : [80],
-        "neuropathy": ["none", "moderate", "severe", "ls-moderate", "ls-severe"]
+        "neuropathy": ["none", "ls-moderate", "ls-severe"]
     }
 
     traj.f_explore(cartesian_product(parameter_dict))
