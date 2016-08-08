@@ -30,54 +30,43 @@ def print_relevant_properties(runs):
                         r.v_name, ptype, btype, weighting, neuropathy, snr))
 
 
-def plot_wave1_wave5(runs_tuple, pdf, ax):
-    run_name, runs = runs_tuple
-
-    lines = {
-        'healthy'    : [r for r in runs if r.periphery.config.neuropathy == "none"],
-        'moderate'   : [r for r in runs if r.periphery.config.neuropathy == "moderate"],
-        'severe'     : [r for r in runs if r.periphery.config.neuropathy == "severe"],
-        'ls_moderate': [r for r in runs if r.periphery.config.neuropathy == "ls-moderate"],
-        'ls_severe'  : [r for r in runs if r.periphery.config.neuropathy == "ls-severe"],
-    }
-
-    # plt.hold(True)
-    legend_text = []
-
-    for name, l in lines.items():
-        print("\t neuropathy {0} had {1} runs".format(name, len(l)))
-        d = []
-        for run in l:
-            d.append({
-                'snr'           : run.periphery.snr.snr,
-                'peaklatency'   : (run.brainstem.wave5.wave5.argmax() / 100e3) * 1e4,
-                'wave1amplitude': run.brainstem.wave1.wave1.max() * 1e6
-            })
-        legend_text.append(name)
-        df = pd.DataFrame(d)
-        df = df.replace(np.inf, 0)
-        df.sort_values('snr', inplace=True)
-        print(df)
-        plt.subplot(211)
-        plt.plot(df.snr, df.peaklatency, linewidth=2.0)
-        ax = plt.gca()
-        ax.set_xticks(df.snr)
-        ax.set_xticklabels(df.snr)
-        ax.set_xlabel("Noise Level, dB SPL")
-        ax.set_ylabel("Peak Wave V Latency, $\mu$ S")
-        ax.yaxis.set_major_formatter(FormatStrFormatter('%3.2f'))
-        plt.legend(legend_text, loc='upper left')
-        plt.subplot(212)
-        plt.plot(df.snr, df.wave1amplitude, linewidth=2.0)
-        ax = plt.gca()
-        ax.set_xticks(df.snr)
-        ax.set_xticklabels(df.snr)
-        ax.set_xlabel("Noise Level, dB SPL")
-        ax.set_ylabel("Wave 1 Peak Amplitude, $\mu$ V")
-        ax.yaxis.set_major_formatter(FormatStrFormatter('%.2f'))
-        plt.legend(legend_text, loc='upper right')
-    # plt.legend(legend_text, loc='upper left')
-    plt.suptitle(run_name.replace("_", " "), fontsize=18)
+#
+# def plot_wave1_wave5(run_name, lines):
+#     legend_text = []
+#     for name, l in lines.items():
+#         print("\t neuropathy {0} had {1} runs".format(name, len(l)))
+#         d = []
+#         for run in l:
+#             d.append({
+#                 'snr'           : run.periphery.snr.snr,
+#                 'peaklatency'   : (run.brainstem.wave5.wave5.argmax() / 100e3) * 1e4,
+#                 'wave1amplitude': run.brainstem.wave1.wave1.max() * 1e6
+#             })
+#         legend_text.append(name)
+#         df = pd.DataFrame(d)
+#         df = df.replace(np.inf, 0)
+#         df.sort_values('snr', inplace=True)
+#         print(df)
+#         plt.subplot(211)
+#         plt.plot(df.snr, df.peaklatency, linewidth=2.0)
+#         ax = plt.gca()
+#         ax.set_xticks(df.snr)
+#         ax.set_xticklabels(df.snr)
+#         ax.set_xlabel("Noise Level, dB SPL")
+#         ax.set_ylabel("Peak Wave V Latency, $\mu$ S")
+#         ax.yaxis.set_major_formatter(FormatStrFormatter('%3.2f'))
+#         plt.legend(legend_text, loc='upper left')
+#         plt.subplot(212)
+#         plt.plot(df.snr, df.wave1amplitude, linewidth=2.0)
+#         ax = plt.gca()
+#         ax.set_xticks(df.snr)
+#         ax.set_xticklabels(df.snr)
+#         ax.set_xlabel("Noise Level, dB SPL")
+#         ax.set_ylabel("Wave 1 Peak Amplitude, $\mu$ V")
+#         ax.yaxis.set_major_formatter(FormatStrFormatter('%.2f'))
+#         plt.legend(legend_text, loc='upper right')
+#     # plt.legend(legend_text, loc='upper left')
+#     plt.suptitle(run_name.replace("_", " "), fontsize=18)
 
 
 def periphery_effect(traj: Trajectory, pdf):
@@ -103,7 +92,13 @@ def periphery_effect(traj: Trajectory, pdf):
 
     for i, c in enumerate(conditions.items()):
         fig = plt.figure(num=i, figsize=(8.5, 11), dpi=400)
-        plot_periphery_effect(c)
+        run_name, runs = c
+
+        lines = {
+            'verhulst': [extract(r) for r in runs if r.periphery.modelType.casefold() == "verhulst"],
+            'zilany'  : [extract(r) for r in runs if r.periphery.modelType.casefold() == "zilany"]
+        }
+        plot_periphery_effect(run_name, lines)
 
         pdf.savefig(fig)
 
@@ -115,23 +110,7 @@ def periphery_effect(traj: Trajectory, pdf):
     d['ModDate'] = datetime.today()
 
 
-def plot_periphery_effect(runs_tuple):
-    run_name, runs = runs_tuple
-
-    lines = {
-        'verhulst': [{
-                         'snr'           : r.periphery.snr.snr,
-                         'peaklatency'   : (r.brainstem.wave5.wave5.argmax() / 100e3) * 1e4,
-                         'wave1amplitude': r.brainstem.wave1.wave1.max() * 1e6
-                     } for r in runs if r.periphery.modelType.casefold() == "verhulst"],
-
-        'zilany'  : [{
-                         'snr'           : r.periphery.snr.snr,
-                         'peaklatency'   : (r.brainstem.wave5.wave5.argmax() / 100e3) * 1e4,
-                         'wave1amplitude': r.brainstem.wave1.wave1.max() * 1e6
-                     } for r in runs if r.periphery.modelType.casefold() == "zilany"]
-    }
-
+def plot_periphery_effect(name, lines):
     legend_text = []
 
     for k, v in lines.items():
@@ -158,7 +137,15 @@ def plot_periphery_effect(runs_tuple):
         ax.yaxis.set_major_formatter(FormatStrFormatter('%.2f'))
         plt.legend(legend_text, loc='upper right')
         # plt.legend(legend_text, loc='upper left')
-    plt.suptitle(run_name.replace("_", " "), fontsize=18)
+    plt.suptitle(name.replace("_", " "), fontsize=18)
+
+
+def extract(r):
+    return {
+        'snr'           : r.periphery.snr.snr,
+        'peaklatency'   : (r.brainstem.wave5.wave5.argmax() / 100e3) * 1e4,
+        'wave1amplitude': r.brainstem.wave1.wave1.max() * 1e6
+    }
 
 
 def synaptopathy_effect(traj: Trajectory, pdf):
@@ -200,9 +187,18 @@ def synaptopathy_effect(traj: Trajectory, pdf):
 
     for i, c in enumerate(conditions.items()):
         fig = plt.figure(num=i, figsize=(8.5, 11), dpi=400)
-        ax = fig.gca()
         print("{0}, got {1} runs to plot".format(i, len(c[1])))
-        plot_wave1_wave5(c, pdf, ax)
+        run_name, runs = c
+
+        lines = {
+            'healthy'    : [extract(r) for r in runs if r.periphery.config.neuropathy == "none"],
+            'moderate'   : [extract(r) for r in runs if r.periphery.config.neuropathy == "moderate"],
+            'severe'     : [extract(r) for r in runs if r.periphery.config.neuropathy == "severe"],
+            'ls_moderate': [extract(r) for r in runs if r.periphery.config.neuropathy == "ls-moderate"],
+            'ls_severe'  : [extract(r) for r in runs if r.periphery.config.neuropathy == "ls-severe"],
+        }
+
+        plot_periphery_effect(run_name, lines)
         pdf.savefig(fig)
 
     d = pdf.infodict()
