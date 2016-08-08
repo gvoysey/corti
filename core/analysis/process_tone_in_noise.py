@@ -66,6 +66,7 @@ def weighting_effect(traj, pdf):
         plot_wave1_wave5(run_name, lines)
 
         pdf.savefig(fig)
+        fig.clear()
 
     d = pdf.infodict()
     d['Title'] = 'Auditory Periphery Model Output'
@@ -107,6 +108,7 @@ def periphery_effect(traj: Trajectory, pdf):
         plot_wave1_wave5(run_name, lines)
 
         pdf.savefig(fig)
+        fig.clear()
 
     d = pdf.infodict()
     d['Title'] = 'Auditory Periphery Model Output'
@@ -194,6 +196,7 @@ def synaptopathy_effect(traj: Trajectory, pdf):
 
     for i, c in enumerate(conditions.items()):
         fig = plt.figure(num=i, figsize=(8.5, 11), dpi=400)
+
         print("{0}, got {1} runs to plot".format(i, len(c[1])))
         run_name, runs = c
 
@@ -207,6 +210,7 @@ def synaptopathy_effect(traj: Trajectory, pdf):
 
         plot_wave1_wave5(run_name, lines)
         pdf.savefig(fig)
+        fig.clear()
 
     d = pdf.infodict()
     d['Title'] = 'Auditory Periphery Model Output'
@@ -221,10 +225,10 @@ def make_plots(resultsPath):
     traj.f_load(load_parameters=2, load_derived_parameters=0, load_results=1,
                 load_other_data=0, filename=resultsPath)
     traj.v_auto_load = True
-    # with PdfPages(path.join(path.expanduser('~'), "pypet-output", 'synaptopathy.pdf')) as pdf:
-    #     synaptopathy_effect(traj, pdf)
-    # with PdfPages(path.join(path.expanduser('~'), "pypet-output", 'periphery.pdf')) as pdf:
-    #     periphery_effect(traj, pdf)
+    with PdfPages(path.join(path.expanduser('~'), "pypet-output", 'synaptopathy.pdf')) as pdf:
+        synaptopathy_effect(traj, pdf)
+    with PdfPages(path.join(path.expanduser('~'), "pypet-output", 'periphery.pdf')) as pdf:
+        periphery_effect(traj, pdf)
     with PdfPages(path.join(path.expanduser('~'), "pypet-output", 'weighting.pdf')) as pdf:
         weighting_effect(traj, pdf)
 
