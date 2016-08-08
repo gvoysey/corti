@@ -30,43 +30,49 @@ def print_relevant_properties(runs):
                         r.v_name, ptype, btype, weighting, neuropathy, snr))
 
 
-#
-# def plot_wave1_wave5(run_name, lines):
-#     legend_text = []
-#     for name, l in lines.items():
-#         print("\t neuropathy {0} had {1} runs".format(name, len(l)))
-#         d = []
-#         for run in l:
-#             d.append({
-#                 'snr'           : run.periphery.snr.snr,
-#                 'peaklatency'   : (run.brainstem.wave5.wave5.argmax() / 100e3) * 1e4,
-#                 'wave1amplitude': run.brainstem.wave1.wave1.max() * 1e6
-#             })
-#         legend_text.append(name)
-#         df = pd.DataFrame(d)
-#         df = df.replace(np.inf, 0)
-#         df.sort_values('snr', inplace=True)
-#         print(df)
-#         plt.subplot(211)
-#         plt.plot(df.snr, df.peaklatency, linewidth=2.0)
-#         ax = plt.gca()
-#         ax.set_xticks(df.snr)
-#         ax.set_xticklabels(df.snr)
-#         ax.set_xlabel("Noise Level, dB SPL")
-#         ax.set_ylabel("Peak Wave V Latency, $\mu$ S")
-#         ax.yaxis.set_major_formatter(FormatStrFormatter('%3.2f'))
-#         plt.legend(legend_text, loc='upper left')
-#         plt.subplot(212)
-#         plt.plot(df.snr, df.wave1amplitude, linewidth=2.0)
-#         ax = plt.gca()
-#         ax.set_xticks(df.snr)
-#         ax.set_xticklabels(df.snr)
-#         ax.set_xlabel("Noise Level, dB SPL")
-#         ax.set_ylabel("Wave 1 Peak Amplitude, $\mu$ V")
-#         ax.yaxis.set_major_formatter(FormatStrFormatter('%.2f'))
-#         plt.legend(legend_text, loc='upper right')
-#     # plt.legend(legend_text, loc='upper left')
-#     plt.suptitle(run_name.replace("_", " "), fontsize=18)
+def weighting_effect(traj, pdf):
+    conditions = {
+        'Verhulst_Nelson_Carney_2004_healthy': [r for r in traj.res.runs if
+                                                r.periphery.modelType.casefold == "verhuslt" and
+                                                r.brainstem.modeltype.modeltype.casefold() == "nelsoncarney04" and
+                                                r.periphery.config.neuropathy == "none"
+                                                ],
+        'Verhulst_Carney_2015_healthy'       : [r for r in traj.res.runs if
+                                                r.periphery.modelType.casefold == "verhuslt" and
+                                                r.brainstem.modeltype.modeltype.casefold() == "carney2015" and
+                                                r.periphery.config.neuropathy == "none"
+                                                ],
+
+        'Zilany_Nelson_Carney_2004_healthy'  : [r for r in traj.res.runs if
+                                                r.periphery.modelType.casefold == "zilany" and
+                                                r.brainstem.modeltype.modeltype.casefold() == "nelsoncarney04" and
+                                                r.periphery.config.neuropathy == "none"
+                                                ],
+        'Zilany_Carney_2015_healthy'         : [r for r in traj.res.runs if
+                                                r.periphery.modelType.casefold == "zilany" and
+                                                r.brainstem.modeltype.modeltype.casefold() == "carney2015" and
+                                                r.periphery.config.neuropathy == "none"
+                                                ]
+    }
+
+    for i, c in enumerate(conditions.items()):
+        fig = plt.figure(num=i, figsize=(8.5, 11), dpi=400)
+        run_name, runs = c
+
+        lines = {
+            'cf_weighting'   : [extract(r) for r in runs if r.periphery.cf_weighting],
+            'no_cf_weighting': [extract(r) for r in runs if not r.perihpery.cf_weighting]
+        }
+        plot_wave1_wave5(run_name, lines)
+
+        pdf.savefig(fig)
+
+    d = pdf.infodict()
+    d['Title'] = 'Auditory Periphery Model Output'
+    d['Author'] = "Graham Voysey <gvoysey@bu.edu>"
+    d['Keywords'] = 'ABR auditory model periphery'
+    d['CreationDate'] = datetime.today()
+    d['ModDate'] = datetime.today()
 
 
 def periphery_effect(traj: Trajectory, pdf):
@@ -98,7 +104,7 @@ def periphery_effect(traj: Trajectory, pdf):
             'verhulst': [extract(r) for r in runs if r.periphery.modelType.casefold() == "verhulst"],
             'zilany'  : [extract(r) for r in runs if r.periphery.modelType.casefold() == "zilany"]
         }
-        plot_periphery_effect(run_name, lines)
+        plot_wave1_wave5(run_name, lines)
 
         pdf.savefig(fig)
 
@@ -110,10 +116,11 @@ def periphery_effect(traj: Trajectory, pdf):
     d['ModDate'] = datetime.today()
 
 
-def plot_periphery_effect(name, lines):
+def plot_wave1_wave5(name, lines):
     legend_text = []
 
     for k, v in lines.items():
+        legend_text.append(k)
         df = pd.DataFrame(v)
         df = df.replace(np.inf, 0)
         df.sort_values('snr', inplace=True)
@@ -136,7 +143,6 @@ def plot_periphery_effect(name, lines):
         ax.set_ylabel("Wave 1 Peak Amplitude, $\mu$ V")
         ax.yaxis.set_major_formatter(FormatStrFormatter('%.2f'))
         plt.legend(legend_text, loc='upper right')
-        # plt.legend(legend_text, loc='upper left')
     plt.suptitle(name.replace("_", " "), fontsize=18)
 
 
@@ -198,7 +204,7 @@ def synaptopathy_effect(traj: Trajectory, pdf):
             'ls_severe'  : [extract(r) for r in runs if r.periphery.config.neuropathy == "ls-severe"],
         }
 
-        plot_periphery_effect(run_name, lines)
+        plot_wave1_wave5(run_name, lines)
         pdf.savefig(fig)
 
     d = pdf.infodict()
