@@ -33,23 +33,23 @@ def print_relevant_properties(runs):
 def weighting_effect(traj, pdf):
     conditions = {
         'Verhulst_Nelson_Carney_2004_healthy': [r for r in traj.res.runs if
-                                                r.periphery.modelType.casefold == "verhuslt" and
+                                                r.periphery.modelType.casefold() == "verhulst" and
                                                 r.brainstem.modeltype.modeltype.casefold() == "nelsoncarney04" and
                                                 r.periphery.config.neuropathy == "none"
                                                 ],
         'Verhulst_Carney_2015_healthy'       : [r for r in traj.res.runs if
-                                                r.periphery.modelType.casefold == "verhuslt" and
+                                                r.periphery.modelType.casefold() == "verhulst" and
                                                 r.brainstem.modeltype.modeltype.casefold() == "carney2015" and
                                                 r.periphery.config.neuropathy == "none"
                                                 ],
 
         'Zilany_Nelson_Carney_2004_healthy'  : [r for r in traj.res.runs if
-                                                r.periphery.modelType.casefold == "zilany" and
+                                                r.periphery.modelType.casefold() == "zilany" and
                                                 r.brainstem.modeltype.modeltype.casefold() == "nelsoncarney04" and
                                                 r.periphery.config.neuropathy == "none"
                                                 ],
         'Zilany_Carney_2015_healthy'         : [r for r in traj.res.runs if
-                                                r.periphery.modelType.casefold == "zilany" and
+                                                r.periphery.modelType.casefold() == "zilany" and
                                                 r.brainstem.modeltype.modeltype.casefold() == "carney2015" and
                                                 r.periphery.config.neuropathy == "none"
                                                 ]
@@ -61,7 +61,7 @@ def weighting_effect(traj, pdf):
 
         lines = {
             'cf_weighting'   : [extract(r) for r in runs if r.periphery.cf_weighting],
-            'no_cf_weighting': [extract(r) for r in runs if not r.perihpery.cf_weighting]
+            'no_cf_weighting': [extract(r) for r in runs if not r.periphery.cf_weighting]
         }
         plot_wave1_wave5(run_name, lines)
 
@@ -124,6 +124,7 @@ def plot_wave1_wave5(name, lines):
         df = pd.DataFrame(v)
         df = df.replace(np.inf, 0)
         df.sort_values('snr', inplace=True)
+        print(k + ":\n\t")
         print(df)
         plt.subplot(211)
         plt.plot(df.snr, df.peaklatency, linewidth=2.0)
@@ -220,10 +221,12 @@ def make_plots(resultsPath):
     traj.f_load(load_parameters=2, load_derived_parameters=0, load_results=1,
                 load_other_data=0, filename=resultsPath)
     traj.v_auto_load = True
-    with PdfPages(path.join(path.expanduser('~'), "pypet-output", 'synaptopathy.pdf')) as pdf:
-        synaptopathy_effect(traj, pdf)
-    with PdfPages(path.join(path.expanduser('~'), "pypet-output", 'periphery.pdf')) as pdf:
-        periphery_effect(traj, pdf)
+    # with PdfPages(path.join(path.expanduser('~'), "pypet-output", 'synaptopathy.pdf')) as pdf:
+    #     synaptopathy_effect(traj, pdf)
+    # with PdfPages(path.join(path.expanduser('~'), "pypet-output", 'periphery.pdf')) as pdf:
+    #     periphery_effect(traj, pdf)
+    with PdfPages(path.join(path.expanduser('~'), "pypet-output", 'weighting.pdf')) as pdf:
+        weighting_effect(traj, pdf)
 
     return 0
 
