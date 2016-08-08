@@ -30,6 +30,49 @@ def print_relevant_properties(runs):
                         r.v_name, ptype, btype, weighting, neuropathy, snr))
 
 
+def brainstem_effect(traj, pdf):
+    conditions = {
+        'Verhulst_No_cf_weighting_healthy': [r for r in traj.res.runs if not r.periphery.cf_weighting and
+                                             r.periphery.modelType.casefold() == "verhulst" and
+                                             r.periphery.config.neuropathy == "none"
+                                             ],
+        'Verhulst_cf_weighting_healthy'   : [r for r in traj.res.runs if r.periphery.cf_weighting and
+                                             r.periphery.modelType.casefold() == "verhulst" and
+                                             r.periphery.config.neuropathy == "none"
+                                             ],
+
+        'Zilany_No_Cf_weighting_healthy'  : [r for r in traj.res.runs if not r.periphery.cf_weighting and
+                                             r.periphery.modelType.casefold() == "zilany" and
+                                             r.periphery.config.neuropathy == "none"
+                                             ],
+
+        'Zilany_Cf_weighting_healthy'     : [r for r in traj.res.runs if r.periphery.cf_weighting and
+                                             r.periphery.modelType.casefold() == "zilany" and
+                                             r.periphery.config.neuropathy == "none"
+                                             ]
+    }
+
+    for i, c in enumerate(conditions.items()):
+        fig = plt.figure(num=i, figsize=(8.5, 11), dpi=400)
+        run_name, runs = c
+
+        lines = {
+            'cf_weighting'   : [extract(r) for r in runs if r.periphery.cf_weighting],
+            'no_cf_weighting': [extract(r) for r in runs if not r.periphery.cf_weighting]
+        }
+        plot_wave1_wave5(run_name, lines)
+
+        pdf.savefig(fig)
+        fig.clear()
+
+    d = pdf.infodict()
+    d['Title'] = 'Auditory Periphery Model Output'
+    d['Author'] = "Graham Voysey <gvoysey@bu.edu>"
+    d['Keywords'] = 'ABR auditory model periphery'
+    d['CreationDate'] = datetime.today()
+    d['ModDate'] = datetime.today()
+
+
 def weighting_effect(traj, pdf):
     conditions = {
         'Verhulst_Nelson_Carney_2004_healthy': [r for r in traj.res.runs if
@@ -231,6 +274,8 @@ def make_plots(resultsPath):
         periphery_effect(traj, pdf)
     with PdfPages(path.join(path.expanduser('~'), "pypet-output", 'weighting.pdf')) as pdf:
         weighting_effect(traj, pdf)
+    with PdfPages(path.join(path.expanduser('~'), "pypet-output", 'brainstem.pdf')) as pdf:
+        brainstem_effect(traj, pdf)
 
     return 0
 
