@@ -11,7 +11,7 @@ for i = 1:length(files)
     name = strsplit(files(i).name,'-');
     if(length(name) > 2)
         temp = name(4);
-        legend_labels{i} = [temp{1}(1:2), ' dB SNR'];
+        legend_labels{i} = [temp{1}(1:2), ' dB SPL'];
     else
         legend_labels{i} = 'Clicks in quiet';
     end
