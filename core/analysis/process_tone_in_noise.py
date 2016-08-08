@@ -57,8 +57,8 @@ def brainstem_effect(traj, pdf):
         run_name, runs = c
 
         lines = {
-            'cf_weighting'   : [extract(r) for r in runs if r.periphery.cf_weighting],
-            'no_cf_weighting': [extract(r) for r in runs if not r.periphery.cf_weighting]
+            'Nelson_Carney_2004': [extract(r) for r in runs if r.brainstem.modeltype.modeltype.casefold() == "nelsoncarney04"],
+            'Carney_2015': [extract(r) for r in runs if r.brainstem.modeltype.modeltype.casefold() == "carney2015"]
         }
         plot_wave1_wave5(run_name, lines)
 
