@@ -169,8 +169,8 @@ def plot_wave1_wave5(name, lines):
         df = pd.DataFrame(v)
         df = df.replace(np.inf, 0)
         df.sort_values('snr', inplace=True)
-        print(k + ":\n\t")
-        print(df)
+        # print(k + ":\n\t")
+        # print(df)
         plt.subplot(211)
         plt.plot(df.snr, df.peaklatency, linewidth=2.0)
         ax = plt.gca()
@@ -240,7 +240,7 @@ def synaptopathy_effect(traj: Trajectory, pdf):
     for i, c in enumerate(conditions.items()):
         fig = plt.figure(num=i, figsize=(8.5, 11), dpi=400)
 
-        print("{0}, got {1} runs to plot".format(i, len(c[1])))
+        #print("{0}, got {1} runs to plot".format(i, len(c[1])))
         run_name, runs = c
 
         lines = {
