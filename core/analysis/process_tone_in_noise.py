@@ -51,7 +51,7 @@ def plot_condition(runs_tuple, pdf, ax):
             d.append({
                 'snr'           : run.periphery.snr.snr,
                 'peaklatency'   : (run.brainstem.wave5.wave5.argmax() / 100e3) * 1e4,
-                'wave1amplitude': run.brainstem.wave1.wave1.max()
+                'wave1amplitude': run.brainstem.wave1.wave1.max() * 1e6
             })
         legend_text.append(name)
         df = pd.DataFrame(d)
@@ -60,15 +60,24 @@ def plot_condition(runs_tuple, pdf, ax):
         print(df)
         plt.subplot(211)
         plt.plot(df.snr, df.peaklatency, linewidth=2.0)
-        plt.subplot(212)
-        plt.plot(df.snr, df.wave1amplitude, linewidth=2.0)
+        ax = plt.gca()
         ax.set_xticks(df.snr)
         ax.set_xticklabels(df.snr)
-        ax.set_xlabel("SNR")
-        ax.set_ylabel("Peak Wave V Latency, \mu S")
+        ax.set_xlabel("Noise Level, dB SPL")
+        ax.set_ylabel("Peak Wave V Latency, $\mu$ S")
         ax.yaxis.set_major_formatter(FormatStrFormatter('%3.2f'))
-    plt.legend(legend_text, loc='upper left')
-    plt.suptitle(run_name.replace("_", " "))
+        plt.legend(legend_text, loc='upper left')
+        plt.subplot(212)
+        plt.plot(df.snr, df.wave1amplitude, linewidth=2.0)
+        ax = plt.gca()
+        ax.set_xticks(df.snr)
+        ax.set_xticklabels(df.snr)
+        ax.set_xlabel("Noise Level, dB SPL")
+        ax.set_ylabel("Wave 1 Peak Amplitude, $\mu$ V")
+        ax.yaxis.set_major_formatter(FormatStrFormatter('%.2f'))
+        plt.legend(legend_text, loc='upper right')
+    # plt.legend(legend_text, loc='upper left')
+    plt.suptitle(run_name.replace("_", " "), fontsize=18)
 
 
 def plot_w5peaklatency_vs_snr(traj: Trajectory, pdf):
