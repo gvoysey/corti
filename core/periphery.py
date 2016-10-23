@@ -67,7 +67,7 @@ class Periphery:
                                               conf=self.conf,
                                               output=output,
                                               level=self.conf.stimulusLevels[i],
-                                              cf=(125, 20e3, 1e3)))
+                                              cf=(125, 20e3, self.conf.NumberOfSections)))
                 self.save_model_results(i, results[i].output)
 
         else:

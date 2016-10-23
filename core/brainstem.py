@@ -5,6 +5,7 @@ import numpy as np
 import progressbar
 from os import path
 
+
 from core.base import runtime_consts, brain_consts as b, periph_consts as p, BrainstemType
 from .periphery_configuration import PeripheryOutput
 

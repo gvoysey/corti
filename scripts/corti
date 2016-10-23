@@ -5,16 +5,16 @@ Verhulst Model.
 Usage:
     corti -h | --help
     corti --version
-    corti [--out <outpath>]
-                   [--peripheryType <model>]
-                   [-c | --clean]
-                   [-v | --verbose]
-                   [--pSave <peripheryFlag>]
-                   [--stimulusFile <stimulusPath> | (--wavFile <wavPath> --level <spl>)]
-                   [--no-cf-weighting]
-                   [--neuropathy <degradation>]
-                   [--noBrainstem | --brainstemType <brainstem>]
-                   [--pypet]
+    corti   [--out <outpath>]
+            [--peripheryType <model>]
+            [-c | --clean]
+            [-v | --verbose]
+            [--pSave <peripheryFlag>]
+            [--stimulusFile <stimulusPath> | (--wavFile <wavPath> --level <spl>)]
+            [--no-cf-weighting]
+            [--neuropathy <degradation>]
+            [--noBrainstem | --brainstemType <brainstem>]
+            [--pypet]
 
 Options:
     -h --help                       Show this screen and exit.
@@ -71,6 +71,7 @@ from core.periphery_configuration import PeripheryConfiguration
 
 
 def main(inputargs):
+    """ Run one set of command line arguments through the models."""
     args = docopt(__doc__, version=__version__, argv=inputargs)
     pypet = args["--pypet"]
     # configure the log level appropriately
@@ -137,7 +138,7 @@ def main(inputargs):
         return 0
 
 
-def _sanitize_level(levels: str):
+def _sanitize_level(levels: str) ->[float]:
     """ Takes a string list of level parameters and converts them to a list of floats.
     """
     if levels is None:
@@ -202,6 +203,7 @@ def __set_output_dir(temp: str, pypet: bool) -> str:
 
 
 def _make_stimuli(args: dict) -> dict:
+    """ Make a fully populated stimulus dictionary"""
     stim_loc = args["--stimulusFile"]
     wav_path = args["--wavFile"]
     levels = _sanitize_level(args["--level"])
