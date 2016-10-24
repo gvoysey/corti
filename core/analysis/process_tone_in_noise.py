@@ -176,27 +176,29 @@ def plot_wave1_wave5(name, lines):
         ax = plt.gca()
         ax.set_xticks(df.snr)
         ax.set_xticklabels(df.snr)
-        ax.set_xlabel("Noise Level, dB SPL")
-        ax.set_ylabel("Peak Wave V Latency, $\mu$ S")
+        ax.tick_params(labelsize=18)
+        ax.set_xlabel("Noise Level, dB SPL", fontsize=20)
+        ax.set_ylabel("Peak Wave V Latency, ms", fontsize=20)
         ax.yaxis.set_major_formatter(FormatStrFormatter('%3.2f'))
-        plt.legend(legend_text, loc='upper left')
+        plt.legend(legend_text, loc='upper left', fontsize=18)
         plt.subplot(212)
         plt.plot(df.snr, df.wave1amplitude, linewidth=2.0)
         ax = plt.gca()
+        ax.tick_params(labelsize=18)
         ax.set_xticks(df.snr)
         ax.set_xticklabels(df.snr)
-        ax.set_xlabel("Noise Level, dB SPL")
-        ax.set_ylabel("Wave 1 Peak Amplitude, $\mu$ V")
+        ax.set_xlabel("Noise Level, dB SPL", fontsize=20)
+        ax.set_ylabel("Wave 1 Peak Amplitude, $\mu$ V", fontsize=20)
         ax.yaxis.set_major_formatter(FormatStrFormatter('%.2f'))
-        plt.legend(legend_text, loc='upper right')
-    plt.suptitle(name.replace("_", " "), fontsize=18)
+        plt.legend(legend_text, loc='upper right', fontsize=18)
+    plt.suptitle(name.replace("_", " "), fontsize=24)
 
 
 def extract(r):
     return {
         'snr'           : r.periphery.snr.snr,
-        'peaklatency'   : (r.brainstem.wave5.wave5.argmax() / 100e3) * 1e4,
-        'wave1amplitude': r.brainstem.wave1.wave1.max() * 1e6
+        'peaklatency'   : (r.brainstem.wave5.wave5.argmax() / 100e3) * 1e2,
+        'wave1amplitude': r.brainstem.wave1.wave1.max() * 1e7
     }
 
 

@@ -18,8 +18,10 @@ for i = 1:length(files)
 end
 
 figure;
-plot_with_offset(gca(), rows, 'Stimuli Used');
-xlabel('time, ms');
+fs = 100e3;
+time = linspace(0,30080/fs, 30080);
+plot_with_offset(gca(), time,rows, 'Stimuli Used');
+xlabel('time, s');
 legend(legend_labels);
 
 savefig('stimuli-used.fig');
@@ -29,11 +31,11 @@ savefig('stimuli-used.fig');
 end
 
 
-function plot_with_offset(ax, data, title_text)
+function plot_with_offset(ax, x, data, title_text)
 n_rows = size(data,1);
 offset = max(max(data)) * 1.75; 
 offset_vector = (offset:offset:n_rows*offset)';
 data_plus_offset = bsxfun(@plus,data,offset_vector);
-plot(ax,data_plus_offset');
+plot(ax,x,data_plus_offset');
 title(ax,title_text);
 end
