@@ -1,21 +1,21 @@
 from logging import error
-
-import matplotlib
-
-matplotlib.use('PDF')
-import pandas as pd
 from os import path
 from datetime import datetime
 import glob
 
-from matplotlib.backends.backend_pdf import PdfPages
-
-from matplotlib.ticker import FormatStrFormatter
-from pypet import Trajectory
-import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
+
+import matplotlib
+
+matplotlib.use('PDF')
+from matplotlib.backends.backend_pdf import PdfPages
+from matplotlib.ticker import FormatStrFormatter
+import matplotlib.pyplot as plt
 
 plt.style.use("ggplot")
+
+from pypet import Trajectory
 
 
 def print_relevant_properties(runs):
@@ -25,9 +25,9 @@ def print_relevant_properties(runs):
         weighting = "constant" if not r.periphery.cf_weighting else "logistic"
         neuropathy = r.periphery.config.neuropathy
         snr = r.periphery.snr.snr
-        print(
-                "{0} has periphery: {1}; brainstem {2}; with {3} weighting and neuropathy: {4}.  Stimulus snr was {5}".format(
-                        r.v_name, ptype, btype, weighting, neuropathy, snr))
+        print("{0} has periphery: {1}; brainstem {2}; with {3} weighting and"
+              "neuropathy: {4} Stimulus snr was {5}".format(
+                r.v_name, ptype, btype, weighting, neuropathy, snr))
 
 
 def brainstem_effect(traj, pdf):
@@ -57,8 +57,10 @@ def brainstem_effect(traj, pdf):
         run_name, runs = c
 
         lines = {
-            'Nelson_Carney_2004': [extract(r) for r in runs if r.brainstem.modeltype.modeltype.casefold() == "nelsoncarney04"],
-            'Carney_2015': [extract(r) for r in runs if r.brainstem.modeltype.modeltype.casefold() == "carney2015"]
+            'Nelson_Carney_2004': [extract(r) for r in runs if
+                                   r.brainstem.modeltype.modeltype.casefold() == "nelsoncarney04"],
+            'Carney_2015'       : [extract(r) for r in runs if
+                                   r.brainstem.modeltype.modeltype.casefold() == "carney2015"]
         }
         plot_wave1_wave5(run_name, lines)
 
@@ -122,8 +124,8 @@ def weighting_effect(traj, pdf):
 def periphery_effect(traj: Trajectory, pdf):
     conditions = {
         'No_cf_weighting_Nelson_Carney_2004_healthy': [r for r in traj.res.runs if not r.periphery.cf_weighting and
-                                                       r.brainstem.modeltype.modeltype.casefold() == "nelsoncarney04" and
-                                                       r.periphery.config.neuropathy == "none"
+                                                       r.brainstem.modeltype.modeltype.casefold() == "nelsoncarney04"
+                                                       and r.periphery.config.neuropathy == "none"
                                                        ],
         'No_cf_weighting_Carney_2015_healthy'       : [r for r in traj.res.runs if not r.periphery.cf_weighting and
                                                        r.brainstem.modeltype.modeltype.casefold() == "carney2015" and
@@ -131,8 +133,8 @@ def periphery_effect(traj: Trajectory, pdf):
                                                        ],
 
         'Cf_weighting_Nelson_Carney_2004_healthy'   : [r for r in traj.res.runs if r.periphery.cf_weighting and
-                                                       r.brainstem.modeltype.modeltype.casefold() == "nelsoncarney04" and
-                                                       r.periphery.config.neuropathy == "none"
+                                                       r.brainstem.modeltype.modeltype.casefold() == "nelsoncarney04"
+                                                       and r.periphery.config.neuropathy == "none"
                                                        ],
         'Cf_weighting_Carney_2015_healthy'          : [r for r in traj.res.runs if r.periphery.cf_weighting and
                                                        r.brainstem.modeltype.modeltype.casefold() == "carney2015" and
@@ -240,7 +242,7 @@ def synaptopathy_effect(traj: Trajectory, pdf):
     for i, c in enumerate(conditions.items()):
         fig = plt.figure(num=i, figsize=(8.5, 11), dpi=400)
 
-        #print("{0}, got {1} runs to plot".format(i, len(c[1])))
+        # print("{0}, got {1} runs to plot".format(i, len(c[1])))
         run_name, runs = c
 
         lines = {
