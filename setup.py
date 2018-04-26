@@ -1,10 +1,8 @@
 import numpy as np
 from Cython.Build import cythonize
 from setuptools import setup, find_packages, Extension
+import versioneer
 
-# makes __version__ a local variable
-exec(open('__main__.py/_version.py').read())
-# http://python-packaging.readthedocs.org/en/latest/command-line-scripts.html
 extensions = [
     Extension("corti.zilany2014._zilany2014",
               [
@@ -17,7 +15,8 @@ extensions = [
 ]
 
 setup(name='corti',
-      version=__version__,
+      version=versioneer.get_version(),
+      cmdclass=versioneer.get_cmdclass(),
       packages=find_packages(),
       package_data={
           'corti': ['resources/*',

@@ -29,7 +29,7 @@ import shutil
 from docopt import docopt
 from os import path
 
-from corti._version import __version__
+from corti import __version__
 from corti.base import stimulusTemplatePath, stim_consts as sc
 from corti.stimulus import Stimulus
 

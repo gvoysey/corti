@@ -61,8 +61,7 @@ import shutil
 from docopt import docopt
 from os import path, system, name
 
-from corti import Periphery, Stimulus
-from corti._version import __version__
+from corti import Periphery, Stimulus, __version__
 from corti.analysis.plots import save_summary_pdf
 from corti.auditory_nerve_response import AuditoryNerveResponse
 from corti.base import runtime_consts, PeripheryType, an_consts as a
