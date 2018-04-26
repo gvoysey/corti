@@ -66,3 +66,9 @@ docs/_build/
 
 # PyBuilder
 target/
+
+corti/resources/tone_in_noise/stimuli-used\.pdf
+
+corti/zilany2014/_zilany2014\.c
+
+corti/zilany2014/_zilany2014\.h
