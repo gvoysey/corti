@@ -1,0 +1,23 @@
+[[source]]
+
+url = "https://pypi.python.org/simple"
+verify_ssl = true
+name = "pypi"
+
+
+[packages]
+
+hypothesis = ">=3.4.0"
+docopt = "==0.6.2"
+matplotlib = "==1.5.1"
+blessed = "==1.14.1"
+numpy = ">=1.10"
+"progressbar2" = "==3.6.2"
+scipy = ">=0.17.0"
+PyYAML = "==3.11"
+Cython = "*"
+pypet = "*"
+
+
+[dev-packages]
+
