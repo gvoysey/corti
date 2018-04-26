@@ -3,7 +3,7 @@ from typing import Union
 
 import numpy as np
 
-from core.base import stim_consts as sc, ProbeType, PeripheryType
+from corti.base import stim_consts as sc, ProbeType, PeripheryType
 
 
 class PeripheryConfiguration:

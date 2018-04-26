@@ -6,7 +6,7 @@ import yaml
 from os import path
 from scipy.io import wavfile
 
-from core.base import stimulusTemplatePath, stim_consts as sc
+from corti.base import stimulusTemplatePath, stim_consts as sc
 
 
 class Stimulus:

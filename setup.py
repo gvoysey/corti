@@ -3,15 +3,15 @@ from Cython.Build import cythonize
 from setuptools import setup, find_packages, Extension
 
 # makes __version__ a local variable
-exec(open('core/_version.py').read())
+exec(open('__main__.py/_version.py').read())
 # http://python-packaging.readthedocs.org/en/latest/command-line-scripts.html
 extensions = [
-    Extension("core.zilany2014._zilany2014",
+    Extension("corti.zilany2014._zilany2014",
               [
-                  "core/zilany2014/_zilany2014.pyx",
-                  "core/zilany2014/model_IHC.c",
-                  "core/zilany2014/model_Synapse.c",
-                  "core/zilany2014/complex.c"
+                  "corti/zilany2014/_zilany2014.pyx",
+                  "corti/zilany2014/model_IHC.c",
+                  "corti/zilany2014/model_Synapse.c",
+                  "corti/zilany2014/complex.c"
               ]
               )
 ]
@@ -20,12 +20,16 @@ setup(name='corti',
       version=__version__,
       packages=find_packages(),
       package_data={
-          'core': ['resources/*',
+          'corti': ['resources/*',
                    'resources/tone_in_noise/*']
       },
-      scripts=['scripts/corti',
-               'scripts/stimulus_generator',
-               'scripts/tone_in_noise.py'],
+      entry_points={
+          'console_scripts': [
+              'corti = corti.__main__:main'
+              , 'stimulus_generator = corti.stimulus_generator:main'
+              , 'tone_in_noise = corti.tone_in_noise:main'
+          ]
+      },
       url='https://github.com/gvoysey/corti',
       license='GPL',
       ext_modules=cythonize(extensions),

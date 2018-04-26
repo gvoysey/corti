@@ -61,13 +61,13 @@ import shutil
 from docopt import docopt
 from os import path, system, name
 
-from core import Periphery, Stimulus
-from core._version import __version__
-from core.analysis.plots import save_summary_pdf
-from core.auditory_nerve_response import AuditoryNerveResponse
-from core.base import runtime_consts, PeripheryType, an_consts as a
-from core.brainstem import simulate_brainstem
-from core.periphery_configuration import PeripheryConfiguration
+from corti import Periphery, Stimulus
+from corti._version import __version__
+from corti.analysis.plots import save_summary_pdf
+from corti.auditory_nerve_response import AuditoryNerveResponse
+from corti.base import runtime_consts, PeripheryType, an_consts as a
+from corti.brainstem import simulate_brainstem
+from corti.periphery_configuration import PeripheryConfiguration
 
 
 def main(inputargs):

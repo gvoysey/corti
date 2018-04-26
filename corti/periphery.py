@@ -6,9 +6,9 @@ import os
 import yaml
 from os import path
 
-from core.base import runtime_consts, periph_consts as p, PeripheryType
-from core.periphery_configuration import PeripheryConfiguration, PeripheryOutput
-from core.zilany2014 import run_zilany2014
+from corti.base import runtime_consts, periph_consts as p, PeripheryType
+from corti.periphery_configuration import PeripheryConfiguration, PeripheryOutput
+from corti.zilany2014 import run_zilany2014
 
 
 class Periphery:
@@ -42,7 +42,7 @@ class Periphery:
                 self.sectionsNo = self.conf.NumberOfSections
             except ImportError:
                 logging.error(
-                        "The package `verhulst-model-core` is not installed.  Please install it or use the zilany model.")
+                        "The package `verhulst-model-corti` is not installed.  Please install it or use the zilany model.")
 
     def run(self) -> [PeripheryOutput]:
         """Simulate sound propagation up to the auditory nerve for many stimulus levels
