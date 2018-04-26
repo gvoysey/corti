@@ -1,6 +1,6 @@
 from datetime import datetime
 from typing import Union
-
+import attr
 import numpy as np
 
 from corti.base import stim_consts as sc, ProbeType, PeripheryType
@@ -35,7 +35,7 @@ class PeripheryConfiguration:
             self.normalizedRMS = np.zeros(len(self.stimulusLevels))
             self.irregularities = [1] * len(self.stimulusLevels)
             # these are more general
-            self.probeString = ProbeType.all.name  # sometimes called "Fc".
+            self.probeString = ProbeType.ALL.name  # sometimes called "Fc".
             self.random_seed = 1
             self.irrPct = 0.05
             self.nonlinearType = "vel"  # todo this is defined in two places
@@ -49,6 +49,7 @@ class PeripheryConfiguration:
         self.pypet = pypet
 
 
+@attr.s
 class PeripheryOutput:
     """
         PeripheryOutput:
@@ -57,8 +58,6 @@ class PeripheryOutput:
             :type self.conf: PeripheryConfiguration
         :return:
     """
-
-    def __init__(self):
-        self.output = None
-        self.conf = None
-        self.outputFolder = None
+    output = attr.ib(default=None)
+    conf = attr.ib(default=None)
+    outputFolder = attr.ib(default=None)

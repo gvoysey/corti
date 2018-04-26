@@ -1,4 +1,4 @@
-from enum import Enum
+from enum import Enum, auto
 from logging import basicConfig, INFO
 
 import os
@@ -6,10 +6,23 @@ import warnings
 from collections import namedtuple
 from os import path
 
-ProbeType = Enum("ProbeType", "all, half")
+import attr
+
+class ProbeType(Enum):
+    ALL = "all"
+    HALF = "half"
+
+# class PeripheryType(Enum):
+#     VERHULST = "verhulst"
+#     ZILANY = "zilany"
+
 PeripheryType = Enum("PeripheryType", "verhulst, zilany")
 BrainstemType = Enum('BrainstemType', "nelsoncarney04, carney2015")
 
+
+@attr.s
+class RuntimeConstants:
+    ModelDirectoryLabelName = attr.ib(default=)
 # This is the tuple that contains operational constants
 RuntimeConstants = namedtuple("Const", " ModelDirectoryLabelName \
                                   DefaultModelOutputDirectoryRoot \

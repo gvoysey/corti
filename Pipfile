@@ -15,7 +15,9 @@ scipy = "*"
 PyYAML = "*"
 Cython = "*"
 pypet = "*"
-
+matplotlib = "*"
+pandas = "*"
+pypet="*"
 
 [dev-packages]
 ipython = "*"
