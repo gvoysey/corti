@@ -22,104 +22,79 @@ BrainstemType = Enum('BrainstemType', "nelsoncarney04, carney2015")
 
 @attr.s
 class RuntimeConstants:
-    ModelDirectoryLabelName = attr.ib(default=)
-# This is the tuple that contains operational constants
-RuntimeConstants = namedtuple("Const", " ModelDirectoryLabelName \
-                                  DefaultModelOutputDirectoryRoot \
-                                  ResultDirectoryNameFormat \
-                                  PeripheryOutputFilePrefix \
-                                  BrainstemOutputFilePrefix \
-                                  AuditoryNerveOutputFilePrefix \
-                                  SummaryPlotFileName \
-                                  PeripheryConfigurationName \
-                                  ResourceDirectoryName \
-                                  StimulusTemplateName")
+    """naming conventions for operational constants"""
+    ModelDirectoryLabelName = attr.ib(default=".corti-output-root")
+    DefaultModelOutputDirectoryRoot = attr.ib(default="corti-output")
+    ResultDirectoryNameFormat = attr.ib(default="%d %b %y - %H%M")
+    PeripheryOutputFilePrefix = attr.ib(default="periphery-output-")
+    BrainstemOutputFilePrefix = attr.ib(default="central-output-")
+    AuditoryNerveOutputFilePrefix = attr.ib(default="auditory-nerve-response-")
+    SummaryPlotFileName = attr.ib(default="simulation-configuration.yaml")
+    PeripheryConfigurationName = attr.ib(default="summary-plots.pdf")
+    ResourceDirectoryName = attr.ib(default="resources")
+    StimulusTemplateName = attr.ib(default="default_stimulus_template.yaml")
 
-runtime_consts = RuntimeConstants(ModelDirectoryLabelName=".corti-output-root",
-                                  DefaultModelOutputDirectoryRoot="corti-output",
-                                  ResultDirectoryNameFormat="%d %b %y - %H%M",
-                                  PeripheryOutputFilePrefix="periphery-output-",
-                                  BrainstemOutputFilePrefix="central-output-",
-                                  AuditoryNerveOutputFilePrefix="auditory-nerve-response-",
-                                  PeripheryConfigurationName="simulation-configuration.yaml",
-                                  SummaryPlotFileName="summary-plots.pdf",
-                                  ResourceDirectoryName="resources",
-                                  StimulusTemplateName="default_stimulus_template.yaml"
-                                  )
 
-# This is the tuple that contains the naming conventions for Periphery output
-PeripheryConstants = namedtuple("PeripheryConstants", "BMVelocity \
-                                                    BMDisplacement \
-                                                    CenterFrequency \
-                                                    OtoacousticEmission \
-                                                    AuditoryNerveFiberHighSpont \
-                                                    AuditoryNerveFiberMediumSpont \
-                                                    AuditoryNerveFiberLowSpont \
-                                                    InnerHairCell \
-                                                    Stimulus \
-                                                    StimulusLevel")
+runtime_consts = RuntimeConstants()
 
-periph_consts = PeripheryConstants(BMVelocity="bm_velocity",
-                                   BMDisplacement="bm_position",
-                                   CenterFrequency="cf",
-                                   OtoacousticEmission="emission",
-                                   AuditoryNerveFiberHighSpont="an_high_spont",
-                                   AuditoryNerveFiberMediumSpont="an_medium_spont",
-                                   AuditoryNerveFiberLowSpont="an_low_spont",
-                                   InnerHairCell="ihc",
-                                   Stimulus="stimulus",
-                                   StimulusLevel="stimulus_level")
 
-# This is the tuple that contains the naming conventions for Brainstem output
-BrainstemConstants = namedtuple("BrainstemConstants", " Wave1_AN \
-                                                        Wave3_CN \
-                                                        Wave5_IC \
-                                                        ANPopulation \
-                                                        CNPopulation \
-                                                        ICPopulation \
-                                                        BrainstemModelType")
+@attr.s
+class PeripheryConstants:
+    """Naming conventions for Periphery output"""
+    BMVelocity = attr.ib(default="bm_velocity")
+    BMDisplacement = attr.ib(default="bm_position")
+    CenterFrequency = attr.ib(default="cf")
+    OtoacousticEmission = attr.ib(default="emission")
+    AuditoryNerveFiberHighSpont = attr.ib(default="an_high_spont")
+    AuditoryNerveFiberMediumSpont = attr.ib(default="an_medium_spont")
+    AuditoryNerveFiberLowSpont = attr.ib(default="an_low_spont")
+    InnerHairCell = attr.ib(default="ihc")
+    Stimulus = attr.ib(default="stimulus")
+    StimulusLevel = attr.ib(default="stimulus_level")
 
-brain_consts = BrainstemConstants(Wave1_AN="wave1_an",
-                                  Wave3_CN="wave3_cn",
-                                  Wave5_IC="wave5_ic",
-                                  ANPopulation="an_pop_resp",
-                                  CNPopulation="cn_pop_resp",
-                                  ICPopulation="ic_pop_resp",
-                                  BrainstemModelType="brainstem-model")
+periph_consts = PeripheryConstants()
 
-# This is the tuple that contains the naming conventions for the Auditory Nerve output
-AuditoryNerveConstants = namedtuple("AuditoryNerveConstants", "LowSR \
-                                                               MedSR \
-                                                               HighSR \
-                                                               SumANR")
+@attr.s
+class BrainstemConstants:
+    """naming conventions for Brainstem output"""
+    Wave1_AN = attr.ib(default="wave1_an")
+    Wave3_CN = attr.ib(default="wave3_cn")
+    Wave5_IC = attr.ib(default="wave5_ic")
+    ANPopulation = attr.ib(default="an_pop_resp")
+    CNPopulation = attr.ib(default="cn_pop_resp")
+    ICPopulation = attr.ib(default="ic_pop_resp")
+    BrainstemModelType = attr.ib(default="brainstem-model")
 
-an_consts = AuditoryNerveConstants(LowSR="low-sr",
-                                   MedSR="med-sr",
-                                   HighSR="high-sr",
-                                   SumANR="sum-anr")
 
-# This is the tuple that contains the naming conventions for Stimulus specification
-StimulusConstants = namedtuple("StimulusConstants", "Click \
-                                                     Chirp \
-                                                     AM \
-                                                     Custom \
-                                                     Levels \
-                                                     StimulusType \
-                                                     Stimulus \
-                                                     PrestimTime \
-                                                     StimTime \
-                                                     PoststimTime ")
+brain_consts = BrainstemConstants()
 
-stim_consts = StimulusConstants(Click="click",
-                                Chirp="chirp",
-                                AM="am",
-                                Custom="custom",
-                                Levels="levels",
-                                StimulusType="stimulus_type",
-                                Stimulus="stimulus",
-                                PrestimTime="prestim_time",
-                                StimTime="stim_time",
-                                PoststimTime="poststim_time")
+@attr.s
+class AuditoryNerveConstants:
+    """naming conventions for the Auditory Nerve output"""
+    LowSR = attr.ib(default="low-sr")
+    MedSR = attr.ib(default="med-sr")
+    HighSR = attr.ib(default="high-sr")
+    SumANR = attr.ib(default="sum-anr")
+
+an_consts = AuditoryNerveConstants()
+
+
+@attr.s
+class StimulusConstants:
+    """naming conventions for Stimulus specification"""
+    Click = attr.ib(default="click")
+    Chirp = attr.ib(default="chirp")
+    AM = attr.ib(default="am")
+    Custom = attr.ib(default="custom")
+    Levels = attr.ib(default="levels")
+    StimulusType = attr.ib(default="stimulus_type")
+    Stimulus = attr.ib(default="stimulus")
+    PrestimTime = attr.ib(default="prestim_time")
+    StimTime = attr.ib(default="stim_time")
+    PoststimTime = attr.ib(default="poststim_time")
+
+
+stim_consts = StimulusConstants()
 
 # This is the path of __this file__, which we can then base location on
 modulePath = os.path.dirname(os.path.abspath(__file__))
