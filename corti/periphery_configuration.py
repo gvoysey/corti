@@ -2,9 +2,13 @@ from datetime import datetime
 from typing import Union
 import attr
 import numpy as np
+from enum import Enum
 
-from corti.base import stim_consts as sc, ProbeType, PeripheryType
+from corti.base import stim_consts as sc, PeripheryType
 
+class ProbeType(Enum):
+    ALL = "all"
+    HALF = "half"
 
 class PeripheryConfiguration:
     """
@@ -30,7 +34,7 @@ class PeripheryConfiguration:
         self.stimulus_configuration = stimuli
         self.stimulusLevels = stimuli[sc.Levels]
         self.stimulus = stimuli[sc.Stimulus]
-        if modelType == PeripheryType.verhulst:
+        if modelType == PeripheryType.VERHULST:
             # this might be unused.  todo
             self.normalizedRMS = np.zeros(len(self.stimulusLevels))
             self.irregularities = [1] * len(self.stimulusLevels)
@@ -39,7 +43,7 @@ class PeripheryConfiguration:
             self.random_seed = 1
             self.irrPct = 0.05
             self.nonlinearType = "vel"  # todo this is defined in two places
-        if modelType == PeripheryType.zilany:
+        if modelType == PeripheryType.ZILANY:
             pass
         # operational parameters
         self.dataFolder = dataFolder

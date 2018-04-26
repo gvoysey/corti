@@ -92,9 +92,9 @@ class AuditoryNerveResponse:
         self.lowSR = lsr
         self.medSR = msr
         self.highSR = hsr
-        if self.periph.conf.modelType == PeripheryType.verhulst:
+        if self.periph.conf.modelType == PeripheryType.VERHULST:
             self.ANR = (lsr + msr + hsr) * self.M1
-        elif self.periph.conf.modelType == PeripheryType.zilany:
+        elif self.periph.conf.modelType == PeripheryType.ZILANY:
             self.ANR = (lsr + msr + hsr) * self.Z1
         else:
             raise TypeError("periphery type {} not found".format(self.periph.conf.modelType.name))

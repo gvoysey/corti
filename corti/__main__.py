@@ -34,8 +34,8 @@ Options:
                                     'd' : The stimulus level
                                     [default: cavihlmesd]
     --noBrainstem                   Simulate the periphery only.
-    --brainstemType=<brainstem>     Which brainstem and midbrain model to use: 'nelsoncarney04' or 'carney2015'
-                                    [default: nelsoncarney04]
+    --brainstemType=<brainstem>     Which brainstem and midbrain model to use: 'NELSON_CARNEY_2004' or 'CARNEY_2015'
+                                    [default: NELSON_CARNEY_2004]
     --no-cf-weighting               Don't sigmoidally weight how many low, medium, and high SR fibers innervate each CF.
     --stimulusFile=<stimulusPath>   Provide one or more stimuli templates as YAML (see stimulus_generator --help ).
                                     If no option is provided, an 80dB click will be used.
@@ -84,7 +84,7 @@ def main(inputargs):
     conf = PeripheryConfiguration(dataFolder=__set_output_dir(args["--out"], pypet),
                                   storeFlag=args["--pSave"],
                                   stimuli=stimuli_dict,
-                                  modelType=PeripheryType[args["--peripheryType"].casefold()],
+                                  modelType=PeripheryType[args["--peripheryType"].upper()],
                                   degradation=args["--neuropathy"],
                                   pypet=pypet)
     info("Simulating periphery ({0}) response ...".format(args["--peripheryType"]))

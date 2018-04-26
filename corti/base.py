@@ -1,23 +1,21 @@
-from enum import Enum, auto
-from logging import basicConfig, INFO
-
 import os
 import warnings
-from collections import namedtuple
+from enum import Enum, auto
+from logging import basicConfig, INFO
 from os import path
 
 import attr
 
-class ProbeType(Enum):
-    ALL = "all"
-    HALF = "half"
 
-# class PeripheryType(Enum):
-#     VERHULST = "verhulst"
-#     ZILANY = "zilany"
 
-PeripheryType = Enum("PeripheryType", "verhulst, zilany")
-BrainstemType = Enum('BrainstemType', "nelsoncarney04, carney2015")
+
+class PeripheryType(Enum):
+    VERHULST = auto
+    ZILANY = auto
+
+class BrainstemType(Enum):
+    NELSON_CARNEY_2004 = auto
+    CARNEY_2015 = auto
 
 
 @attr.s

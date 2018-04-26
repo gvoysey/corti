@@ -26,7 +26,7 @@ class Periphery:
             if not path.isdir(self.output_folder):
                 os.makedirs(self.output_folder)
 
-        if self.conf.modelType == PeripheryType.verhulst:
+        if self.conf.modelType == PeripheryType.VERHULST:
             try:
                 # noinspection PyUnresolvedReferences
                 from verhulst_model_core import polesPath, CochleaModel
@@ -49,11 +49,11 @@ class Periphery:
         :return: A list of output data, one for each stimulus level
         """
         results = []
-        if self.conf.modelType == PeripheryType.verhulst:
+        if self.conf.modelType == PeripheryType.VERHULST:
             for i, v in enumerate(self.cochlear_list):
                 results.append(self.solve_one_cochlea(v))
                 self.save_model_results(i, results[i].output)
-        elif self.conf.modelType == PeripheryType.zilany:
+        elif self.conf.modelType == PeripheryType.ZILANY:
             for i, v in enumerate(self.conf.stimulus):
                 try:
                     output = self.output_folder
