@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Verhulst Model.
+Corti: A tool for subcortical models of the auditory system.
 
 Usage:
     corti -h | --help
@@ -19,7 +19,7 @@ Usage:
 Options:
     -h --help                       Show this screen and exit.
     --version                       Display the version and exit.
-    --peripheryType=<model>         Use either the 'verhulst' or 'zilany' peripheral model. [default: verhulst]
+    --peripheryType=<model>         Use either the 'VERHULST' or 'ZILANY' peripheral model. [default: VERHULST]
     --out=<outpath>                 Specify the output location for saved data. [default: ~/corti-output]
     --pSave=<peripheryFlag>         Which components of the peripheral response to save:
                                     'c' : Center Frequencies
