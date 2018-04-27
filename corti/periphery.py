@@ -21,8 +21,8 @@ class Periphery:
         self.stimulus = self.conf.stimulus
         self.Fs = self.conf.Fs
         if not conf.pypet:
-            self.output_folder = path.join(self.conf.dataFolder,
-                                           datetime.now().strftime(runtime_consts.ResultDirectoryNameFormat))
+            self.output_folder = path.join(self.conf.dataFolder
+                                           , datetime.now().strftime(runtime_consts.ResultDirectoryNameFormat))
             if not path.isdir(self.output_folder):
                 os.makedirs(self.output_folder)
 
@@ -41,8 +41,8 @@ class Periphery:
                                       range(len(self.stimulus))]
                 self.sectionsNo = self.conf.NumberOfSections
             except ImportError:
-                logging.error(
-                        "The package `verhulst-model-corti` is not installed.  Please install it or use the zilany model.")
+                logging.error("The package `verhulst-model-corti` is not installed. "
+                              "Please install it or use the zilany model.")
 
     def run(self) -> [PeripheryOutput]:
         """Simulate sound propagation up to the auditory nerve for many stimulus levels
