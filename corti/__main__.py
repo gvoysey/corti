@@ -52,25 +52,27 @@ Options:
     -v --verbose                    Display detailed debug log output to STDOUT.
 """
 
+import os
+from os import path, system, name
+import shutil
 import sys
 from datetime import datetime
 from logging import info, getLogger, ERROR
 
-import os
-import shutil
 from docopt import docopt
-from os import path, system, name
 
-from corti import Periphery, Stimulus, __version__
+from corti import __version__
 from corti.analysis.plots import save_summary_pdf
 from corti.auditory_nerve_response import AuditoryNerveResponse
-from corti.base import runtime_consts, PeripheryType, an_consts as a
+from corti.base import runtime_consts, PeripheryType, an_consts as a, sanitize_level
 from corti.brainstem import simulate_brainstem
+from corti.periphery import Periphery
 from corti.periphery_configuration import PeripheryConfiguration
+from corti.stimulus import Stimulus
 
 
 def main(inputargs=None):
-
+    """The entry point to the main command line"""
     if inputargs is None:
         inputargs = sys.argv[1:] if len(sys.argv) > 1 else ""
     args = docopt(__doc__, version=__version__, argv=inputargs)
@@ -80,11 +82,11 @@ def main(inputargs=None):
         getLogger().setLevel(ERROR)
 
     # configure the stimulus
-    stimuli_dict = _make_stimuli(args)
+    stimuli_dict = make_stimuli(args)
     # actually run the simulation
     system('cls' if name == 'nt' else 'clear')
     # configure the periphery to run
-    conf = PeripheryConfiguration(dataFolder=__set_output_dir(args["--out"], pypet),
+    conf = PeripheryConfiguration(dataFolder=set_output_dir(args["--out"], pypet),
                                   storeFlag=args["--pSave"],
                                   stimuli=stimuli_dict,
                                   modelType=PeripheryType[args["--peripheryType"].upper()],
@@ -93,86 +95,79 @@ def main(inputargs=None):
     info("Simulating periphery ({0}) response ...".format(args["--peripheryType"]))
 
     # run all the levels through the periphery model
-    peripheryResults = Periphery(conf).run()
+    periphery_results = Periphery(conf).run()
 
     # Create the auditory nerve response
     info("Simulating auditory nerve response ...")
 
     if args["--no-cf-weighting"]:
-        auditoryNerveResponses = [AuditoryNerveResponse(p, args["--neuropathy"]).unweighted_an_response() for p in
-                                  peripheryResults]
+        auditory_nerve_responses = [AuditoryNerveResponse(p, args["--neuropathy"]).unweighted_an_response() for p in
+                                    periphery_results]
     else:
-        auditoryNerveResponses = [AuditoryNerveResponse(p, args["--neuropathy"]).cf_weighted_an_response() for p in
-                                  peripheryResults]
+        auditory_nerve_responses = [AuditoryNerveResponse(p, args["--neuropathy"]).cf_weighted_an_response() for p in
+                                    periphery_results]
 
     # run the brainstem and midbrain models, if requested
     if not args["--noBrainstem"]:
         info("Simulating brainstem response ...")
-        brainResults = simulate_brainstem([(periphs, anrs, args["--brainstemType"])
-                                           for periphs, anrs in zip(peripheryResults, auditoryNerveResponses)])  #todo make the enum here
+        brain_results = simulate_brainstem([(periphs, anrs, args["--brainstemType"])
+                                            for periphs, anrs in zip(periphery_results, auditory_nerve_responses)])
+        #  todo make the enum here
     else:
-        brainResults = None
+        brain_results = None
 
     # Generate summary plots
     if not pypet:
         info("Generating summary figures ...")
-        save_summary_pdf(periphery=peripheryResults,
-                         brain=brainResults,
-                         anr=auditoryNerveResponses,
+        save_summary_pdf(periphery=periphery_results,
+                         brain=brain_results,
+                         anr=auditory_nerve_responses,
                          conf=conf,
                          fileName="summary-plots.pdf",
-                         outputPath=peripheryResults[0].outputFolder)
+                         outputPath=periphery_results[0].outputFolder)
 
     # Delete old runs, if requested.
     if args["--clean"]:
         info("Cleaning up previous model runs ... ")
-        __clean(conf.dataFolder, peripheryResults[0].outputFolder)
+        clean(conf.dataFolder, periphery_results[0].outputFolder)
 
     info("Simulation finished.")
     if pypet:
         return (
-            peripheryResults,
-            [{a.SumANR: x} for x in auditoryNerveResponses],
-            brainResults
+            periphery_results,
+            [{a.SumANR: x} for x in auditory_nerve_responses],
+            brain_results
         )
     else:
         return 0
 
 
-def _sanitize_level(levels: str):
-    """ Takes a string list of level parameters and converts them to a list of floats.
-    """
-    if levels is None:
-        return
-    return [float(f) for f in levels.split(",") if levels and f]
-
-
-def __clean(rootDir: str, current_results: str) -> None:
+def clean(root_dir: str, current_results: str) -> None:
     """
     Removes all the previous model runs except the current one found in the current base output directory.
     All directories that are named like model output directories are removed recursively; no other files are touched.
     """
-    contents = os.listdir(rootDir)
+    contents = os.listdir(root_dir)
     if runtime_consts.ModelDirectoryLabelName not in contents:
         info("Specified directory was not a model output directory. No data removed.")
         return
-    for d in contents:
-        if (not d == path.basename(current_results)) and \
-                path.isdir(path.join(rootDir, d)) and \
-                datetime.strptime(d, runtime_consts.ResultDirectoryNameFormat):
-            shutil.rmtree(path.join(rootDir, d))
-            info("removed " + d)
+    for sub_dir in contents:
+        if ((not sub_dir == path.basename(current_results)) and
+                path.isdir(path.join(root_dir, sub_dir)) and
+                datetime.strptime(sub_dir, runtime_consts.ResultDirectoryNameFormat)):
+            shutil.rmtree(path.join(root_dir, sub_dir))
+            info("removed " + sub_dir)
     pass
 
 
-def __touch(fname, times=None):
+def touch(fname, times=None):
     """ As coreutils touch.
     """
     with open(fname, 'a+'):
         os.utime(fname, times)
 
 
-def __set_output_dir(temp: str, pypet: bool) -> str:
+def set_output_dir(temp: str, pypet: bool) -> str:
     """ Returns a fully qualified path to the model output root directory.
     The directory is created if it does not exist.
     """
@@ -186,7 +181,7 @@ def __set_output_dir(temp: str, pypet: bool) -> str:
         retval = path.dirname(retval)
     # if the output path exists and is empty, make it the output root and return it.
     if path.exists(retval) and not os.listdir(retval):
-        __touch(path.join(retval, runtime_consts.ModelDirectoryLabelName))
+        touch(path.join(retval, runtime_consts.ModelDirectoryLabelName))
         return retval
     # if it exists and has stuff in it, make a subdirectory in it, make IT the root, and return it.
     elif path.exists(retval) and os.listdir(retval):
@@ -194,19 +189,19 @@ def __set_output_dir(temp: str, pypet: bool) -> str:
             retval = path.join(retval, runtime_consts.DefaultModelOutputDirectoryRoot)
         if not path.exists(retval):
             os.makedirs(retval, exist_ok=True)
-        __touch(path.join(retval, runtime_consts.ModelDirectoryLabelName))
+        touch(path.join(retval, runtime_consts.ModelDirectoryLabelName))
         return retval
     # if it doesn't exist, make it, make it the root, and return it.
     elif not path.exists(retval):
         os.makedirs(retval)
-        __touch(path.join(retval, runtime_consts.ModelDirectoryLabelName))
+        touch(path.join(retval, runtime_consts.ModelDirectoryLabelName))
         return retval
 
 
-def _make_stimuli(args: dict) -> dict:
+def make_stimuli(args: dict) -> dict:
     stim_loc = args["--stimulusFile"]
     wav_path = args["--wavFile"]
-    levels = _sanitize_level(args["--level"])
+    levels = sanitize_level(args["--level"])
     s = Stimulus()
     if stim_loc:
         # use a user-configured stimulus file.

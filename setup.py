@@ -46,7 +46,7 @@ setup(name='corti',
           'PyYAML > 3.10',
           'pandas',
           'cython',
-          'pypet',
+          'pypet', 'attrs'
       ],
       tests_require=[
           'pytest',

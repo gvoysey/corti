@@ -7,20 +7,29 @@ from os import path
 import attr
 
 
+def sanitize_level(levels: str):
+    """ Takes a string list of level parameters and converts them to a list of floats.
+    """
+    if levels is None:
+        return
+    return [float(f) for f in levels.split(",") if levels and f]
 
 
 class PeripheryType(Enum):
+    """The model to use for the auditory periphery simulations"""
     VERHULST = auto
     ZILANY = auto
 
+
 class BrainstemType(Enum):
+    """The model to use for the auditory brainstem simulations"""
     NELSON_CARNEY_2004 = auto
     CARNEY_2015 = auto
 
 
 @attr.s
 class RuntimeConstants:
-    """naming conventions for operational constants"""
+    """Naming conventions for operational constants"""
     ModelDirectoryLabelName = attr.ib(default=".corti-output-root")
     DefaultModelOutputDirectoryRoot = attr.ib(default="corti-output")
     ResultDirectoryNameFormat = attr.ib(default="%d %b %y - %H%M")
@@ -50,7 +59,9 @@ class PeripheryConstants:
     Stimulus = attr.ib(default="stimulus")
     StimulusLevel = attr.ib(default="stimulus_level")
 
+
 periph_consts = PeripheryConstants()
+
 
 @attr.s
 class BrainstemConstants:
@@ -66,6 +77,7 @@ class BrainstemConstants:
 
 brain_consts = BrainstemConstants()
 
+
 @attr.s
 class AuditoryNerveConstants:
     """naming conventions for the Auditory Nerve output"""
@@ -73,6 +85,7 @@ class AuditoryNerveConstants:
     MedSR = attr.ib(default="med-sr")
     HighSR = attr.ib(default="high-sr")
     SumANR = attr.ib(default="sum-anr")
+
 
 an_consts = AuditoryNerveConstants()
 
