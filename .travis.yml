@@ -3,7 +3,7 @@ notifications:
   email: none
 sudo: required
 python:
-  - "3.5"
+  - "3.6"
 
 install:
  - sudo apt-get install gfortran libblas-dev liblapack-dev libhdf5-serial-dev netcdf-bin libnetcdf-dev

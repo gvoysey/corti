@@ -69,7 +69,10 @@ from corti.brainstem import simulate_brainstem
 from corti.periphery_configuration import PeripheryConfiguration
 
 
-def main(inputargs):
+def main(inputargs=None):
+
+    if inputargs is None:
+        inputargs = sys.argv[1:] if len(sys.argv) > 1 else ""
     args = docopt(__doc__, version=__version__, argv=inputargs)
     pypet = args["--pypet"]
     # configure the log level appropriately
@@ -106,7 +109,7 @@ def main(inputargs):
     if not args["--noBrainstem"]:
         info("Simulating brainstem response ...")
         brainResults = simulate_brainstem([(periphs, anrs, args["--brainstemType"])
-                                           for periphs, anrs in zip(peripheryResults, auditoryNerveResponses)])
+                                           for periphs, anrs in zip(peripheryResults, auditoryNerveResponses)])  #todo make the enum here
     else:
         brainResults = None
 
@@ -219,4 +222,4 @@ def _make_stimuli(args: dict) -> dict:
 
 
 if __name__ == "__main__":
-    sys.exit(main(sys.argv[1:] if len(sys.argv) > 1 else ""))  # guaranteed to pass the right number of arguments.
+    main()

@@ -41,7 +41,7 @@ class CentralAuditoryResponse:
         self.time = np.linspace(0, dur / self.Fs, num=dur)
         self.cf = self.anfOut.output[p.CenterFrequency]
         self.cutoffCf = [index for index, value in enumerate(self.cf) if value >= self.LowFrequencyCutoff][-1]
-        self.brainstemType = BrainstemType[modelType.casefold()]
+        self.brainstemType = BrainstemType[modelType]
 
     def run(self) -> {}:
         """

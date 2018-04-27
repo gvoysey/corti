@@ -20,7 +20,7 @@ setup(name='corti',
       packages=find_packages(),
       package_data={
           'corti': ['resources/*',
-                   'resources/tone_in_noise/*']
+                    'resources/tone_in_noise/*']
       },
       entry_points={
           'console_scripts': [
