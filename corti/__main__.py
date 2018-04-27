@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Verhulst Model.
+Corti: A tool for subcortical models of the auditory system.
 
 Usage:
     corti -h | --help
@@ -19,7 +19,7 @@ Usage:
 Options:
     -h --help                       Show this screen and exit.
     --version                       Display the version and exit.
-    --peripheryType=<model>         Use either the 'verhulst' or 'zilany' peripheral model. [default: verhulst]
+    --peripheryType=<model>         Use either the 'VERHULST' or 'ZILANY' peripheral model. [default: VERHULST]
     --out=<outpath>                 Specify the output location for saved data. [default: ~/corti-output]
     --pSave=<peripheryFlag>         Which components of the peripheral response to save:
                                     'c' : Center Frequencies
@@ -34,8 +34,8 @@ Options:
                                     'd' : The stimulus level
                                     [default: cavihlmesd]
     --noBrainstem                   Simulate the periphery only.
-    --brainstemType=<brainstem>     Which brainstem and midbrain model to use: 'nelsoncarney04' or 'carney2015'
-                                    [default: nelsoncarney04]
+    --brainstemType=<brainstem>     Which brainstem and midbrain model to use: 'NELSON_CARNEY_2004' or 'CARNEY_2015'
+                                    [default: NELSON_CARNEY_2004]
     --no-cf-weighting               Don't sigmoidally weight how many low, medium, and high SR fibers innervate each CF.
     --stimulusFile=<stimulusPath>   Provide one or more stimuli templates as YAML (see stimulus_generator --help ).
                                     If no option is provided, an 80dB click will be used.
@@ -61,13 +61,12 @@ import shutil
 from docopt import docopt
 from os import path, system, name
 
-from core import Periphery, Stimulus
-from core._version import __version__
-from core.analysis.plots import save_summary_pdf
-from core.auditory_nerve_response import AuditoryNerveResponse
-from core.base import runtime_consts, PeripheryType, an_consts as a
-from core.brainstem import simulate_brainstem
-from core.periphery_configuration import PeripheryConfiguration
+from corti import Periphery, Stimulus, __version__
+from corti.analysis.plots import save_summary_pdf
+from corti.auditory_nerve_response import AuditoryNerveResponse
+from corti.base import runtime_consts, PeripheryType, an_consts as a
+from corti.brainstem import simulate_brainstem
+from corti.periphery_configuration import PeripheryConfiguration
 
 
 def main(inputargs):
@@ -85,7 +84,7 @@ def main(inputargs):
     conf = PeripheryConfiguration(dataFolder=__set_output_dir(args["--out"], pypet),
                                   storeFlag=args["--pSave"],
                                   stimuli=stimuli_dict,
-                                  modelType=PeripheryType[args["--peripheryType"].casefold()],
+                                  modelType=PeripheryType[args["--peripheryType"].upper()],
                                   degradation=args["--neuropathy"],
                                   pypet=pypet)
     info("Simulating periphery ({0}) response ...".format(args["--peripheryType"]))

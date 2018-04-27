@@ -5,8 +5,8 @@ import numpy as np
 import progressbar
 from os import path
 
-from core.base import runtime_consts, brain_consts as b, periph_consts as p, BrainstemType
-from .periphery_configuration import PeripheryOutput
+from corti.base import runtime_consts, brain_consts as b, periph_consts as p, BrainstemType
+from corti.periphery_configuration import PeripheryOutput
 
 
 def simulate_brainstem(anResults: [(PeripheryOutput, np.ndarray, str)]) -> [{}]:
@@ -147,9 +147,9 @@ class CentralAuditoryResponse:
     def __simulate_IC(self, modelType: BrainstemType, rcn: np.ndarray, weights=(.5, .25, .25)) -> np.ndarray:
         M5 = (2 * 0.15e-6) / 0.0033  # idem with scaling W1 & 3
 
-        if modelType == BrainstemType.nelsoncarney04:
+        if modelType == BrainstemType.NELSON_CARNEY_2004:
             retval = self._ic_bandpass(rcn)
-        elif modelType == BrainstemType.carney2015:
+        elif modelType == BrainstemType.CARNEY_2015:
             retval = (self._ic_bandpass(weights[0] * rcn) +
                       self._ic_band_reject(weights[1] * rcn) +
                       self._ic_lowpass(weights[2] * rcn))

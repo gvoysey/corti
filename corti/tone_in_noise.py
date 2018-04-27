@@ -23,7 +23,7 @@ from os import path
 from pypet import Environment
 from pypet.utils.explore import cartesian_product
 
-from core.base import brain_consts, an_consts, periph_consts, modulePath
+from corti.base import brain_consts, an_consts, periph_consts, modulePath
 
 corti_path = path.join(path.dirname(path.abspath(__file__)), "corti")
 corti = SourceFileLoader('corti', corti_path).load_module()

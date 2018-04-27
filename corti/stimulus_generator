@@ -29,9 +29,9 @@ import shutil
 from docopt import docopt
 from os import path
 
-from core._version import __version__
-from core.base import stimulusTemplatePath, stim_consts as sc
-from core.stimulus import Stimulus
+from corti import __version__
+from corti.base import stimulusTemplatePath, stim_consts as sc
+from corti.stimulus import Stimulus
 
 # By default, log INFO and up.
 basicConfig(format='%(levelname)s %(asctime)s- %(message)s', datefmt='%d %b %H:%M:%S', level=INFO)
