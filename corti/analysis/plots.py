@@ -18,6 +18,7 @@ from corti.periphery_configuration import PeripheryOutput, PeripheryConfiguratio
 
 plt.style.use("seaborn-colorblind")
 
+
 # noinspection PyUnresolvedReferences
 def plot_periphery(periph: {}, conf: PeripheryConfiguration, pdf: PdfPages) -> plt.Figure:
     figure = plt.figure(1, (8.5, 11), dpi=300)

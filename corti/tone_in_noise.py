@@ -78,7 +78,9 @@ def tone_in_noise(traj: Environment.trajectory):
     # free up some cache.
 
 
-def main(inputargs):
+def main(inputargs=None):
+    if inputargs is None:
+        inputargs = sys.argv[1:] if len(sys.argv) > 1 else ""
     args = docopt(__doc__, argv=inputargs)
     wavpath = path.join(modulePath, "resources", "tone_in_noise")
     stimuli = [path.join(wavpath, i) for i in glob.glob(path.join(wavpath, "*.wav"))]

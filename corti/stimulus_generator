@@ -37,9 +37,11 @@ from corti.stimulus import Stimulus
 basicConfig(format='%(levelname)s %(asctime)s- %(message)s', datefmt='%d %b %H:%M:%S', level=INFO)
 
 
-def main():
+def main(inputargs=None):
+    if inputargs is None:
+        inputargs = sys.argv[1:] if len(sys.argv) > 1 else ""
     # get the command line args
-    args = docopt(__doc__, version=__version__)
+    args = docopt(argv=inputargs, doc=__doc__, version=__version__)
 
     # configure the log level appropriately
     if not args["--verbose"]:
@@ -123,4 +125,4 @@ def _save_stimulus(stimulus: np.ndarray, level: [float], outPath: str):
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()
