@@ -11,7 +11,7 @@ Usage:
                    [-v | --verbose]
                    [--pSave <peripheryFlag>]
                    [--stimulusFile <stimulusPath> | (--wavFile <wavPath> --level <spl>)]
-                   [--no-cf-weighting]
+                   [--no_cf_weighting]
                    [--neuropathy <degradation>]
                    [--noBrainstem | --brainstemType <brainstem>]
                    [--pypet]
@@ -36,7 +36,7 @@ Options:
     --noBrainstem                   Simulate the periphery only.
     --brainstemType=<brainstem>     Which brainstem and midbrain model to use: 'NELSON_CARNEY_2004' or 'CARNEY_2015'
                                     [default: NELSON_CARNEY_2004]
-    --no-cf-weighting               Don't sigmoidally weight how many low, medium, and high SR fibers innervate each CF.
+    --no_cf_weighting               Don't sigmoidally weight how many low, medium, and high SR fibers innervate each CF.
     --stimulusFile=<stimulusPath>   Provide one or more stimuli templates as YAML (see stimulus_generator --help ).
                                     If no option is provided, an 80dB click will be used.
     --wavFile=<wavPath>             Provide a custom stimulus from a pre-recorded WAV file.
@@ -69,16 +69,17 @@ from corti.brainstem import simulate_brainstem
 from corti.periphery import Periphery
 from corti.periphery_configuration import PeripheryConfiguration
 from corti.stimulus import Stimulus
+from corti.from_docopt import from_docopt
 
 
 def main(inputargs=None):
     """The entry point to the main command line"""
     if inputargs is None:
         inputargs = sys.argv[1:] if len(sys.argv) > 1 else ""
-    args = docopt(__doc__, version=__version__, argv=inputargs)
-    pypet = args["--pypet"]
+    args = from_docopt(argv=inputargs, docstring=__doc__, version=__version__)
+
     # configure the log level appropriately
-    if not args["--verbose"]:
+    if not args.verbose:
         getLogger().setLevel(ERROR)
 
     # configure the stimulus
@@ -86,13 +87,13 @@ def main(inputargs=None):
     # actually run the simulation
     system('cls' if name == 'nt' else 'clear')
     # configure the periphery to run
-    conf = PeripheryConfiguration(dataFolder=set_output_dir(args["--out"], pypet),
-                                  storeFlag=args["--pSave"],
+    conf = PeripheryConfiguration(dataFolder=set_output_dir(args.out, args.pypet),
+                                  storeFlag=args.pSave,
                                   stimuli=stimuli_dict,
-                                  modelType=PeripheryType[args["--peripheryType"].upper()],
-                                  degradation=args["--neuropathy"],
-                                  pypet=pypet)
-    info("Simulating periphery ({0}) response ...".format(args["--peripheryType"]))
+                                  modelType=PeripheryType[args.peripheryType.upper()],
+                                  degradation=args.neuropathy,
+                                  pypet=args.pypet)
+    info("Simulating periphery ({0}) response ...".format(args.peripheryType))
 
     # run all the levels through the periphery model
     periphery_results = Periphery(conf).run()
@@ -100,24 +101,24 @@ def main(inputargs=None):
     # Create the auditory nerve response
     info("Simulating auditory nerve response ...")
 
-    if args["--no-cf-weighting"]:
-        auditory_nerve_responses = [AuditoryNerveResponse(p, args["--neuropathy"]).unweighted_an_response() for p in
+    if args.no_cf_weighting:
+        auditory_nerve_responses = [AuditoryNerveResponse(p, args.neuropathy).unweighted_an_response() for p in
                                     periphery_results]
     else:
-        auditory_nerve_responses = [AuditoryNerveResponse(p, args["--neuropathy"]).cf_weighted_an_response() for p in
+        auditory_nerve_responses = [AuditoryNerveResponse(p, args.neuropathy).cf_weighted_an_response() for p in
                                     periphery_results]
 
     # run the brainstem and midbrain models, if requested
-    if not args["--noBrainstem"]:
+    if not args.noBrainstem:
         info("Simulating brainstem response ...")
-        brain_results = simulate_brainstem([(periphs, anrs, args["--brainstemType"])
+        brain_results = simulate_brainstem([(periphs, anrs, args.brainstemType)
                                             for periphs, anrs in zip(periphery_results, auditory_nerve_responses)])
         #  todo make the enum here
     else:
         brain_results = None
 
     # Generate summary plots
-    if not pypet:
+    if not args.pypet:
         info("Generating summary figures ...")
         save_summary_pdf(periphery=periphery_results,
                          brain=brain_results,
@@ -127,12 +128,12 @@ def main(inputargs=None):
                          outputPath=periphery_results[0].outputFolder)
 
     # Delete old runs, if requested.
-    if args["--clean"]:
+    if args.clean:
         info("Cleaning up previous model runs ... ")
         clean(conf.dataFolder, periphery_results[0].outputFolder)
 
     info("Simulation finished.")
-    if pypet:
+    if args.pypet:
         return (
             periphery_results,
             [{a.SumANR: x} for x in auditory_nerve_responses],
@@ -198,10 +199,10 @@ def set_output_dir(temp: str, pypet: bool) -> str:
         return retval
 
 
-def make_stimuli(args: dict) -> dict:
-    stim_loc = args["--stimulusFile"]
-    wav_path = args["--wavFile"]
-    levels = sanitize_level(args["--level"])
+def make_stimuli(args) -> dict:
+    stim_loc = args.stimulusFile
+    wav_path = args.wavFile
+    levels = sanitize_level(args.level)
     s = Stimulus()
     if stim_loc:
         # use a user-configured stimulus file.
