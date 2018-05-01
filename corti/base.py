@@ -17,14 +17,14 @@ def sanitize_level(levels: str):
 
 class PeripheryType(Enum):
     """The model to use for the auditory periphery simulations"""
-    VERHULST = auto
-    ZILANY = auto
+    VERHULST = auto()
+    ZILANY = auto()
 
 
 class BrainstemType(Enum):
     """The model to use for the auditory brainstem simulations"""
-    NELSON_CARNEY_2004 = auto
-    CARNEY_2015 = auto
+    NELSON_CARNEY_2004 = auto()
+    CARNEY_2015 = auto()
 
 
 @attr.s

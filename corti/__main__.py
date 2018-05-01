@@ -11,7 +11,7 @@ Usage:
                    [-v | --verbose]
                    [--pSave <peripheryFlag>]
                    [--stimulusFile <stimulusPath> | (--wavFile <wavPath> --level <spl>)]
-                   [--no-cf-weighting]
+                   [--no_cf_weighting]
                    [--neuropathy <degradation>]
                    [--noBrainstem | --brainstemType <brainstem>]
                    [--pypet]
@@ -36,7 +36,7 @@ Options:
     --noBrainstem                   Simulate the periphery only.
     --brainstemType=<brainstem>     Which brainstem and midbrain model to use: 'NELSON_CARNEY_2004' or 'CARNEY_2015'
                                     [default: NELSON_CARNEY_2004]
-    --no-cf-weighting               Don't sigmoidally weight how many low, medium, and high SR fibers innervate each CF.
+    --no_cf_weighting               Don't sigmoidally weight how many low, medium, and high SR fibers innervate each CF.
     --stimulusFile=<stimulusPath>   Provide one or more stimuli templates as YAML (see stimulus_generator --help ).
                                     If no option is provided, an 80dB click will be used.
     --wavFile=<wavPath>             Provide a custom stimulus from a pre-recorded WAV file.
@@ -69,6 +69,7 @@ from corti.brainstem import simulate_brainstem
 from corti.periphery import Periphery
 from corti.periphery_configuration import PeripheryConfiguration
 from corti.stimulus import Stimulus
+from corti.from_docopt import from_docopt
 
 
 def main(inputargs=None):
@@ -76,6 +77,7 @@ def main(inputargs=None):
     if inputargs is None:
         inputargs = sys.argv[1:] if len(sys.argv) > 1 else ""
     args = docopt(__doc__, version=__version__, argv=inputargs)
+    dargs = from_docopt(argv=inputargs, docstring=__doc__, version=__version__)
     pypet = args["--pypet"]
     # configure the log level appropriately
     if not args["--verbose"]:
