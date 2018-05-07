@@ -6,9 +6,11 @@ from enum import Enum
 
 from corti.base import stim_consts as sc, PeripheryType
 
+
 class ProbeType(Enum):
     ALL = "all"
     HALF = "half"
+
 
 class PeripheryConfiguration:
     """
