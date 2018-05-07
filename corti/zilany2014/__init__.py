@@ -29,6 +29,7 @@ from .util import calc_cfs
 from .zilany2014_rate import run_zilany2014_rate
 from corti.base import periph_consts as p
 from corti.periphery import PeripheryOutput, PeripheryConfiguration
+from tqdm import tqdm
 
 
 def run_zilany2014(
@@ -138,10 +139,8 @@ def run_zilany2014(
     #        channel_args
     # )
     nested = []
-    with progressbar.ProgressBar(max_value=len(channel_args)) as bar:
-        for i, arg in enumerate(channel_args):
-            nested.append(_run_channel(arg))
-            bar.update(i)
+    for i, arg in tqdm(enumerate(channel_args), desc='zilany'):
+        nested.append(_run_channel(arg))
 
     np.fft.fftpack._fft_cache = {}
 
@@ -151,7 +150,6 @@ def run_zilany2014(
     ### Unpack the results
     # trains = itertools.chain(*nested)
     # spike_trains = pd.DataFrame(list(trains))
-
 
     # return spike_trains
 
