@@ -24,7 +24,7 @@ setup(name='corti',
       },
       entry_points={
           'console_scripts': [
-              'corti = corti.__main__:main'
+              'corti = corti.__main__:cli_main'
               , 'stimulus_generator = corti.stimulus_generator:main'
               , 'tone_in_noise = corti.tone_in_noise:main'
           ]

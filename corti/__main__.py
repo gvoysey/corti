@@ -70,12 +70,17 @@ from corti.periphery_configuration import PeripheryConfiguration
 from corti.stimulus import Stimulus
 
 
-def main(inputargs=None):
+def cli_main(inputargs=None):
     """The entry point to the main command line"""
+
     if inputargs is None:
         inputargs = sys.argv[1:] if len(sys.argv) > 1 else ""
     args = from_docopt(argv=inputargs, docstring=__doc__, version=__version__)
+    main(args)
 
+
+def main(args):
+    """Main code"""
     # configure the log level appropriately
     if not args.verbose:
         getLogger().setLevel(ERROR)
@@ -216,4 +221,4 @@ def make_stimuli(args) -> dict:
 
 
 if __name__ == "__main__":
-    main()
+    cli_main()
