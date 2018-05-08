@@ -53,23 +53,21 @@ Options:
 """
 
 import os
-from os import path, system, name
 import shutil
 import sys
 from datetime import datetime
 from logging import info, getLogger, ERROR
-
-from docopt import docopt
+from os import path, system, name
 
 from corti import __version__
 from corti.analysis.plots import save_summary_pdf
 from corti.auditory_nerve_response import AuditoryNerveResponse
 from corti.base import runtime_consts, PeripheryType, an_consts as a, sanitize_level
 from corti.brainstem import simulate_brainstem
+from corti.from_docopt import from_docopt
 from corti.periphery import Periphery
 from corti.periphery_configuration import PeripheryConfiguration
 from corti.stimulus import Stimulus
-from corti.from_docopt import from_docopt
 
 
 def main(inputargs=None):
