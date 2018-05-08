@@ -6,7 +6,7 @@ import yaml
 from os import path
 from scipy.io import wavfile
 
-from core.base import stimulusTemplatePath, stim_consts as sc
+from corti.base import stimulusTemplatePath, stim_consts as sc
 
 
 class Stimulus:
@@ -19,7 +19,7 @@ class Stimulus:
         time = float(time)
         return int(round(self.FS * time))
 
-    def _to_pascals(self, waveform: np.ndarray, levels: [], stim_type: str) -> np.ndarray:
+    def to_pascals(self, waveform: np.ndarray, levels: [], stim_type: str) -> np.ndarray:
         """ Rescale a waveform so that the values are in units of pascals, and returns a matrix of waveforms column-wise
         by level.
         :parameter waveform:  The waveform.
@@ -31,18 +31,18 @@ class Stimulus:
         if stim_type == sc.Click:
             normalized = waveform / abs(max(waveform))
         else:
-            normalized = waveform / self._rms(waveform)
+            normalized = waveform / self.rms(waveform)
         # make the levels broadcastable
         levels = np.array(levels)[:, None]
         # compute the intensity in pascals
-        scaling = self._spl2a(levels)
+        scaling = self.spl_to_a(levels)
         return normalized * scaling
 
-    def _rms(self, sig_in: np.ndarray) -> np.ndarray:
+    def rms(self, sig_in: np.ndarray) -> np.ndarray:
         """ Compute the Root-Mean Squared (RMS) value of the long term input stimulus signal"""
         return math.sqrt(np.mean(sig_in * np.conj(sig_in)))
 
-    def _spl2a(self, spl_value: float) -> float:
+    def spl_to_a(self, spl_value: float) -> float:
         """Convert from dB SPL to RMS pascal"""
         return self.P0 * 10 ** (spl_value / 20)
 
@@ -54,7 +54,7 @@ class Stimulus:
         post = self.seconds_to_samples(config[sc.PoststimTime])
         # the template for a click is a delay, a rectangular stimulus, and a delay.
         template = [np.zeros(pre), np.ones(stim), np.zeros(post)]
-        return self._to_pascals(template, config[sc.Levels], config[sc.StimulusType])
+        return self.to_pascals(template, config[sc.Levels], config[sc.StimulusType])
 
     def make_chirp(self, config: {}) -> np.ndarray:
         pass
@@ -105,5 +105,5 @@ class Stimulus:
             return {
                 sc.Levels      : level,
                 sc.StimulusType: "custom",
-                sc.Stimulus    : self._to_pascals(data, level, sc.Custom)
+                sc.Stimulus    : self.to_pascals(data, level, sc.Custom)
             }

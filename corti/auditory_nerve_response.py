@@ -1,3 +1,4 @@
+"""Computations related to the responses of the auditory nerve to stimuli."""
 import logging
 from typing import Union
 
@@ -5,7 +6,7 @@ import numpy as np
 import numpy.matlib
 from os import path
 
-from core import PeripheryOutput, PeripheryType, periph_consts as p, runtime_consts as r, an_consts as a
+from corti import PeripheryOutput, PeripheryType, periph_consts as p, runtime_consts as r, an_consts as a
 
 
 class AuditoryNerveResponse:
@@ -19,7 +20,6 @@ class AuditoryNerveResponse:
 
     def __init__(self, an: PeripheryOutput, degradation: str):
         """
-
         :param an:
         :param degradation: a tuple representing how much each fiber type should be degraded.
                             Values should be either scalar or ndarrays of the same shape as each fiber
@@ -53,13 +53,12 @@ class AuditoryNerveResponse:
         })
         logging.info("wrote {0:<10} to {1}".format(name, path.abspath(outpath)))
 
-    def unweighted_an_response(self, ls_normal: float = 3, ms_normal: float = 3, hs_normal: float = 13) -> np.ndarray:
+    def unweighted_an_response(self, ls_normal: float=3, ms_normal: float=3, hs_normal: float=13) -> np.ndarray:
         """Create an auditory nerve population response with a fixed distribution of fiber types per hair cell.
-        Contains the contributions of low, medium, and high spontaneous rate fibers individually weighted by fiber count.
-        An optional parameter for modeling hair cell loss is available.
-        :param ls_normal: The number of low spont rate fibers per IHC
-        :param ms_normal: The number of medium spont rate fibers per IHC
-        :param hs_normal: The number of high spont rate fibers per IHC
+        Contains the contributions of low, medium, and high spontaneous rate fibers individually weighted by fiber
+        count. An optional parameter for modeling hair cell loss is available. :param ls_normal: The number of low
+        spont rate fibers per IHC :param ms_normal: The number of medium spont rate fibers per IHC :param hs_normal:
+        The number of high spont rate fibers per IHC
 
         :return: the AN population response.
         """
@@ -92,9 +91,9 @@ class AuditoryNerveResponse:
         self.lowSR = lsr
         self.medSR = msr
         self.highSR = hsr
-        if self.periph.conf.modelType == PeripheryType.verhulst:
+        if self.periph.conf.modelType == PeripheryType.VERHULST:
             self.ANR = (lsr + msr + hsr) * self.M1
-        elif self.periph.conf.modelType == PeripheryType.zilany:
+        elif self.periph.conf.modelType == PeripheryType.ZILANY:
             self.ANR = (lsr + msr + hsr) * self.Z1
         else:
             raise TypeError("periphery type {} not found".format(self.periph.conf.modelType.name))
@@ -112,17 +111,18 @@ class AuditoryNerveResponse:
         “Contribution of auditory nerve fibers to compound action potential of the auditory nerve,” J. Neurophysiol.,
         112, 1025–1039. doi:10.1152/jn.00738.2013
         """
-        # The SR cutoff used by Temchin et. al. for "low SR" is 18.
-        # The Verhulst model's medium and low SR fibers (10 and 1 ) are both below that threshold, so we assign half weight to each.
-        # scale the percentages to "fiber counts" by multiplying by how many fibers are present on a healthy IHC.
-        # getting non-integer values for "number of fibers" is OK here; we're modeling population-level behavior.
+        # The SR cutoff used by Temchin et. al. for "low SR" is 18. The Verhulst model's medium and low SR fibers (10
+        #  and 1 ) are both below that threshold, so we assign half weight to each. scale the percentages to "fiber
+        # counts" by multiplying by how many fibers are present on a healthy IHC. getting non-integer values for
+        # "number of fibers" is OK here; we're modeling population-level behavior.
         return (total_fiber_scaling_factor * np.array([self.percent_sr(c) / 2 for c in self.cf]),
                 total_fiber_scaling_factor * np.array([self.percent_sr(c) / 2 for c in self.cf]),
                 total_fiber_scaling_factor * np.array([1 - self.percent_sr(c) for c in self.cf]))
 
     def percent_sr(self, cf):
         """
-        Returns the  percentage of AN fibers with a SR < 18 s/s as a function of CF, per Temchin and Ruggero (2008).  Distribution is modeled as a logistic function.
+        Returns the  percentage of AN fibers with a SR < 18 s/s as a function of CF, per Temchin and Ruggero (2008).
+        Distribution is modeled as a logistic function.
         """
         # k r and t0 were optimized externally.
         k = 22

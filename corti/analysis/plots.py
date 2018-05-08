@@ -13,8 +13,8 @@ import numpy as np
 import yaml
 from matplotlib.backends.backend_pdf import PdfPages
 
-from core.base import runtime_consts as r, periph_consts as p, brain_consts as b
-from core.periphery_configuration import PeripheryOutput, PeripheryConfiguration
+from corti.base import runtime_consts as r, periph_consts as p, brain_consts as b
+from corti.periphery_configuration import PeripheryOutput, PeripheryConfiguration
 
 plt.style.use("seaborn-colorblind")
 

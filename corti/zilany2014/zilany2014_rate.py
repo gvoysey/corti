@@ -24,7 +24,8 @@ import numpy as np
 import pandas as pd
 
 from . import _zilany2014
-from . util import calc_cfs
+from .util import calc_cfs
+
 
 def run_zilany2014_rate(
         sound,
@@ -60,7 +61,6 @@ def run_zilany2014_rate(
     assert sound.ndim == 1
     assert species in ('cat', 'human')
 
-
     if isinstance(anf_types, str):
         anf_types = [anf_types]
 
@@ -81,7 +81,6 @@ def run_zilany2014_rate(
         for cf in cfs
     ]
 
-
     ### Run model for each channel
     results = map(
         _run_channel,
@@ -89,10 +88,9 @@ def run_zilany2014_rate(
     )
     results = sum(results, [])
 
-
     columns = pd.MultiIndex.from_tuples(
-        [(r['anf_type'],r['cf']) for r in results],
-        names=['anf_type','cf']
+        [(r['anf_type'], r['cf']) for r in results],
+        names=['anf_type', 'cf']
     )
     rates = np.array([r['rate'] for r in results]).T
 
@@ -106,10 +104,7 @@ def run_zilany2014_rate(
     return rates
 
 
-
-
 def _run_channel(args):
-
     fs = args['fs']
     cf = args['cf']
     signal = args['signal']
@@ -119,7 +114,6 @@ def _run_channel(args):
     anf_types = args['anf_types']
     species = args['species']
     ffGn = args['ffGn']
-
 
     ### Run BM, IHC
     vihc = _zilany2014.run_ihc(
@@ -131,13 +125,10 @@ def _run_channel(args):
         cihc=float(cihc)
     )
 
-
     duration = len(vihc) / fs
-
 
     rates = []
     for anf_type in anf_types:
-
         ### Run synapse
         synout = _zilany2014.run_synapse(
             fs=fs,
@@ -149,7 +140,7 @@ def _run_channel(args):
         )
 
         rates.append({
-            'rate': synout / (1 + 0.75e-3*synout),
+            'rate': synout / (1 + 0.75e-3 * synout),
             'cf': cf,
             'anf_type': anf_type
         })
