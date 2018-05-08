@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
 Corti: A tool for subcortical models of the auditory system.
 

@@ -3,6 +3,7 @@ import logging
 import numpy as np
 # noinspection PyPackageRequirements
 import progressbar
+import tqdm
 from os import path
 
 from corti.base import runtime_consts, brain_consts as b, periph_consts as p, BrainstemType
@@ -66,25 +67,25 @@ class CentralAuditoryResponse:
     def _shift(self, delay: float) -> int:
         return int(round(delay * self.Fs))
 
-    def __alpha(self, scalingFactor: float) -> np.ndarray:
+    def __alpha(self, scaling_factor: float) -> np.ndarray:
         """Make an alpha function of the form
         $\frac{1}{sF^2}*\vec{t}*e^{\frac{-\vec{t}}{sF}}$
         """
         # noinspection PyTypeChecker
-        return np.multiply((1 / (scalingFactor ** 2)) * self.time, np.exp(((-1 * self.time) / scalingFactor)))
+        return np.multiply((1 / (scaling_factor ** 2)) * self.time, np.exp(((-1 * self.time) / scaling_factor)))
 
     def _excitation_wave(self, tex: float) -> np.ndarray:
         """A bare wrapper around the alpha generator, for readability and clarity."""
         return self.__alpha(tex)
 
-    def _inhibition_wave(self, s: float, Tin: float, delay: float) -> np.ndarray:
+    def _inhibition_wave(self, s: float, T_in: float, delay: float) -> np.ndarray:
         """ Make the DCN or ICN inhibition component.
         Returns $S_{cn}*\frac{1}{t_{in}^2}*\vec{t}*e^{\frac{-\vec{t}}{t_{in}}}$ time shifted by delay (an alpha function)
         :param s: some weighting factor
         :param delay: time period, in units of (Fs^-1)s.  This value will be converted to an integer number of samples.
         """
         lag = self._shift(delay)
-        inhibition = s * self.__alpha(Tin)
+        inhibition = s * self.__alpha(T_in)
         return np.pad(inhibition, (lag, 0), 'constant')[:-lag]
 
     def _cn(self, cf) -> np.ndarray:
@@ -168,24 +169,23 @@ class CentralAuditoryResponse:
         RicF = np.zeros((cfCount, timeLen))
         RcnF = np.zeros((cfCount, timeLen))
 
-        with progressbar.ProgressBar(max_value=cfCount) as bar:
-            for i in range(cfCount):
+        for i in tqdm(range(cfCount)):
 
-                Rcn = self._cn(i)
-                if weights is not None:
-                    Ric = self.__simulate_IC(self.brainstemType, Rcn, weights)
-                else:
-                    Ric = self.__simulate_IC(self.brainstemType, Rcn)
+            Rcn = self._cn(i)
+            if weights is not None:
+                Ric = self.__simulate_IC(self.brainstemType, Rcn, weights)
+            else:
+                Ric = self.__simulate_IC(self.brainstemType, Rcn)
 
-                if i <= self.cutoffCf:
-                    W1 += AN[:, i]
-                    CN += Rcn[0:timeLen]
-                    IC += Ric[0:timeLen]
+            if i <= self.cutoffCf:
+                W1 += AN[:, i]
+                CN += Rcn[0:timeLen]
+                IC += Ric[0:timeLen]
 
-                RanF[i, :] = AN[:, i]
-                RicF[i, :] = Ric[0:timeLen]  # chop off the duplicated convolution side
-                RcnF[i, :] = Rcn[0:timeLen]  # chop off the duplicated convolution side
-                bar.update(i)
+            RanF[i, :] = AN[:, i]
+            RicF[i, :] = Ric[0:timeLen]  # chop off the duplicated convolution side
+            RcnF[i, :] = Rcn[0:timeLen]  # chop off the duplicated convolution side
+
         return {
             b.BrainstemModelType: self.brainstemType.name,
             b.Wave1_AN    : W1,
