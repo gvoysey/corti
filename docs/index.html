@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2018-05-07 Mon 20:04 -->
+<!-- 2018-05-07 Mon 20:38 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Corti</title>
@@ -256,18 +256,150 @@ for the JavaScript code in this tag.
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#org250bfcd">1. Introduction</a></li>
+<li><a href="#orgd909b5b">1. Introduction</a>
+<ul>
+<li><a href="#org9ff13c6">1.1. Citing this software</a></li>
+</ul>
+</li>
+<li><a href="#orgb195cb3">2. Installation</a>
+<ul>
+<li><a href="#org108b108">2.1. Contributing</a></li>
+</ul>
+</li>
+<li><a href="#orgca61ecb">3. Usage</a></li>
+<li><a href="#orga6fac38">4. API</a></li>
 </ul>
 </div>
 </div>
 
-<div id="outline-container-org250bfcd" class="outline-2">
-<h2 id="org250bfcd"><span class="section-number-2">1</span> Introduction</h2>
+<div id="outline-container-orgd909b5b" class="outline-2">
+<h2 id="orgd909b5b"><span class="section-number-2">1</span> Introduction</h2>
+<div class="outline-text-2" id="text-1">
+<p>
+This repository contains a runtime environment for models of the auditory periphery,
+brainstem, and midbrain.  The model(s) are adapted from Verhulst et. al (2012,15),
+Nelson and Carney (2004), Carney (2015), and Zilany and Bruce (2014).
+</p>
+
+<p>
+It is implemented in Python &gt;=3.6, and currently supports OSX, Linux, and 64-bit
+Windows.
+</p>
+
+<p>
+The goal of this work is to explore the effects of Auditory Neuropathy on
+representations of complex sounds throughout the early stages of the auditory system.
+</p>
+
+<p>
+One model of the auditory periphery is simulated using the model developed by
+Verhulst et. al., hosted <a href="https://github.com/AuditoryBiophysicsLab/verhulst-model-core">here</a>.  This model <b><b>will not be available</b></b> without that
+module installed; contact @gvoysey for access.
+</p>
+
+<p>
+The scientific basis of this code is discussed at length in my <a href="https://github.com/gvoysey/thesis">thesis.</a>
+</p>
+</div>
+
+<div id="outline-container-org9ff13c6" class="outline-3">
+<h3 id="org9ff13c6"><span class="section-number-3">1.1</span> Citing this software</h3>
+<div class="outline-text-3" id="text-1-1">
+<p>
+This code may be cited as:
+</p>
+<div class="org-src-container">
+<pre class="src src-text">Graham Voysey et al.. (2016). *Corti*: version 0.9. Zenodo. 10.5281/zenodo.57111
+</pre>
+</div>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgb195cb3" class="outline-2">
+<h2 id="orgb195cb3"><span class="section-number-2">2</span> Installation</h2>
+<div class="outline-text-2" id="text-2">
+<p>
+This repository may be installed with <code>pip</code>, the python package manager:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash">pip install git+https://github.com/gvoysey/thesis-code.git@&lt;TAG&gt;
+</pre>
+</div>
+
+<p>
+where <code>&lt;TAG&gt;</code> is a valid <a href="https://github.com/gvoysey/thesis-code/releases">release</a>, or <code>@master</code>, to get the latest build from the master branch.
+</p>
+
+<p>
+If you have cloned this repository locally and are running it in a virtual
+environment (like you should be!), you can also install it from the cloned repo for
+development purposes.
+</p>
+</div>
+
+<div id="outline-container-org108b108" class="outline-3">
+<h3 id="org108b108"><span class="section-number-3">2.1</span> Contributing</h3>
+<div class="outline-text-3" id="text-2-1">
+<p>
+If you plan on developing this model further, please fork this repo and send me
+(@gvoysey) a pull request when you want me to integrate the changes upstream.
+</p>
+
+<p>
+The easy way to install this repo locally is with the command
+</p>
+<div class="org-src-container">
+<pre class="src src-python">pip install git+<span style="color: #BF93C3;">file</span>:///path/to/your/git/repo@mybranch`
+</pre>
+</div>
+
+<p>
+or in develoment mode as
+</p>
+<div class="org-src-container">
+<pre class="src src-python">git clone https://github.com/gvoysey/corti /path/to/the/corti/repo
+pip install -e /path/to/the/corti/repo
+</pre>
+</div>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgca61ecb" class="outline-2">
+<h2 id="orgca61ecb"><span class="section-number-2">3</span> Usage</h2>
+<div class="outline-text-2" id="text-3">
+<p>
+<code>corti</code> provides three major entry points.
+</p>
+
+<ol class="org-ol">
+<li><code>corti</code> is the main application.  It allows you to load stimuli, configure model
+parameters, run model, plot outputs, etc. in a single-threaded local application.
+Run <code>corti --help</code> for full usage.</li>
+
+<li><code>stimulus_generator</code> allows you to configure stimuli from WAV files or generate
+stimuli configuration templates.  This is not very fleshed out as of May 2018.</li>
+
+<li></li>
+</ol>
+</div>
+</div>
+
+<div id="outline-container-orga6fac38" class="outline-2">
+<h2 id="orga6fac38"><span class="section-number-2">4</span> API</h2>
+<div class="outline-text-2" id="text-4">
+<ul class="org-ul">
+<li>Real Soon Now.</li>
+<li></li>
+</ul>
+</div>
 </div>
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Graham Voysey</p>
-<p class="date">Created: 2018-05-07 Mon 20:04</p>
+<p class="date">Created: 2018-05-07 Mon 20:38</p>
 <p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

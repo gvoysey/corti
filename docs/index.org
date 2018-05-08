@@ -27,4 +27,71 @@
 #+EMAIL: gvoysey@bu.edu
 
 * Introduction
+This repository contains a runtime environment for models of the auditory periphery,
+brainstem, and midbrain.  The model(s) are adapted from Verhulst et. al (2012,15),
+Nelson and Carney (2004), Carney (2015), and Zilany and Bruce (2014).
+
+It is implemented in Python >=3.6, and currently supports OSX, Linux, and 64-bit
+Windows.
+
+The goal of this work is to explore the effects of Auditory Neuropathy on
+representations of complex sounds throughout the early stages of the auditory system.
+
+One model of the auditory periphery is simulated using the model developed by
+Verhulst et. al., hosted [[https://github.com/AuditoryBiophysicsLab/verhulst-model-core][here]].  This model **will not be available** without that
+module installed; contact @gvoysey for access.
+
+The scientific basis of this code is discussed at length in my [[https://github.com/gvoysey/thesis][thesis.]]
+
+** Citing this software
+This code may be cited as:
+#+begin_src text
+Graham Voysey et al.. (2016). *Corti*: version 0.9. Zenodo. 10.5281/zenodo.57111
+#+end_src
+
+* Installation
+This repository may be installed with =pip=, the python package manager:
+
+#+begin_src bash
+pip install git+https://github.com/gvoysey/thesis-code.git@<TAG>
+#+end_src
+
+where =<TAG>= is a valid [[https://github.com/gvoysey/thesis-code/releases][release]], or =@master=, to get the latest build from the master branch.
+
+If you have cloned this repository locally and are running it in a virtual
+environment (like you should be!), you can also install it from the cloned repo for
+development purposes.
+
+** Contributing
+If you plan on developing this model further, please fork this repo and send me
+(@gvoysey) a pull request when you want me to integrate the changes upstream.
+
+The easy way to install this repo locally is with the command
+#+begin_src python
+pip install git+file:///path/to/your/git/repo@mybranch`
+#+end_src
+
+or in develoment mode as
+#+begin_src python
+git clone https://github.com/gvoysey/corti /path/to/the/corti/repo
+pip install -e /path/to/the/corti/repo
+#+end_src
+
+* Usage
+
+=corti= provides three major entry points.
+
+1.  =corti= is the main application.  It allows you to load stimuli, configure model
+   parameters, run model, plot outputs, etc. in a single-threaded local application.
+   Run =corti --help= for full usage.
+
+2.  =stimulus_generator= allows you to configure stimuli from WAV files or generate
+   stimuli configuration templates.  This is not very fleshed out as of May 2018.
+
+3.  
+
+* API
+ - Real Soon Now.
+ - 
+
 
