@@ -17,9 +17,13 @@ test:
 	@pipenv run pytest --cov-report term-missing --cov=${WHEEL} tests/
 
 lint:
+	@echo "======== PYLINT ======="
 	@pipenv run pylint --rcfile=.pylintrc ${WHEEL} -f parseable -r n
+	@echo "======== MYPY ======="
 	@pipenv run mypy --ignore-missing-imports --follow-imports=skip ${WHEEL}
+	@echo "======== PYCODESTYLE ======="
 	@pipenv run pycodestyle ${WHEEL} --max-line-length=120
+	@echo "======== PYDOCSTYLE ======="
 	@pipenv run pydocstyle ${WHEEL}
 
 # Define all non-file tagets here
