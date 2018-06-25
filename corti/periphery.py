@@ -1,14 +1,59 @@
 import logging
-from datetime import datetime
-
-import numpy as np
 import os
-import yaml
+from datetime import datetime
+from enum import Enum
 from os import path
+from pathlib import Path
 
-from corti.base import runtime_consts, periph_consts as p, PeripheryType
-from corti.periphery_configuration import PeripheryConfiguration, PeripheryOutput
+import attr
+import numpy as np
+import yaml
+from attr.validators import instance_of
+
+from corti.base import runtime_consts, periph_consts as p, PeripheryType, stim_consts as sc, PeripheryOutput
 from corti.zilany2014 import run_zilany2014
+
+
+@attr.s
+class PeripheryConfiguration:
+    """
+        A PODS holding all the parameters that used to be in input.mat and fully define what's
+        needed to run the model.  Default values come from RUN_BMAN.m
+        :parameter self.Fs: Model sampling frequency. (default 100 kHz)
+        :parameter self.Implementation: unknown, default 0
+        :parameter self.NumberOfSections: number of basilar membrane sections to simulate (1000)
+    """
+
+    # Magic Constants.
+    # Sampling frequency. No idea why Fs is so high.
+    Fs = attr.ib(default=100000, init=False)
+    # no idea what this does (it's not used as of commit 43bf3be01)
+    Implementation = attr.ib(default=0, init=False)
+    # possibly also "number of frequency bands", if there's a 1:1 between section and cf.
+    NumberOfSections = attr.ib(default=1000, init=False)
+
+    # normal params
+    data_folder = attr.ib(converter=Path)
+    store_flag = attr.ib(validator=instance_of(str))
+    stimuli = attr.ib(validator=instance_of(dict))
+    model_type = attr.ib(validator=instance_of(PeripheryType))
+    degradation = attr.ib()
+    pypet = attr.ib(validator=instance_of(bool), converter=bool)
+    run_timestamp = datetime.utcnow()
+
+    def __attrs_post_init__(self):
+        self.stimulusLevels = self.stimuli[sc.Levels]
+        self.stimulus = self.stimuli[sc.Stimulus]
+
+        if self.model_type == PeripheryType.VERHULST:
+            # this might be unused.  todo
+            self.normalizedRMS = np.zeros(len(self.stimulusLevels))
+            self.irregularities = [1] * len(self.stimulusLevels)
+            # these are more general
+            self.probeString = ProbeType.ALL.name  # sometimes called "Fc".
+            self.random_seed = 1
+            self.irrPct = 0.05
+            self.nonlinearType = "vel"  # todo this is defined in two places
 
 
 class Periphery:
@@ -17,16 +62,15 @@ class Periphery:
 
     def __init__(self, conf: PeripheryConfiguration):
         self.conf = conf
-        self.storeFlag = self.conf.storeFlag
+        self.store_flag = self.conf.store_flag
         self.stimulus = self.conf.stimulus
         self.Fs = self.conf.Fs
         if not conf.pypet:
-            self.output_folder = path.join(self.conf.dataFolder
-                                           , datetime.now().strftime(runtime_consts.ResultDirectoryNameFormat))
-            if not path.isdir(self.output_folder):
+            self.output_folder = self.conf.data_folder/datetime.now().strftime(runtime_consts.ResultDirectoryNameFormat)
+            if not self.output_folder.is_dir():
                 os.makedirs(self.output_folder)
 
-        if self.conf.modelType == PeripheryType.VERHULST:
+        if self.conf.model_type == PeripheryType.VERHULST:
             try:
                 # noinspection PyUnresolvedReferences
                 from verhulst_model_core import polesPath, CochleaModel
@@ -49,11 +93,11 @@ class Periphery:
         :return: A list of output data, one for each stimulus level
         """
         results = []
-        if self.conf.modelType == PeripheryType.VERHULST:
+        if self.conf.model_type == PeripheryType.VERHULST:
             for i, v in enumerate(self.cochlear_list):
                 results.append(self.solve_one_cochlea(v))
                 self.save_model_results(i, results[i].output)
-        elif self.conf.modelType == PeripheryType.ZILANY:
+        elif self.conf.model_type == PeripheryType.ZILANY:
             for i, v in enumerate(self.conf.stimulus):
                 try:
                     output = self.output_folder
@@ -71,7 +115,7 @@ class Periphery:
                 self.save_model_results(i, results[i].output)
 
         else:
-            raise NotImplementedError("Peripheral model '{0}' was not recognized".format(self.conf.modelType))
+            raise NotImplementedError("Peripheral model '{0}' was not recognized".format(self.conf.model_type))
 
         self.save_model_configuration()
         return results
@@ -130,7 +174,7 @@ class Periphery:
     def save_model_results(self, ii: int, periph: {}) -> None:
         """ store the parts of the periphery output specified in storeflag.
         """
-        if self.conf.pypet or not self.storeFlag:
+        if self.conf.pypet or not self.store_flag:
             return
         tm = lambda x: (x, periph[x] if x in periph else None)
         # saveMap makes a dict of tuples. the key is the storeFlag character,
@@ -151,7 +195,7 @@ class Periphery:
         }
         # {k:v for k,v in bar.items() if k in foo}
         # walk through the map and save the stuff we said we should.
-        tosave = {key: value for key, value in saveMap.items() if key in self.storeFlag and value[1] is not None}
+        tosave = {key: value for key, value in saveMap.items() if key in self.store_flag and value[1] is not None}
         if not tosave:
             return
         outfile = runtime_consts.PeripheryOutputFilePrefix + str(self.conf.stimulusLevels[ii]) + "dB"
@@ -166,3 +210,8 @@ class Periphery:
             yaml.dump(self.conf, _)
             logging.info("wrote {} to {}".format(runtime_consts.PeripheryConfigurationName,
                                                  path.abspath(self.output_folder)))
+
+
+class ProbeType(Enum):
+    ALL = "all"
+    HALF = "half"

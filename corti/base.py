@@ -1,18 +1,17 @@
-import os
 import warnings
 from enum import Enum, auto
 from logging import basicConfig, INFO
-from os import path
+from pathlib import Path
 
 import attr
 
 
-def sanitize_level(levels: str):
+def sanitize_level(levels: str, delim=','):
     """ Takes a string list of level parameters and converts them to a list of floats.
     """
     if levels is None:
         return
-    return [float(f) for f in levels.split(",") if levels and f]
+    return [float(f) for f in levels.split(delim) if levels and f]
 
 
 class PeripheryType(Enum):
@@ -108,13 +107,26 @@ class StimulusConstants:
 stim_consts = StimulusConstants()
 
 # This is the path of __this file__, which we can then base location on
-modulePath = os.path.dirname(os.path.abspath(__file__))
+modulePath = Path(__file__).parent.resolve()
 
 # other paths relative to root
-stimulusTemplatePath = path.join(modulePath, runtime_consts.ResourceDirectoryName
-                                 , runtime_consts.StimulusTemplateName)
+stimulusTemplatePath = modulePath/runtime_consts.ResourceDirectoryName/runtime_consts.StimulusTemplateName
 
 # PyYAML and blessed have some warnings we'll suppress
 warnings.simplefilter(action="ignore", category=(FutureWarning, UserWarning))
 # By default, log INFO and up.
 basicConfig(format='%(levelname)s %(asctime)s- %(message)s', datefmt='%d %b %H:%M:%S', level=INFO)
+
+
+@attr.s
+class PeripheryOutput:
+    """
+        PeripheryOutput:
+            :parameter self.output: a dict containing the output from the periphery.
+            :parameter self.conf: the configuration that generated these outputs
+            :type self.conf: corti.periphery.PeripheryConfiguration
+        :return:
+    """
+    output = attr.ib(default=None)
+    conf = attr.ib(default=None)
+    outputFolder = attr.ib(default=None)

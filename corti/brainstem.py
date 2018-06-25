@@ -1,13 +1,11 @@
 import logging
+from os import path
 
 import numpy as np
 # noinspection PyPackageRequirements
-import progressbar
-import tqdm
-from os import path
+from tqdm import tqdm
 
-from corti.base import runtime_consts, brain_consts as b, periph_consts as p, BrainstemType
-from corti.periphery_configuration import PeripheryOutput
+from corti.base import runtime_consts, brain_consts as b, periph_consts as p, BrainstemType, PeripheryOutput
 
 
 def simulate_brainstem(anResults: [(PeripheryOutput, np.ndarray, str)]) -> [{}]:

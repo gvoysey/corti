@@ -1,20 +1,19 @@
 import glob
 from datetime import datetime
 from logging import info, error
-
-import matplotlib
 from os import path, walk
 
+import matplotlib
 matplotlib.use('PDF')
-import matplotlib.gridspec as gridspec
+
 import matplotlib.pyplot as plt
 import matplotlib.colors as colors
 import numpy as np
 import yaml
 from matplotlib.backends.backend_pdf import PdfPages
 
-from corti.base import runtime_consts as r, periph_consts as p, brain_consts as b
-from corti.periphery_configuration import PeripheryOutput, PeripheryConfiguration
+from corti.base import runtime_consts as r, periph_consts as p, brain_consts as b, PeripheryOutput
+from corti.periphery import PeripheryConfiguration
 
 plt.style.use("seaborn-colorblind")
 
@@ -23,10 +22,10 @@ plt.style.use("seaborn-colorblind")
 def plot_periphery(periph: {}, conf: PeripheryConfiguration, pdf: PdfPages) -> plt.Figure:
     figure = plt.figure(1, (8.5, 11), dpi=300)
     figure.suptitle(
-            "{} Model Output: stimulus level {}dB SPL\n".format(conf.modelType.name.title(), periph[p.StimulusLevel]),
+            "{} Model Output: stimulus level {}dB SPL\n".format(conf.model_type.name.title(), periph[p.StimulusLevel]),
             fontsize=18)
 
-    gs = gridspec.GridSpec(6, 4)
+    gs = plt.GridSpec(6, 4)
 
     # Plot the stimulus
     stimulus = periph[p.Stimulus]
@@ -110,7 +109,7 @@ def plot_brainstem(brain: {}, conf: PeripheryConfiguration, pdf: PdfPages) -> pl
     figure = plt.figure(2, (8.5, 11), dpi=300)
     # figure.suptitle("{} Model Output: stimulus level {}dB SPL\n".format(conf.modelType.name.title(),
     #    str(brain[b.BrainstemModelType]).title()))
-    gs = gridspec.GridSpec(6, 4)
+    gs = plt.GridSpec(6, 4)
 
     # Plot the ABR
     abr = brain[b.Wave1_AN] + brain[b.Wave3_CN] + brain[b.Wave5_IC]

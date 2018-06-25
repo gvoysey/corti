@@ -18,8 +18,6 @@
 
 from __future__ import division, print_function, absolute_import
 
-import progressbar
-
 __author__ = "Marek Rudnicki"
 
 import numpy as np
@@ -27,8 +25,7 @@ import numpy as np
 from . import _zilany2014
 from .util import calc_cfs
 from .zilany2014_rate import run_zilany2014_rate
-from corti.base import periph_consts as p
-from corti.periphery import PeripheryOutput, PeripheryConfiguration
+from corti.base import periph_consts as p, PeripheryOutput
 from tqdm import tqdm
 
 
@@ -77,7 +74,7 @@ def run_zilany2014(
         Species.
     seed : int
         Random seed for the spike generator.
-    conf: PeripheryConfiguration
+    conf: corti.periphery.PeripheryConfiguration
         Runtime data.
     cohc : float <0-1>, optional
         Degredation of the outer hair cells.

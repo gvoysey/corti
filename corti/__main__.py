@@ -65,8 +65,7 @@ from corti.auditory_nerve_response import AuditoryNerveResponse
 from corti.base import runtime_consts, PeripheryType, an_consts as a, sanitize_level
 from corti.brainstem import simulate_brainstem
 from corti.from_docopt import from_docopt
-from corti.periphery import Periphery
-from corti.periphery_configuration import PeripheryConfiguration
+from corti.periphery import Periphery, PeripheryConfiguration
 from corti.stimulus import Stimulus
 
 
@@ -90,10 +89,10 @@ def main(args):
     # actually run the simulation
     system('cls' if name == 'nt' else 'clear')
     # configure the periphery to run
-    conf = PeripheryConfiguration(dataFolder=set_output_dir(args.out, args.pypet),
-                                  storeFlag=args.pSave,
+    conf = PeripheryConfiguration(data_folder=set_output_dir(args.out, args.pypet),
+                                  store_flag=args.pSave,
                                   stimuli=stimuli_dict,
-                                  modelType=PeripheryType[args.peripheryType.upper()],
+                                  model_type=PeripheryType[args.peripheryType.upper()],
                                   degradation=args.neuropathy,
                                   pypet=args.pypet)
     info("Simulating periphery ({0}) response ...".format(args.peripheryType))
