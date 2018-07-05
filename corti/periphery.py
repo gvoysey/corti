@@ -41,6 +41,13 @@ class PeripheryConfiguration:
     pypet = attr.ib(validator=instance_of(bool), converter=bool)
     run_timestamp = datetime.utcnow()
 
+    def to_dict(self):
+        temp = attr.asdict(self)
+        temp['data_folder'] = str(temp['data_folder'])
+        temp['model_type'] = temp['model_type'].name
+        temp['stimuli']['stimulus'] = temp['stimuli']['stimulus'].tolist()
+        return temp
+
     def __attrs_post_init__(self):
         self.stimulusLevels = self.stimuli[sc.Levels]
         self.stimulus = self.stimuli[sc.Stimulus]
@@ -206,10 +213,10 @@ class Periphery:
         if self.conf.pypet:
             return
         # and store the configuration parameters so we know what we did.
-        with open(path.join(self.output_folder, runtime_consts.PeripheryConfigurationName), "w") as _:
-            yaml.dump(self.conf, _)
+        with open(path.join(self.output_folder, runtime_consts.PeripheryConfigurationName), "w") as f:
+            yaml.dump(self.conf.to_dict(), f)
             logging.info("wrote {} to {}".format(runtime_consts.PeripheryConfigurationName,
-                                                 path.abspath(self.output_folder)))
+                                                 self.output_folder.resolve()))
 
 
 class ProbeType(Enum):

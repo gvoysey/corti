@@ -16,6 +16,9 @@ pandas = "*"
 pypet="*"
 attrs="*"
 tqdm = "*"
+seaborn = "*"
+cattrs = "*"
+toml = "*"
 
 [dev-packages]
 ipython = "*"
