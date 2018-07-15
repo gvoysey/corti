@@ -89,12 +89,12 @@ def main(args):
     # actually run the simulation
     system('cls' if name == 'nt' else 'clear')
     # configure the periphery to run
-    conf = PeripheryConfiguration(data_folder=set_output_dir(args.out, args.pypet),
-                                  store_flag=args.pSave,
-                                  stimuli=stimuli_dict,
-                                  model_type=PeripheryType[args.peripheryType.upper()],
-                                  degradation=args.neuropathy,
-                                  pypet=args.pypet)
+    conf = PeripheryConfiguration(data_folder=set_output_dir(args.out, args.pypet)
+                                  , store_flag=args.pSave
+                                  , stimuli=stimuli_dict
+                                  , model_type=PeripheryType[args.peripheryType.upper()]
+                                  , degradation=args.neuropathy
+                                  , pypet=args.pypet)
     info("Simulating periphery ({0}) response ...".format(args.peripheryType))
 
     # run all the levels through the periphery model
@@ -104,11 +104,11 @@ def main(args):
     info("Simulating auditory nerve response ...")
 
     if args.no_cf_weighting:
-        auditory_nerve_responses = [AuditoryNerveResponse(p, args.neuropathy).unweighted_an_response() for p in
-                                    periphery_results]
+        auditory_nerve_responses = [AuditoryNerveResponse(p, args.neuropathy).unweighted_an_response()
+                                    for p in periphery_results]
     else:
-        auditory_nerve_responses = [AuditoryNerveResponse(p, args.neuropathy).cf_weighted_an_response() for p in
-                                    periphery_results]
+        auditory_nerve_responses = [AuditoryNerveResponse(p, args.neuropathy).cf_weighted_an_response()
+                                    for p in periphery_results]
 
     # run the brainstem and midbrain models, if requested
     if not args.noBrainstem:
@@ -122,12 +122,12 @@ def main(args):
     # Generate summary plots
     if not args.pypet:
         info("Generating summary figures ...")
-        save_summary_pdf(periphery=periphery_results,
-                         brain=brain_results,
-                         anr=auditory_nerve_responses,
-                         conf=conf,
-                         fileName="summary-plots.pdf",
-                         outputPath=periphery_results[0].outputFolder)
+        save_summary_pdf(periphery=periphery_results
+                         , brain=brain_results
+                         , anr=auditory_nerve_responses
+                         , conf=conf
+                         , fileName="summary-plots.pdf"
+                         , outputPath=periphery_results[0].outputFolder)
 
     # Delete old runs, if requested.
     if args.clean:

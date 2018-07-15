@@ -4,6 +4,7 @@ from logging import info, error
 from os import path, walk
 
 import matplotlib
+
 matplotlib.use('PDF')
 
 import matplotlib.pyplot as plt
@@ -11,6 +12,7 @@ import matplotlib.colors as colors
 import numpy as np
 import yaml
 from matplotlib.backends.backend_pdf import PdfPages
+from scipy.signal import spectrogram
 
 from corti.base import runtime_consts as r, periph_consts as p, brain_consts as b, PeripheryOutput
 from corti.periphery import PeripheryConfiguration
@@ -40,9 +42,9 @@ def plot_periphery(periph: {}, conf: PeripheryConfiguration, pdf: PdfPages) -> p
 
     # Plot Stimulus spectrogram
     stim_spec = plt.subplot(gs[1, 2:])
-    pxx, f, t, cax = stim_spec.specgram(stimulus, NFFT=1024, Fs=conf.Fs, noverlap=900,
-                                        cmap=plt.cm.plasma)
-    figure.colorbar(cax).set_label('Energy')
+    f, t, sxx = spectrogram(stimulus, nfft=1024, fs=conf.Fs)
+    stim_spec.pcolormesh(t, f, sxx, cmap=plt.cm.plasma)
+    # figure.colorbar(cax).set_label('Energy')
     stim_spec.set_xlabel("Time (s)")
     stim_spec.set_ylabel("Frequency, Hz")
     stim_spec.set_title("Stimulus spectrogram (fft window 1024)\n")
@@ -75,7 +77,7 @@ def plot_periphery(periph: {}, conf: PeripheryConfiguration, pdf: PdfPages) -> p
     meds.set_ylabel("Frequency, Hz")
     meds.set_title("Medium SR fibers\n")
 
-    lows = plt.subplot(gs[5:-1, :-2])
+    lows = plt.subplot(gs[4:-1, :-2])
     axl = lows.imshow(periph[p.AuditoryNerveFiberLowSpont].T, extent=extents, cmap=plt.cm.plasma, vmin=_low, vmax=_high)
     # norm=colors.SymLogNorm(linthresh=0.01,vmin=_low, vmax=_high))
     plt.colorbar(axl).set_label('IFR')
@@ -87,7 +89,7 @@ def plot_periphery(periph: {}, conf: PeripheryConfiguration, pdf: PdfPages) -> p
     # highs.set_xticklabels(time)
     # highs.set_yticklabels(periph[p.CenterFrequency])
 
-    anrs = plt.subplot(gs[5:-1, 2:])
+    anrs = plt.subplot(gs[4:-1, 2:])
     summed = periph[p.AuditoryNerveFiberLowSpont] + periph[p.AuditoryNerveFiberMediumSpont] + periph[
         p.AuditoryNerveFiberHighSpont]
     axa = anrs.imshow(summed.T, extent=extents, cmap=plt.cm.plasma,
